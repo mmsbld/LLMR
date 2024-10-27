@@ -1,4 +1,8 @@
-# <img src="LLMR/Assets/logo_wide.png" alt="Project Logo" width="50%" /> LLMR
+<picture>
+  <source srcset="LLMR/Assets/logo_wide_DARK.png" media="(prefers-color-scheme: dark)">
+  <img src="LLMR/Assets/logo_wide.png" alt="Project Logo" width="50%">
+</picture> LLMR
+
 
 
 Hi Jan! 👋 Welcome to our **LLMR** repository. Here's the deal: this is where the magic will happen, sort of. It's still a bit of a work-in-progress (hello, bugs 🐛), but it's already cool and you have to check it out!
