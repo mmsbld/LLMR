@@ -1,0 +1,718 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:LLMR.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="https://github.com/projektanker/icons.avalonia"
+        xmlns:modelParameters="clr-namespace:LLMR.Models.ModelSettingsManager.ModelParameters"
+        xmlns:chatHistoryManager="clr-namespace:LLMR.Models.ChatHistoryManager"
+        xmlns:helpers="clr-namespace:LLMR.Helpers"
+        mc:Ignorable="d"
+        x:Class="LLMR.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="LLMR"
+        Width="1200" Height="800"
+        FontFamily="Segoe UI, Arial, sans-serif"
+        Background="#F5F5F5">
+
+    <Window.Resources>
+        <helpers:PercentageConverter x:Key="PercentageConverter"/>
+        <helpers:NullToBoolConverter x:Key="NullToBoolConverter"/>
+    </Window.Resources>
+
+    <Window.Styles>
+        <!-- general styles -->
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="#444444"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+        </Style>
+        <Style Selector="TextBlock.bold">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- button styles -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderBrush" Value="#BDBDBD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderBrush" Value="#BDBDBD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="Button.danger">
+            <Setter Property="Background" Value="#E57373"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- confirm btn  -->
+        <Style Selector="Button.confirm">
+            <Setter Property="Background" Value="#205322"/> 
+            <Setter Property="Foreground" Value="#FFFFFF"/> 
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <!-- hover -->
+        <Style Selector="Button.confirm:pointerover">
+            <Setter Property="Foreground" Value="#000000"/> 
+            <Setter Property="Background" Value="#E0E0E0"/>
+        </Style>
+
+        <!-- pressed -->
+        <Style Selector="Button.confirm:pressed">
+            <Setter Property="Foreground" Value="#000000"/> 
+            <Setter Property="Background" Value="#E0E0E0"/>
+        </Style>
+
+        <!-- margin ALL btns -->
+        <Style Selector="Button">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#BDBDBD"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+        <Style Selector="NumericUpDown">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#BDBDBD"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#BDBDBD"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+
+        <!-- console -->
+        <Style Selector="Border.console-border">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#BDBDBD"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Padding" Value="12"/>
+        </Style>
+        <Style Selector="ScrollViewer.console-scroll">
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+
+        <!-- TabControl styles -->
+        <Style Selector="TabControl">
+            <Setter Property="TabStripPlacement" Value="Left"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="TabItem">
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#3883FF"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Normal"/> 
+        </Style>
+
+        <!-- enabled TabItem -->
+        <Style Selector="TabItem:enabled">
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <!-- TextBlocks inside TabItems -->
+        <Style Selector="TabItem TextBlock">
+            <Setter Property="FontWeight" Value="Normal"/> 
+        </Style>
+        <Style Selector="TabItem:enabled TextBlock">
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </Window.Styles>
+
+    <Window.DataTemplates>
+        <!-- IntParameter -->
+        <DataTemplate DataType="{x:Type modelParameters:IntParameter}">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="{Binding Name}" Width="150"/>
+                <NumericUpDown FormatString="N0"
+                               ParsingNumberStyle="Integer"
+                               Minimum="{Binding Min}"
+                               Maximum="{Binding Max}"
+                               Value="{Binding Value, Mode=TwoWay}"
+                               Width="200"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- DoubleParameter -->
+        <DataTemplate DataType="{x:Type modelParameters:DoubleParameter}">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="{Binding Name}" Width="150"/>
+                <NumericUpDown Minimum="{Binding Min}"
+                               Maximum="{Binding Max}"
+                               Increment="{Binding Increment}"
+                               Value="{Binding Value, Mode=TwoWay}"
+                               Width="200"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- StringParameter -->
+        <DataTemplate DataType="{x:Type modelParameters:StringParameter}">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="{Binding Name}" Width="150"/>
+                <TextBox Text="{Binding Value, Mode=TwoWay}" Width="200"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- BoolParameter -->
+        <DataTemplate DataType="{x:Type modelParameters:BoolParameter}">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="{Binding Name}" Width="150"/>
+                <CheckBox IsChecked="{Binding Value, Mode=TwoWay}"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- ChatHistoryCategory -->
+        <TreeDataTemplate DataType="{x:Type chatHistoryManager:ChatHistoryCategory}" ItemsSource="{Binding Items}">
+            <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+        </TreeDataTemplate>
+
+        <!-- ChatHistoryFile -->
+        <DataTemplate DataType="{x:Type chatHistoryManager:ChatHistoryFile}">
+            <TextBlock Text="{Binding Filename}"/>
+        </DataTemplate>
+    </Window.DataTemplates>
+
+    <!-- Main Layout -->
+    <Grid x:Name="MainWindowGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/> <!-- "toolbar" row -->
+            <RowDefinition Height="*"/>  <!-- content row -->
+            <RowDefinition Height="Auto"/> <!-- console row -->
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <DockPanel Grid.Row="0" Background="#F0F0F0" LastChildFill="False" MinHeight="50" MaxHeight="50">
+            <!-- Server Status Indicator -->
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Center">
+                <TextBlock Text="Server Status: " FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding ServerStatus}" FontSize="12" FontWeight="Bold" Foreground="{Binding ServerStatusColor}" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- always accessible BTNs -->
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                <Button Command="{Binding StopGradioServerCommand}"
+                        IsVisible="{Binding IsServerRunning}"
+                        Classes="danger"
+                        MinHeight="30"
+                        MinWidth="100">
+                    <StackPanel Orientation="Horizontal">
+                        <i:Icon Value="fa-solid fa-stop" Width="18" Height="18" Margin="0"/>
+                        <TextBlock Text="Stop Server" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <ToolTip.Tip>
+                        <ToolTip Content="Stop the running server"/>
+                    </ToolTip.Tip>
+                </Button>
+                <Button Command="{Binding BackToModelSettingsCommand}"
+                        IsVisible="{Binding IsServerRunning}"
+                        Classes="secondary"
+                        MinHeight="30"
+                        MinWidth="100">
+                    <StackPanel Orientation="Horizontal">
+                        <i:Icon Value="fa-solid fa-arrow-rotate-left" Width="18" Height="18" Margin="0"/>
+                        <TextBlock Text="Restart" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <ToolTip.Tip>
+                        <ToolTip Content="Restart the server with different settings"/>
+                    </ToolTip.Tip>
+                </Button>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Main content -->
+        <TabControl Grid.Row="1"
+                    SelectedIndex="{Binding ViewManager.SelectedTabIndex}"
+                    Margin="20"
+                    TabStripPlacement="Top">
+            <!-- Tab Items -->
+
+            <!-- Tab 0: Login -->
+            <TabItem IsEnabled="{Binding ViewManager.IsLoginEnabled}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <i:Icon Value="fa-solid fa-sign-in-alt" Width="16" Height="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Login"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <!-- content -->
+                <ScrollViewer>
+                    <StackPanel Margin="20">
+                        <!-- logo & credits  -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <Grid>
+                                    <Image Width="200" Source="avares://LLMR/Assets/logo_wide.png" HorizontalAlignment="Left"/>
+                                    <TextBlock Text="0.4.2 (pre-alpha)"
+                                               FontFamily="Consolas, Courier New, monospace"
+                                               FontWeight="Bold"
+                                               FontSize="11"
+                                               Foreground="Black"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Bottom"
+                                               Margin="0,-12,0,0"
+                                               FontStyle="Italic"/>
+                                </Grid>
+                            </Grid>
+                            <StackPanel Grid.Column="1" Margin="0" VerticalAlignment="Top" HorizontalAlignment="Right">
+                                <TextBlock Text="LLM Runner Research Helper"
+                                           FontFamily="Consolas, Courier New, monospace"
+                                           FontWeight="Bold"
+                                           FontSize="9"
+                                           HorizontalAlignment="Right"/>
+
+                                <!-- StackPanel for GitHub Link -->
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0">
+                                    <i:Icon Value="fa-brands fa-github" Width="18" Height="18" Margin="0,0,5,0"/>
+                                    <TextBlock Text="llm_runner"
+                                               FontFamily="Consolas, Courier New, monospace"
+                                               FontWeight="Bold"
+                                               FontSize="9"
+                                               Foreground="Blue"
+                                               TextDecorations="Underline"
+                                               Cursor="Hand"
+                                               PointerPressed="OnLinkClicked"/>
+                                </StackPanel>
+    
+                                <TextBlock Text="private pre-alpha version!"
+                                           FontFamily="Consolas, Courier New, monospace"
+                                           FontWeight="Bold"
+                                           FontSize="9"
+                                           HorizontalAlignment="Right"/>
+                                
+                                <TextBlock Text="(C) 2024"
+                                           FontFamily="Consolas, Courier New, monospace"
+                                           FontWeight="Bold"
+                                           FontSize="9"
+                                           HorizontalAlignment="Right"/>
+                            </StackPanel>
+
+
+                        </Grid>
+
+                        <!-- python path -->
+                        <TextBlock Text="Python Path:" Classes="bold" Margin="0,20,0,8"/>
+                        <TextBox Text="{Binding PythonPath}" Margin="0,0,0,16"/>
+
+                        <!-- Module selection -->
+                        <TextBlock Text="Select Module:" Classes="bold" Margin="0,0,0,8"/>
+                        <ComboBox ItemsSource="{Binding AvailableModuleTypes}"
+                                  SelectedItem="{Binding SelectedModelType}"
+                                  Margin="0,0,0,16"/>
+
+                        <!-- API key mnagement -->
+                        <TextBlock Text="Your API key / token:" Classes="bold" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal">
+                            <ComboBox ItemsSource="{Binding SavedApiKeys}"
+                                      SelectedItem="{Binding SelectedApiKey}"
+                                      MinHeight="30"
+                                      MinWidth="200" Margin="5">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <!-- Button AddKey -->
+                            <Button Command="{Binding AddNewApiKeyCommand}"
+                                    HorizontalAlignment="Center"
+                                    MinHeight="30"
+                                    MinWidth="100"
+                                    Classes="secondary"
+                                    Margin="5">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <i:Icon Value="fa-solid fa-user-plus" Width="18" Height="18" Margin="0"/>
+                                    <TextBlock Text="Add" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <ToolTip.Tip>
+                                    <ToolTip Content="Add a new API key."/>
+                                </ToolTip.Tip>
+                            </Button>
+                            <!-- Button RemoveKey -->
+                            <Button Command="{Binding RemoveApiKeyCommand}"
+                                    IsVisible="{Binding IsApiKeySelected}"
+                                    HorizontalAlignment="Center"
+                                    MinHeight="30"
+                                    MinWidth="100"
+                                    Classes="danger"
+                                    Margin="5">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <i:Icon Value="fa-solid fa-user-minus" Width="18" Height="18" Margin="0"/>
+                                    <TextBlock Text="Remove" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <ToolTip.Tip>
+                                    <ToolTip Content="Remove the selected API key."/>
+                                </ToolTip.Tip>
+                            </Button>
+                        </StackPanel>
+
+                        <!-- Button Confirm -->
+                        <Button Command="{Binding ConfirmLoginCommand}"
+                                HorizontalAlignment="Center"
+                                MinWidth="150"
+                                MinHeight="40"
+                                Width="200"
+                                Classes="confirm"
+                                Margin="5">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <i:Icon Value="fa-solid fa-check"
+                                        Width="18"
+                                        Height="18"
+                                        Margin="0,0,8,0"
+                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                <TextBlock Text="Confirm"
+                                           VerticalAlignment="Center"
+                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                            </StackPanel>
+                            <ToolTip.Tip>
+                                <ToolTip Content="Continue with the selected module and API key."/>
+                            </ToolTip.Tip>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 1: Model Settings -->
+            <TabItem IsVisible="{Binding ViewManager.GradioMode}" IsEnabled="{Binding ViewManager.IsModelSettingsEnabled}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <i:Icon Value="fa-solid fa-cogs" Width="16" Height="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Model Settings"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <ScrollViewer>
+                    <StackPanel Margin="20">
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
+                            <TextBlock Text="Model:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding CurrentModelSettings.AvailableModels}"
+                                      SelectedItem="{Binding CurrentModelSettings.SelectedModel}" Margin="0,0,0,12"/>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding CurrentModelSettings.Parameters}"/>
+                        <!-- Generate Link Button -->
+                        <Button Command="{Binding GenerateLinkCommand}"
+                                HorizontalAlignment="Center"
+                                MinWidth="180"
+                                MinHeight="40"
+                                Width="220"
+                                Classes="primary"
+                                Margin="5">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <i:Icon Value="fa-solid fa-link" Width="18" Height="18" Margin="0,0,8,0"/>
+                                <TextBlock Text="Generate Link" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <ToolTip.Tip>
+                                <ToolTip Content="Generate link to access the interface running on your server"/>
+                            </ToolTip.Tip>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 2: Multicaller Model Settings -->
+            <TabItem IsVisible="{Binding ViewManager.MulticallerMode}" IsEnabled="{Binding ViewManager.IsMulticallerModelSettingsEnabled}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <i:Icon Value="fa-solid fa-project-diagram" Width="16" Height="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Multicaller Settings"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <ScrollViewer>
+                    <StackPanel Margin="20">
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
+                            <TextBlock Text="Model:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding CurrentModelSettings.AvailableModels}"
+                                      SelectedItem="{Binding CurrentModelSettings.SelectedModel}" Margin="0,0,0,12"/>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding CurrentModelSettings.Parameters}"/>
+                        <Button Command="{Binding RunMulticallerCommand}"
+                                HorizontalAlignment="Center"
+                                MinWidth="180"
+                                MinHeight="40"
+                                Width="220"
+                                Classes="primary"
+                                Margin="5">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <i:Icon Value="fa-solid fa-play" Width="18" Height="18" Margin="0,0,8,0"/>
+                                <TextBlock Text="Run Multicaller" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <ToolTip.Tip>
+                                <ToolTip Content="Run multiple calls as specified in the settings."/>
+                            </ToolTip.Tip>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 3: Link Generation -->
+            <TabItem IsVisible="{Binding ViewManager.GradioMode}" IsEnabled="{Binding ViewManager.IsLinkGenerationEnabled}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <i:Icon Value="fa-solid fa-link" Width="16" Height="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Link Generation"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <StackPanel Margin="20">
+                    <TextBlock Text="Generated Links:" Classes="bold" Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Vertical" Margin="0,0,0,16">
+                        <TextBlock Text="Local link:"/>
+                        <TextBox Text="{Binding CurrentModelSettings.GeneratedLocalLink}" IsReadOnly="True" Margin="0,4,0,12"/>
+                        <TextBlock Text="Public link:"/>
+                        <TextBox Text="{Binding CurrentModelSettings.GeneratedPublicLink}" IsReadOnly="True" Margin="0,4,0,12"/>
+                        <Image Source="{Binding GeneratedPublicLinkQRCode}" Width="200" Height="200" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </TabItem>
+
+            <!-- Tab 4: Data Collection -->
+            <TabItem IsEnabled="{Binding ViewManager.IsDataCollectionEnabled}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <i:Icon Value="fa-solid fa-database" Width="16" Height="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Data Collection"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Add/Remove Buttons -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
+                        <Button Command="{Binding AddFolderCommand}" Width="30" Height="30" Classes="secondary">
+                            <i:Icon Value="fa-solid fa-plus" Width="16" Height="16"/>
+                            <ToolTip.Tip>
+                                <ToolTip Content="Add Folder"/>
+                            </ToolTip.Tip>
+                        </Button>
+                        <Button Command="{Binding RemoveItemCommand}" Width="30" Height="30" Classes="danger">
+                            <i:Icon Value="fa-solid fa-minus" Width="16" Height="16"/>
+                            <ToolTip.Tip>
+                                <ToolTip Content="Remove Item"/>
+                            </ToolTip.Tip>
+                        </Button>
+                    </StackPanel>
+                    <!-- List of filenames -->
+                    <TreeView x:Name="ChatHistoryTreeView"
+                              Grid.Row="1" Grid.Column="0"
+                              ItemsSource="{Binding ChatHistoryCollection.Categories}"
+                              SelectedItem="{Binding ChatHistoryCollection.SelectedItem}"
+                              BorderThickness="1"
+                              BorderBrush="#BDBDBD"
+                              CornerRadius="4">
+                        <TreeView.ContextMenu>
+                            <ContextMenu DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
+                                         x:DataType="vm:MainWindowViewModel">
+                                <MenuItem Header="Add Folder" Command="{Binding AddFolderCommand}"/>
+                                <MenuItem Header="Remove" Command="{Binding RemoveItemCommand}"/>
+                                <MenuItem Header="Rename" Command="{Binding RenameItemCommand}"/>
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
+                    </TreeView>
+                    <!-- GridSplitter -->
+                    <GridSplitter Grid.RowSpan="3" Grid.Column="1" Width="5" Background="#BDBDBD" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
+                    <!-- selected file -->
+                    <ScrollViewer Grid.RowSpan="3" Grid.Row="0" Grid.Column="2">
+                        <StackPanel Margin="10">
+                            <!-- Settings Section -->
+                            <StackPanel Margin="0,0,0,20">
+                                <TextBox Text="{Binding ChatHistoryCollection.Settings.SelectedModel, Mode=OneWay, StringFormat=Model: {0}}"
+                                         FontSize="13"
+                                         IsReadOnly="True"
+                                         BorderThickness="0"
+                                         Background="Transparent"/>
+                                <TextBox Text="{Binding ChatHistoryCollection.ApiKey, Mode=OneWay, StringFormat=API Key: {0}}"
+                                         FontSize="13"
+                                         IsReadOnly="True"
+                                         BorderThickness="0"
+                                         Background="Transparent"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                         ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
+                                <TextBox Text="{Binding ChatHistoryCollection.DownloadedOn, Mode=OneWay, StringFormat=Downloaded On: {0}}"
+                                         FontSize="13"
+                                         IsReadOnly="True"
+                                         BorderThickness="0"
+                                         Background="Transparent"/>
+                            </StackPanel>
+                            <!-- parameters  -->
+                            <ItemsControl ItemsSource="{Binding ChatHistoryCollection.Settings.Parameters}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                                            <TextBox Text="{Binding Name, Mode=OneWay}" Width="150" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
+                                            <TextBox Text="{Binding Value, Mode=OneWay}" Width="200" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <!-- Conversation  -->
+                            <TextBlock Text="Conversation" FontWeight="Bold" FontSize="15" Margin="0,0,0,10"/>
+                            <ItemsControl ItemsSource="{Binding ChatHistoryCollection.Conversation}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,5,0,5">
+                                            <!-- display label if present -->
+                                            <TextBlock Text="{Binding Label}" FontWeight="Bold" IsVisible="{Binding Label, Converter={StaticResource NullToBoolConverter}}"/>
+                                            <!-- display user message if present -->
+                                            <StackPanel Margin="0,5,0,0" IsVisible="{Binding User, Converter={StaticResource NullToBoolConverter}}">
+                                                <TextBlock Text="User:" FontWeight="Bold"/>
+                                                <SelectableTextBlock Text="{Binding User}"
+                                                                              TextWrapping="Wrap"
+                                                                              FontSize="13"
+                                                                              Foreground="#000000"
+                                                                              Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                            <!-- dDisplay sssistant message if present -->
+                                            <StackPanel Margin="0,5,0,0" IsVisible="{Binding Assistant, Converter={StaticResource NullToBoolConverter}}">
+                                                <TextBlock Text="Assistant:" FontWeight="Bold"/>
+                                                <SelectableTextBlock Text="{Binding Assistant}"
+                                                                              TextWrapping="Wrap"
+                                                                              FontSize="13"
+                                                                              Foreground="#000000"
+                                                                              Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <!-- Download Buttons -->
+                    <StackPanel Grid.Row="2" Grid.Column="0"
+                                Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Command="{Binding DownloadAllFilesCommand}"
+                                HorizontalAlignment="Center"
+                                MinHeight="30"
+                                MinWidth="100"
+                                Classes="secondary">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <i:Icon Value="fa fa-download" Width="18" Height="18" Margin="0"/>
+                                <TextBlock Text="All" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <ToolTip.Tip>
+                                <ToolTip Content="Download all JSON files."/>
+                            </ToolTip.Tip>
+                        </Button>
+                        <Button Command="{Binding DownloadSelectedAsPdfCommand}"
+                                HorizontalAlignment="Center"
+                                MinHeight="30"
+                                MinWidth="100"
+                                Classes="secondary">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <i:Icon Value="fa fa-download" Width="18" Height="18" Margin="0"/>
+                                <TextBlock Text="Selected" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <ToolTip.Tip>
+                                <ToolTip Content="Download selected JSON file."/>
+                            </ToolTip.Tip>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        
+        <!-- Console -->
+        <Expander Grid.Row="2" Header="Console" IsExpanded="False" HorizontalAlignment="Stretch">
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
+                    <Button Command="{Binding CopyLastMessageCommand}" Width="40" Height="40" Classes="secondary">
+                        <i:Icon Value="fa-solid fa-copy" Width="20" Height="20" Foreground="#1F5222"/>
+                        <ToolTip.Tip>
+                            <ToolTip Content="Copy last console message"/>
+                        </ToolTip.Tip>
+                    </Button>
+                    <Button Command="{Binding CopyAllMessagesCommand}" Width="40" Height="40" Classes="secondary">
+                        <i:Icon Value="fa-solid fa-clipboard" Width="20" Height="20" Foreground="#1F5222"/>
+                        <ToolTip.Tip>
+                            <ToolTip Content="Copy all console messages"/>
+                        </ToolTip.Tip>
+                    </Button>
+                </StackPanel>
+                <Border Classes="console-border" Grid.Row="1"
+                        MaxHeight="{Binding #MainWindowGrid.Bounds.Height, Converter={StaticResource PercentageConverter}, ConverterParameter=0.3}">
+                    <ScrollViewer x:Name="ConsoleScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl x:Name="ConsoleItemsControl" ItemsSource="{Binding ConsoleMessages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock TextWrapping="Wrap" Foreground="#000000" FontSize="13">
+                                        <Run Text="[" Foreground="#888888"/>
+                                        <Run Text="{Binding Timestamp}" Foreground="#1F5222"/>
+                                        <Run Text="] " Foreground="#888888"/>
+                                        <Run Text="{Binding Text}" Foreground="{Binding Color}"/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Expander>
+
+        <!-- freeze UI IsBusy -->
+        <Grid Grid.RowSpan="3" IsVisible="{Binding IsBusy}" Background="#80000000">
+            <TextBlock Text="Please wait..." Foreground="#FFFFFF" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+    </Grid>
+</Window>

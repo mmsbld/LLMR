@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Folder Include="Models\"/>
+        <AvaloniaResource Include="Assets\**"/>
+        <Folder Include="Scripts\chat_histories\Multicaller\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.1.4" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.1.4" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.4" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.4" />
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.4" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.1.4" />
+        <PackageReference Include="MessageBox.Avalonia" Version="3.1.6.13" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Projektanker.Icons.Avalonia" Version="9.4.1" />
+        <PackageReference Include="Projektanker.Icons.Avalonia.FontAwesome" Version="9.4.1" />
+        <PackageReference Include="Projektanker.Icons.Avalonia.MaterialDesign" Version="9.4.1" />
+        <PackageReference Include="pythonnet" Version="3.0.4" />
+        <PackageReference Include="QRCoder" Version="1.6.0" />
+        <PackageReference Include="QuestPDF" Version="2024.10.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Scripts\hfServerlessInference_apiHandler.py">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Scripts\hfServerlessInference_gradioServer.py">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Scripts\openAI_apiHandler.py">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Scripts\openAI_gradioServer.py">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Scripts\openAI_multicaller.py">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Scripts\openAI_v2_apiHandler.py">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Scripts\openAI_v2_gradioServer.py">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Scripts\chat_histories\Multicaller\multicaller_8c0d6a6d1eb54fab81043c913beb551b.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+</Project>
