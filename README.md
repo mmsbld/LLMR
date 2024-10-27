@@ -1,4 +1,5 @@
-# ![Project Logo](LLMR/Assets/logo_wide.png) LLMR 🚀
+# <img src="LLMR/Assets/logo_wide.png" alt="Project Logo" width="50%" /> LLMR
+
 
 Hi Jan! 👋 Welcome to our **LLMR** repository. Here's the deal: this is where the magic will happen, sort of. It's still a bit of a work-in-progress (hello, bugs 🐛), but it's already cool and you have to check it out!
 
