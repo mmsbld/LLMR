@@ -36,7 +36,7 @@ public partial class MainWindow : Window
     {
         var psi = new ProcessStartInfo
         {
-            FileName = "https://github.com/mmsbld/llm_runner",
+            FileName = "https://github.com/mmsbld/LLMR",
             UseShellExecute = true
         };
         Process.Start(psi);

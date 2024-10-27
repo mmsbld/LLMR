@@ -126,3 +126,4 @@
 /Users/moritz/RiderProjects/LLMR/LLMR/bin/Debug/net9.0/Scripts/openAI_v2_apiHandler.py
 /Users/moritz/RiderProjects/LLMR/LLMR/bin/Debug/net9.0/Scripts/openAI_v2_gradioServer.py
 /Users/moritz/RiderProjects/LLMR/LLMR/bin/Debug/net9.0/Scripts/chat_histories/Multicaller/multicaller_8c0d6a6d1eb54fab81043c913beb551b.json
+/Users/moritz/RiderProjects/LLMR/LLMR/obj/Debug/net9.0/LLMR.sourcelink.json

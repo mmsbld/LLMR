@@ -17,9 +17,9 @@ def run_gradio(api_key, model, temperature, max_tokens, top_p, frequency_penalty
     def predict(message, history, unique_id_state):
         if unique_id_state is None:
             unique_id = generate_unique_id()
-            unique_id_state = unique_id  # Set the unique ID for the session
+            unique_id_state = unique_id  # generated unique ID 
         else:
-            unique_id = unique_id_state  # Retrieve the existing unique ID for the session
+            unique_id = unique_id_state  # alt: retrieve existing ID 
     
         history_openai_format = []
         for human, assistant in history:
@@ -28,7 +28,7 @@ def run_gradio(api_key, model, temperature, max_tokens, top_p, frequency_penalty
         history_openai_format.append({"role": "user", "content": message})
     
         try:
-            partial_message = ""  # Initialize an empty response container
+            partial_message = ""  # empty response container:
             response = client.chat.completions.create(
                 model=model,
                 messages=history_openai_format,
@@ -43,14 +43,14 @@ def run_gradio(api_key, model, temperature, max_tokens, top_p, frequency_penalty
             for chunk in response:
                 if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
                     partial_message += chunk.choices[0].delta.content
-                    # Yield each partial response as it comes, and clear the textbox
+                    # yield partial response (streaming!) clear input
                     yield history + [(message, partial_message)], unique_id_state, ""
     
-            # Once the response is complete, download the full history
+            # download history
             download_history(history + [(message, partial_message)], unique_id)
     
         except Exception:
-            # If an error occurs, yield the error message
+            # save errormsg in hist!
             yield history + [(message, "An error occurred. Please try again later.")], unique_id_state, ""
 
 
@@ -85,7 +85,7 @@ def run_gradio(api_key, model, temperature, max_tokens, top_p, frequency_penalty
             print("<GSPY internal> History is being saved as " + filename + " in the directory " + filepath + ".")
     
             with open(filepath, "w") as f:
-                json.dump(full_data, f, indent=4)  # Speichere Settings und History
+                json.dump(full_data, f, indent=4)  # save as json (settings and hist)
     
             print("<GSPY internal> History was successfully downloaded.")
     
@@ -98,25 +98,23 @@ def run_gradio(api_key, model, temperature, max_tokens, top_p, frequency_penalty
             chatbot = gr.Chatbot()
             msg = gr.Textbox(label="Send message to the LLM")
             clear = gr.Button("Clear")
-            unique_id_label = gr.Label(value="")  # To display the unique ID
-            state = gr.State(value=None)  # Initialize session state for unique ID
+            unique_id_label = gr.Label(value="") 
+            state = gr.State(value=None)  
 
             def update_unique_id(state):
                 if state is None:
                     state = generate_unique_id()
                 return f"Your unique ID: {state}", state
 
-            # Update unique ID when the interface is loaded
             iface.load(fn=update_unique_id, inputs=state, outputs=[unique_id_label, state])
 
-            # Ensure to pass only message, history, and the unique ID state to predict
             msg.submit(predict, inputs=[msg, chatbot, state], outputs=[chatbot, state, msg])
             clear.click(lambda: None, None, chatbot, queue=False)
 
         return iface
 
     interface = create_interface()
-    interface.launch(share=True)  # Set share=True for public access
+    interface.launch(share=True)  
 
 def start_gradio_interface(api_key, model, temperature, max_tokens, top_p, frequency_penalty, presence_penalty):
     global gradio_process

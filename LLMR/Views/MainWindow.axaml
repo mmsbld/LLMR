@@ -316,7 +316,7 @@
                                 <!-- StackPanel for GitHub Link -->
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0">
                                     <i:Icon Value="fa-brands fa-github" Width="18" Height="18" Margin="0,0,5,0"/>
-                                    <TextBlock Text="llm_runner"
+                                    <TextBlock Text="LLM Runner"
                                                FontFamily="Consolas, Courier New, monospace"
                                                FontWeight="Bold"
                                                FontSize="9"

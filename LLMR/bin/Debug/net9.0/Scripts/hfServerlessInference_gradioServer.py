@@ -100,7 +100,7 @@ def run_gradio(api_token, model_id, system_message, temperature, max_completion_
             # assistant's reply
             assistant_reply = generated_text[len(conversation):].strip()
 
-            # POST-PROCESSING: Remove any trailing 'User:' and any following text
+            # POST-PROCESSING: Remove any trailing 'User:' & following text
             assistant_reply = re.split(r'User:', assistant_reply, flags=re.IGNORECASE)[0].strip()
 
             # update history

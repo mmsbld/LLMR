@@ -5,10 +5,8 @@ import json
 import logging
 import uuid
 
-# Logging konfigurieren
 logging.basicConfig(level=logging.DEBUG)
 
-# absoluten Pfad zum Models folder bestimmen
 current_dir = os.path.dirname(os.path.abspath(__file__))
 models_path = os.path.join(current_dir, "Models")
 
