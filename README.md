@@ -1,6 +1,6 @@
 <picture>
   <source srcset="LLMR/Assets/logo_wide_DARK.png" media="(prefers-color-scheme: dark)">
-  <img src="LLMR/Assets/logo_wide.png" alt="Project Logo" width="50%">
+  <img src="LLMR/Assets/logo_wide.png" alt="Project Logo" width="30%">
 </picture> LLMR
 
 
