@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "R+wSAU3o1fA=",
+  "dgSpecHash": "riNCWmQUWCc=",
   "success": true,
   "projectFilePath": "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj",
   "expectedPackageFiles": [
@@ -8,10 +8,7 @@
     "/Users/moritz/.nuget/packages/avalonia.angle.windows.natives/2.1.22045.20230930/avalonia.angle.windows.natives.2.1.22045.20230930.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.avaloniaedit/11.0.0/avalonia.avaloniaedit.11.0.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.buildservices/0.0.29/avalonia.buildservices.0.0.29.nupkg.sha512",
-    "/Users/moritz/.nuget/packages/avalonia.controls.colorpicker/11.1.4/avalonia.controls.colorpicker.11.1.4.nupkg.sha512",
-    "/Users/moritz/.nuget/packages/avalonia.controls.datagrid/11.1.4/avalonia.controls.datagrid.11.1.4.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.desktop/11.1.4/avalonia.desktop.11.1.4.nupkg.sha512",
-    "/Users/moritz/.nuget/packages/avalonia.diagnostics/11.1.4/avalonia.diagnostics.11.1.4.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.fonts.inter/11.1.4/avalonia.fonts.inter.11.1.4.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.freedesktop/11.1.4/avalonia.freedesktop.11.1.4.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.native/11.1.4/avalonia.native.11.1.4.nupkg.sha512",
@@ -20,7 +17,6 @@
     "/Users/moritz/.nuget/packages/avalonia.skia/11.1.4/avalonia.skia.11.1.4.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.svg/11.0.0/avalonia.svg.11.0.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.themes.fluent/11.1.4/avalonia.themes.fluent.11.1.4.nupkg.sha512",
-    "/Users/moritz/.nuget/packages/avalonia.themes.simple/11.1.4/avalonia.themes.simple.11.1.4.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.win32/11.1.4/avalonia.win32.11.1.4.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.x11/11.1.4/avalonia.x11.11.1.4.nupkg.sha512",
     "/Users/moritz/.nuget/packages/colortextblock.avalonia/11.0.2/colortextblock.avalonia.11.0.2.nupkg.sha512",

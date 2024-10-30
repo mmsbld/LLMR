@@ -10,6 +10,7 @@
         mc:Ignorable="d"
         x:Class="LLMR.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/512_300dpi.png"
         Title="LLMR"
         Width="1200" Height="800"
         FontFamily="Segoe UI, Arial, sans-serif"

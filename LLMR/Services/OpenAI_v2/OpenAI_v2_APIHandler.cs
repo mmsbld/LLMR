@@ -198,7 +198,7 @@ namespace LLMR.Services.OpenAI_v2;
                     _gradioProcess.BeginOutputReadLine();
                     _gradioProcess.BeginErrorReadLine();
 
-                    var completedTask = await Task.WhenAny(_gradioUrlsTcs.Task, Task.Delay(20000)); // Wait up to 20 seconds
+                    var completedTask = await Task.WhenAny(_gradioUrlsTcs.Task, Task.Delay(20000)); // wait 20s max.
 
                     if (completedTask == _gradioUrlsTcs.Task)
                     {
@@ -206,7 +206,7 @@ namespace LLMR.Services.OpenAI_v2;
                     }
                     else
                     {
-                        // if the task didn't complete -> default error
+                        // time over -> default error as link
                         _publicUrl = "<internal error APIH 42>";
                         return (_localUrl, _publicUrl);
                     }

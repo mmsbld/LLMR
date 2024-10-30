@@ -4,14 +4,17 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-        <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <MacOSBundleIcon>Assets/512_300dpi_full.icns</MacOSBundleIcon>
+        <UseAppHost>true</UseAppHost>
+        <Version>0.4.2</Version>
+        <Authors>Moritz Seibold</Authors>
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Models\"/>
-        <AvaloniaResource Include="Assets\**"/>
-        <Folder Include="Scripts\chat_histories\Multicaller\" />
+        <Folder Include="Models/"/>
+        <AvaloniaResource Include="Assets/**"/>
+        <Folder Include="Scripts/chat_histories/Multicaller/" />
     </ItemGroup>
 
     <ItemGroup>
@@ -57,5 +60,12 @@
       <None Update="Scripts\chat_histories\Multicaller\multicaller_8c0d6a6d1eb54fab81043c913beb551b.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="Assets/512_300dpi_full.icns">
+            <LogicalName>Resources/512_300dpi_full.icns</LogicalName>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 </Project>
