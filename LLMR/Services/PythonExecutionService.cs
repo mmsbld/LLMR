@@ -11,7 +11,7 @@ namespace LLMR.Services;
 
 public class PythonExecutionService : IDisposable
 {
-    private static readonly object _lock = new();
+    private static readonly object Lock = new();
     private static PythonExecutionService? _instance;
 
     private readonly Thread _pythonThread;
@@ -19,7 +19,7 @@ public class PythonExecutionService : IDisposable
     private bool _isDisposed;
     private bool _isPythonInitialized;
     private readonly string? _pythonPath;
-    private Exception _threadException; // exceptions thrown in background thread
+    private readonly Exception? _threadException; // exceptions thrown in background thread
 
     private readonly TaskCompletionSource<bool> _initTcs = new();
     public Task<bool> InitializationTask => _initTcs.Task;
@@ -30,6 +30,7 @@ public class PythonExecutionService : IDisposable
     // private constructor (-> singleton, GoF)
     private PythonExecutionService(string? pythonPath)
     {
+        _threadException = null;
         ArgumentNullException.ThrowIfNull(pythonPath);
         _pythonPath = pythonPath;
 
@@ -43,7 +44,7 @@ public class PythonExecutionService : IDisposable
     // public getter for singleton
     public static PythonExecutionService GetInstance(string? pythonPath)
     {
-        lock (_lock)
+        lock (Lock)
         {
             // if no instance exists (logical or) the existing instance failed to initialize (logical or) a different python path is provided
             if (_instance == null || !_instance._isPythonInitialized || !_instance.InitializationTask.IsCompleted || !_instance.InitializationTask.Result)
@@ -51,12 +52,11 @@ public class PythonExecutionService : IDisposable
                 _instance?.Dispose();
                 _instance = new PythonExecutionService(pythonPath);
             }
-            else if (!_instance._pythonPath.Equals(pythonPath, StringComparison.OrdinalIgnoreCase))
-            {
-                // if different python path is provided --> dispose current singleton and create a new one (potentially a bad or at least useless idea!)
-                _instance.Dispose();
-                _instance = new PythonExecutionService(pythonPath);
-            }
+            var instancePythonPath = _instance._pythonPath ?? throw new NullReferenceException("dere_instance._pythonPath is null");
+            if (_instance._pythonPath.Equals(pythonPath, StringComparison.OrdinalIgnoreCase)) return _instance;
+            // if different python path is provided --> dispose current singleton and create a new one (potentially a bad or at least useless idea!)
+            _instance.Dispose();
+            _instance = new PythonExecutionService(pythonPath);
             return _instance;
         }
     }
@@ -74,10 +74,10 @@ public class PythonExecutionService : IDisposable
 
             Environment.SetEnvironmentVariable("PYTHONHOME", _pythonPath);
 
-            string pythonVersion = GetPythonVersion();
+            var pythonVersion = GetPythonVersion();
 
-            Version currentVersion = Version.Parse(pythonVersion);
-            Version minRequiredVersion = new Version(3, 12);
+            var currentVersion = Version.Parse(pythonVersion);
+            var minRequiredVersion = new Version(3, 12);
             ConsoleMessageOccurred?.Invoke(this, $"Installed Python version: {currentVersion}. Minimum required version: {minRequiredVersion}.");
 
             if (currentVersion < minRequiredVersion)
@@ -85,7 +85,7 @@ public class PythonExecutionService : IDisposable
                 throw new InvalidOperationException($"<PES.cs (!) error: > Python version {currentVersion} is too low. The minimum required version is {minRequiredVersion}.");
             }
 
-            string majorMinor = $"{currentVersion.Major}.{currentVersion.Minor}"; // Extract major.minor
+            var majorMinor = $"{currentVersion.Major}.{currentVersion.Minor}"; // Extract major.minor
 
             string dllName;
 
@@ -112,7 +112,7 @@ public class PythonExecutionService : IDisposable
                 throw new PlatformNotSupportedException("<PES.cs (!) error: > Unsupported operating system.");
             }
 
-            string pythonDllPath = Path.Combine(_pythonPath, "lib", dllName);
+            var pythonDllPath = Path.Combine(_pythonPath, "lib", dllName);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 pythonDllPath = Path.Combine(_pythonPath, dllName);
@@ -133,6 +133,34 @@ public class PythonExecutionService : IDisposable
             ConsoleMessageOccurred?.Invoke(this, "PythonEngine initialized successfully.");
             _isPythonInitialized = true;
             _initTcs.TrySetResult(true);
+            
+            using (Py.GIL())
+            {
+                string redirectScript = @"
+import sys
+import clr
+clr.AddReference('LLMR')
+from LLMR.Services import PythonExecutionService
+
+class StdOutRedirector:
+    def write(self, message):
+        PythonExecutionService.PythonStdout(message)
+
+    def flush(self):
+        pass
+
+class StdErrRedirector:
+    def write(self, message):
+        PythonExecutionService.PythonStderr(message)
+
+    def flush(self):
+        pass
+
+sys.stdout = StdOutRedirector()
+sys.stderr = StdErrRedirector()
+";
+                PythonEngine.Exec(redirectScript);
+            }
 
             VerifyRequiredPackages();
 
@@ -160,7 +188,7 @@ public class PythonExecutionService : IDisposable
             ExceptionOccurred?.Invoke(this, $"{ex.Message}\n{ex.StackTrace}");
             _initTcs.TrySetResult(false);
             _isDisposed = true; 
-            lock (_lock)
+            lock (Lock)
             {
                 _instance = null; // allow re-init on failure
             }
@@ -179,7 +207,7 @@ public class PythonExecutionService : IDisposable
                     ExceptionOccurred?.Invoke(this, $"{ex.Message}\n{ex.StackTrace}");
                     _initTcs.TrySetResult(false);
                     _isDisposed = true; 
-                    lock (_lock)
+                    lock (Lock)
                     {
                         _instance = null;
                     }
@@ -207,7 +235,7 @@ public class PythonExecutionService : IDisposable
                 try
                 {
                     CheckForThreadException(); 
-                    T result = func();
+                    var result = func();
                     tcs.SetResult(result);
                 }
                 catch (Exception ex)
@@ -215,7 +243,7 @@ public class PythonExecutionService : IDisposable
                     ExceptionOccurred?.Invoke(this, $"{ex.Message}\n{ex.StackTrace}");
                     _initTcs.TrySetResult(false);
                     _isDisposed = true; 
-                    lock (_lock)
+                    lock (Lock)
                     {
                         _instance = null;
                     }
@@ -231,16 +259,9 @@ public class PythonExecutionService : IDisposable
 
     private string GetPythonVersion()
     {
-        string pythonExecutable;
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            pythonExecutable = Path.Combine(_pythonPath, "python.exe");
-        }
-        else
-        {
-            pythonExecutable = Path.Combine(_pythonPath, "bin", "python3");
-        }
+        if (_pythonPath == null)
+            throw new NullReferenceException("Python path is null.");
+        var pythonExecutable = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Path.Combine(_pythonPath, "python.exe") : Path.Combine(_pythonPath, "bin", "python3");
 
         if (!File.Exists(pythonExecutable))
         {
@@ -257,39 +278,37 @@ public class PythonExecutionService : IDisposable
             CreateNoWindow = true
         };
 
-        using (var process = Process.Start(processStartInfo))
+        using var process = Process.Start(processStartInfo);
+        if (process == null)
         {
-            if (process == null)
-            {
-                throw new InvalidOperationException("<PES.cs (!) error: > Failed to start Python process.");
-            }
-
-            string output = process.StandardOutput.ReadToEnd();
-            string errorOutput = process.StandardError.ReadToEnd();
-            process.WaitForExit();
-
-            if (string.IsNullOrEmpty(output))
-            {
-                // output version info to stderr
-                output = errorOutput;
-            }
-
-            if (!output.ToLower().StartsWith("python"))
-            {
-                throw new InvalidOperationException("<PES.cs (!) error: > Unable to determine Python version.");
-            }
-
-            // should be something like this: "Python 3.12.4"
-            var parts = output.Split(' ');
-            if (parts.Length < 2)
-            {
-                throw new InvalidOperationException("<PES.cs (!) error: > Unable to parse Python version.");
-            }
-
-            ConsoleMessageOccurred?.Invoke(this, $"Detected Python version: {parts[1].Trim()}.");
-
-            return parts[1].Trim();
+            throw new InvalidOperationException("<PES.cs (!) error: > Failed to start Python process.");
         }
+
+        var output = process.StandardOutput.ReadToEnd();
+        var errorOutput = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+
+        if (string.IsNullOrEmpty(output))
+        {
+            // output version info to stderr
+            output = errorOutput;
+        }
+
+        if (!output.ToLower().StartsWith("python"))
+        {
+            throw new InvalidOperationException("<PES.cs (!) error: > Unable to determine Python version.");
+        }
+
+        // should be something like this: "Python 3.12.4"
+        var parts = output.Split(' ');
+        if (parts.Length < 2)
+        {
+            throw new InvalidOperationException("<PES.cs (!) error: > Unable to parse Python version.");
+        }
+
+        ConsoleMessageOccurred?.Invoke(this, $"Detected Python version: {parts[1].Trim()}.");
+
+        return parts[1].Trim();
     }
 
     private void VerifyRequiredPackages()
@@ -297,15 +316,16 @@ public class PythonExecutionService : IDisposable
         using (Py.GIL())
         {
             dynamic pip = Py.Import("pip");
+            // ReSharper disable once InconsistentNaming
             dynamic pkg_resources = Py.Import("pkg_resources");
 
             string[] requiredPackages = { "requests", "gradio", "openai" };
             string[] versions = { "2.32.3", "5.1.0", "1.52.0" };
 
-            for (int i = 0; i < requiredPackages.Length; i++)
+            for (var i = 0; i < requiredPackages.Length; i++)
             {
-                string package = requiredPackages[i];
-                string requiredVersion = versions[i];
+                var package = requiredPackages[i];
+                var requiredVersion = versions[i];
                 try
                 {
                     dynamic dist = pkg_resources.get_distribution(package);
@@ -325,25 +345,34 @@ public class PythonExecutionService : IDisposable
             }
         }
     }
+    
+    // ReSharper disable once UnusedMember.Global [is used in PythonThreadStart()].
+    public static void PythonStdout(string message)
+    {
+        _instance?.ConsoleMessageOccurred?.Invoke(_instance, $"<PES stdout> {message}");
+    }
+    // ReSharper disable once UnusedMember.Global [is used in PythonThreadStart()].
+    public static void PythonStderr(string message)
+    {
+        _instance?.ExceptionOccurred?.Invoke(_instance, $"<PES stderr> {message}");
+    }
         
     public void Dispose()
     {
-        if (!_isDisposed)
+        if (_isDisposed) return;
+        _isDisposed = true;
+        _taskQueue.CompleteAdding();
+        try
         {
-            _isDisposed = true;
-            _taskQueue.CompleteAdding();
-            try
-            {
-                _pythonThread.Join();
-            }
-            catch
-            {
-                // suppress all during dispasl
-            }
-            lock (_lock)
-            {
-                _instance = null;
-            }
+            _pythonThread.Join();
+        }
+        catch
+        {
+            // suppress all exceptions during disposal 
+        }
+        lock (Lock)
+        {
+            _instance = null;
         }
     }
 }

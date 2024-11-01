@@ -144,7 +144,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
-
     #endregion
 
     #region API Key Management
@@ -181,8 +180,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public ReactiveCommand<Unit, Unit> AddFolderCommand { get; }
     public ReactiveCommand<Unit, Unit> RemoveItemCommand { get; }
     public ReactiveCommand<Unit, Unit> RenameItemCommand { get; }
-
-
+    
     #endregion
 
     #region Constructor
@@ -238,59 +236,61 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         
         AddSuccessMessageToConsole("<init complete>");
         DisplayStartupMessages();
+        
+        Trace.Listeners.Add(new InternalConsoleTraceListener(message => AddToConsole(message, new SolidColorBrush(Colors.Gray))));
     }
 
     #endregion
 
     #region Methods
     
-            private void DisplayStartupMessages()
+    private void DisplayStartupMessages()
+    {
+        var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
+        var osDescription = RuntimeInformation.OSDescription;
+        var osName = "Unknown OS";
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
-            var osDescription = RuntimeInformation.OSDescription;
-            var osName = "Unknown OS";
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                osName = "macOS";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                osName = "Linux";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                osName = "Windows";
-            }
-
-
-            var currentDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-            var timezone = TimeZoneInfo.Local.DisplayName;
-
-            const string listOfHyphens = "– – – – – –";
-            const string lineOfStars = "*************";
-            var appInfo = $"LLMR v{version} running on {osName} ({osDescription}).";
-            var dateTime = $"Current time: {currentDate} ({timezone}).";
-
-            const string networkWarningLineOne = "Please make sure that your connection is stable and all required ports are open.";
-            const string networkWarningLineTwo = "In public networks (e.g., schools or universities), some ports may be restricted.";
-            const string networkWarningLineThree = "Consider using a private network, such as a mobile hotspot for running LLMR.";
-            const string networkWarningLineFour = "The client interface is not affected, clients can use school or university networks.";
-            const string networkWarningLineFive = "In spite of LLMR running in a private network, for the chat histories are saved locally. ";
-
-            AddToConsole(lineOfStars, new SolidColorBrush(Colors.DarkGreen));
-            AddToConsole(appInfo, new SolidColorBrush(Colors.DarkGreen)); 
-            AddToConsole(dateTime, new SolidColorBrush(Colors.DarkGreen)); 
-            AddToConsole(lineOfStars, new SolidColorBrush(Colors.DarkGreen));
-
-            AddToConsole(listOfHyphens, new SolidColorBrush(Colors.Tomato));
-            AddToConsole(networkWarningLineOne, new SolidColorBrush(Colors.Tomato));
-            AddToConsole(networkWarningLineTwo, new SolidColorBrush(Colors.Tomato));
-            AddToConsole(networkWarningLineThree, new SolidColorBrush(Colors.Tomato));
-            AddToConsole(networkWarningLineFour, new SolidColorBrush(Colors.Tomato));
-            AddToConsole(networkWarningLineFive, new SolidColorBrush(Colors.Tomato));
-            AddToConsole(listOfHyphens, new SolidColorBrush(Colors.Tomato));
+            osName = "macOS";
         }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            osName = "Linux";
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            osName = "Windows";
+        }
+
+
+        var currentDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+        var timezone = TimeZoneInfo.Local.DisplayName;
+
+        const string listOfHyphens = "– – – – – –";
+        const string lineOfStars = "*************";
+        var appInfo = $"LLMR v{version} running on {osName} ({osDescription}).";
+        var dateTime = $"Current time: {currentDate} ({timezone}).";
+
+        const string networkWarningLineOne = "Please make sure that your connection is stable and all required ports are open.";
+        const string networkWarningLineTwo = "In public networks (e.g., schools or universities), some ports may be restricted.";
+        const string networkWarningLineThree = "Consider using a private network, such as a mobile hotspot for running LLMR.";
+        const string networkWarningLineFour = "The client interface is not affected, clients can use school or university networks.";
+        const string networkWarningLineFive = "In spite of LLMR running in a private network, for the chat histories are saved locally. ";
+
+        AddToConsole(lineOfStars, new SolidColorBrush(Colors.DarkGreen));
+        AddToConsole(appInfo, new SolidColorBrush(Colors.DarkGreen)); 
+        AddToConsole(dateTime, new SolidColorBrush(Colors.DarkGreen)); 
+        AddToConsole(lineOfStars, new SolidColorBrush(Colors.DarkGreen));
+
+        AddToConsole(listOfHyphens, new SolidColorBrush(Colors.Tomato));
+        AddToConsole(networkWarningLineOne, new SolidColorBrush(Colors.Tomato));
+        AddToConsole(networkWarningLineTwo, new SolidColorBrush(Colors.Tomato));
+        AddToConsole(networkWarningLineThree, new SolidColorBrush(Colors.Tomato));
+        AddToConsole(networkWarningLineFour, new SolidColorBrush(Colors.Tomato));
+        AddToConsole(networkWarningLineFive, new SolidColorBrush(Colors.Tomato));
+        AddToConsole(listOfHyphens, new SolidColorBrush(Colors.Tomato));
+    }
     private async Task AddNewApiKeyAsync()
     {
         var name = await PromptUserAsync("Enter a name for the API key:");
@@ -427,9 +427,9 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                 Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     AddExceptionMessageToConsole(new Exception($"<PES> Error: {errorMessage}"));
-                    _pythonRunning = false;
-                    _pythonService = null; // reset to allow new singleton (PES.cs)
-                    IsPythonPathLocked = false;
+                    //_pythonRunning = false;
+                    //_pythonService = null; // reset to allow new singleton (PES.cs)
+                    //IsPythonPathLocked = false;
                 });
             };
 
@@ -830,6 +830,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         ViewManager.IsLinkGenerationEnabled = false;
     }
 
+    #region ConsoleMessaging
+    
     private async Task CopyLastMessageAsync()
     {
         if (ConsoleMessages.Any())
@@ -855,24 +857,60 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     private void AddToConsole(string message, SolidColorBrush color)
     {
+        var messageColor = color;
+        var processedMessage = message;
+
+        var stdoutIndex = message.IndexOf("<PES stdout>", StringComparison.Ordinal);
+        var stderrIndex = message.IndexOf("<PES stderr>", StringComparison.Ordinal);
+
+        if (stdoutIndex >= 0)
+        {
+            processedMessage = message.Substring(stdoutIndex + "<PES stdout>".Length).Trim();
+            messageColor = new SolidColorBrush(Colors.LightGray);
+        }
+        else if (stderrIndex >= 0)
+        {
+            processedMessage = message.Substring(stderrIndex + "<PES stderr>".Length).Trim();
+            messageColor = new SolidColorBrush(Colors.DarkGray);
+        }
+
         ConsoleMessages.Add(new ConsoleMessage
         {
             Timestamp = DateTime.Now.ToString("HH:mm:ss"),
-            Text = message,
-            Color = color
+            Text = processedMessage,
+            Color = messageColor
         });
         SelectedConsoleIndex = ConsoleMessages.Count - 1;
     }
 
+
+
     private void AddExceptionMessageToConsole(Exception exception)
     {
-        AddToConsole("<MWVM error> " + exception.Message, new SolidColorBrush(Colors.DarkRed));
+        if (exception.Message.Contains("<PES stderr>"))
+        {
+            AddToConsole(exception.Message, new SolidColorBrush(Colors.DarkGray));
+        }
+        else
+        {
+            AddToConsole("<MWVM error> " + exception.Message, new SolidColorBrush(Colors.DarkRed));
+        }
     }
+
 
     private void AddSuccessMessageToConsole(string message)
     {
-        AddToConsole("<MWVM> " + message, new SolidColorBrush(Colors.ForestGreen));
+        if (message.Contains("<PES stdout>"))
+        {
+            AddToConsole(message, new SolidColorBrush(Colors.LightGray));
+        }
+        else
+        {
+            AddToConsole("<MWVM> " + message, new SolidColorBrush(Colors.ForestGreen));
+        }
     }
+    #endregion
+
 
     #region ConversationHistoryViewing
 
@@ -937,22 +975,22 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     private async Task RenameItemAsync()
     {
-            var newName = await PromptUserAsync("Enter the new name:");
-            if (string.IsNullOrWhiteSpace(newName))
-            {
-                AddToConsole("Rename operation canceled by the user.");
-                return;
-            }
+        var newName = await PromptUserAsync("Enter the new name:");
+        if (string.IsNullOrWhiteSpace(newName))
+        {
+            AddToConsole("Rename operation canceled by the user.");
+            return;
+        }
 
-            try
-            {
-                ChatHistoryCollection.RenameItem(ChatHistoryCollection.SelectedItem, newName);
-                AddToConsole("Item renamed successfully.");
-            }
-            catch (Exception ex)
-            {
-                AddExceptionMessageToConsole(ex);
-            }
+        try
+        {
+            ChatHistoryCollection.RenameItem(ChatHistoryCollection.SelectedItem, newName);
+            AddToConsole("Item renamed successfully.");
+        }
+        catch (Exception ex)
+        {
+            AddExceptionMessageToConsole(ex);
+        }
     }
 
 
@@ -1109,6 +1147,11 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         _apiService?.Dispose();
         _pythonService?.Dispose();
+        
+        var listener = Trace.Listeners.OfType<InternalConsoleTraceListener>().FirstOrDefault();
+        if (listener == null) return;
+        Trace.Listeners.Remove(listener);
+        listener.Dispose();
     }
 
 }
