@@ -16,7 +16,7 @@ namespace LLMR.Services.OpenAI_v2;
 
     public class OpenAI_v2_APIHandler : IAPIHandler, IDisposable
     {
-        private readonly PythonExecutionService _pythonService;
+        private readonly PythonExecutionService? _pythonService;
         private Process? _gradioProcess;
 
         private string _localUrl;
@@ -24,7 +24,7 @@ namespace LLMR.Services.OpenAI_v2;
 
         private TaskCompletionSource<(string LocalUrl, string PublicUrl)> _gradioUrlsTcs;
 
-        public OpenAI_v2_APIHandler(PythonExecutionService pythonService, string? pythonPath)
+        public OpenAI_v2_APIHandler(PythonExecutionService? pythonService, string? pythonPath)
         {
             _pythonService = pythonService;
             PythonPath = pythonPath ?? throw new ArgumentNullException(nameof(pythonPath));
@@ -47,6 +47,11 @@ namespace LLMR.Services.OpenAI_v2;
                 dynamic apiModule = Py.Import("openAI_v2_apiHandler");
 
                 dynamic result = apiModule.validate_api_key(apiKey);
+
+                if (result == null)
+                {
+                    throw new InvalidOperationException("<APIH oAIv2> Validation result is null, check Python API.");
+                }
 
                 return (bool)result;
             });
@@ -79,7 +84,7 @@ namespace LLMR.Services.OpenAI_v2;
             
             if (!(settings is OpenAI_v2_ModelSettings))
             {
-                throw new ArgumentException("<APIH error> Settings must be of type OpenAI_v2_ModelSettings!");
+                throw new ArgumentException("<APIH oAIv2> Settings must be of type OpenAI_v2_ModelSettings!");
             }
 
             return await Task.Run(async () =>
@@ -89,7 +94,7 @@ namespace LLMR.Services.OpenAI_v2;
                     return (_localUrl, _publicUrl);
                 }
 
-                // Extract parameters
+                // extract parameters
                 var systemMessage = settings.Parameters
                     .OfType<StringParameter>()
                     .FirstOrDefault(p => p.Name == "System message")?.ValueTyped ?? "You are a helpful assistant.";
@@ -114,7 +119,7 @@ namespace LLMR.Services.OpenAI_v2;
                     .OfType<DoubleParameter>()
                     .FirstOrDefault(p => p.Name == "PresencePenalty")?.ValueTyped ?? 0.0;
 
-                // Build arguments string
+                // build arg string
                 var argumentsBuilder = new StringBuilder();
 
                 argumentsBuilder.Append($"-u Scripts/openAI_v2_gradioServer.py --start-gradio");
@@ -144,7 +149,7 @@ namespace LLMR.Services.OpenAI_v2;
                 }
                 else 
                 {
-                    throw new NotImplementedException("<OAI Multicaller APIHandler:> calling from not implemented RuntimeInformation.OSPlatform.");
+                    throw new NotImplementedException("<APIH oAIv2> Calling from not implemented RuntimeInformation.OSPlatform.");
                 }
 
                 var startInfo = new ProcessStartInfo
@@ -224,7 +229,7 @@ namespace LLMR.Services.OpenAI_v2;
             {
                 if (_gradioProcess == null || _gradioProcess.HasExited)
                 {
-                    return "Gradio interface not running.";
+                    return "<APIH oAIv2> Gradio interface not running.";
                 }
 
                 try
@@ -232,7 +237,7 @@ namespace LLMR.Services.OpenAI_v2;
                     _gradioProcess.Kill();
                     _gradioProcess.WaitForExit();
                     _gradioProcess = null;
-                    return "Gradio interface stopped.";
+                    return "<APIH oAIv2> Gradio interface stopped successfully.";
                 }
                 catch (Exception ex)
                 {

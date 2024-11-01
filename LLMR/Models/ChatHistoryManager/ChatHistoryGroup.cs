@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using LLMR.Models.ChatHistoryManager;
 using ReactiveUI;
 
 namespace LLMR.Models.ChatHistoryManager;

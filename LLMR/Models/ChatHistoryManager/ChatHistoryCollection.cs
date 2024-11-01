@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using LLMR.Models.ChatHistoryManager;
 using LLMR.Models.ModelSettingsManager;
 using LLMR.Models.ModelSettingsManager.ModelParameters;
 using LLMR.Models.ModelSettingsManager.ModelSettingsModules;
@@ -186,7 +185,7 @@ public class ChatHistoryCollection : ReactiveObject
     
     private void LoadItemsFromDirectory(string directoryPath, ChatHistoryCategory parentCategory)
     {
-        // Load directories (subfolders)
+        // load directories (&subfolders)
         var directories = Directory.GetDirectories(directoryPath);
 
         foreach (var dir in directories)
@@ -204,7 +203,7 @@ public class ChatHistoryCollection : ReactiveObject
             parentCategory.Items.Add(subCategory);
         }
 
-        // Load files
+        // load files
         var files = Directory.GetFiles(directoryPath, "*.json");
 
         foreach (var file in files)
@@ -235,6 +234,7 @@ public class ChatHistoryCollection : ReactiveObject
 
 
 
+/*
     private void LoadFilesFromDirectory(string directoryPath, ChatHistoryCategory category)
     {
         var files = Directory.GetFiles(directoryPath, "*.json");
@@ -281,6 +281,7 @@ public class ChatHistoryCollection : ReactiveObject
             category.Groups.Add(group);
         }
     }
+*/
 
     private void LoadFileContent(ChatHistoryFile file)
     {
@@ -294,18 +295,17 @@ public class ChatHistoryCollection : ReactiveObject
             var fileContent = File.ReadAllText(filePath);
             dynamic jsonData = JsonConvert.DeserializeObject(fileContent);
 
-            // Create a generic IModelSettings instance
             var modelSettings = new GenericModelSettings
             {
                 SelectedModel = jsonData.settings.model
             };
 
-            // Load parameters
             JObject parametersData = jsonData.settings.parameters;
 
             if (parametersData == null)
             {
-                // Handle old format where parameters are direct properties
+                // Comment<Moe>: pre v. 0.3 alpha JSON format compatibility: 
+                // old format (parameters as direct properties)
                 parametersData = new JObject();
                 foreach (var prop in jsonData.settings)
                 {
@@ -376,17 +376,15 @@ public class ChatHistoryCollection : ReactiveObject
             ApiKey = jsonData.settings.api_key;
             DownloadedOn = jsonData.settings.downloaded_on;
 
-            // Load conversation or responses
             Conversation.Clear();
 
             if (jsonData.conversation != null)
             {
-                // Regular chat history format
                 foreach (var entry in jsonData.conversation)
                 {
                     Conversation.Add(new ConversationEntry
                     {
-                        Label = null,  // No custom label for regular conversations
+                        Label = null,  // no custom label in regular conversations!
                         User = entry.user,
                         Assistant = entry.assistant
                     });
@@ -394,19 +392,21 @@ public class ChatHistoryCollection : ReactiveObject
             }
             else if (jsonData.responses != null)
             {
-                // Multicaller format
+                // ------------------
+                // Multicaller format:
+                // ------------------
                 string userPrompt = jsonData.settings.prompt;
                 int totalResponses = jsonData.responses.Count;
 
-                // Add the user prompt once
+                // add the user prompt once
                 Conversation.Add(new ConversationEntry
                 {
                     Label = "User (Prompt):",
                     User = userPrompt,
-                    Assistant = null  // No assistant response for this entry
+                    Assistant = null  // no assistant response in MC
                 });
 
-                // Add each assistant response
+                // add all assistant responses
                 for (int i = 0; i < totalResponses; i++)
                 {
                     var entry = jsonData.responses[i];
@@ -415,7 +415,7 @@ public class ChatHistoryCollection : ReactiveObject
                     Conversation.Add(new ConversationEntry
                     {
                         Label = $"Assistant {i + 1}/{totalResponses}:",
-                        User = null,  // No user message for assistant responses
+                        User = null,  // no useless repetition of the user message for assistant responses
                         Assistant = assistantResponse
                     });
                 }
@@ -427,7 +427,7 @@ public class ChatHistoryCollection : ReactiveObject
         }
         catch (Exception ex)
         {
-            // Reset content to avoid showing the previous file's content in UI
+            // reset content to avoid showing the previous file's content in UI
             Settings = null;
             Conversation.Clear();
             SelectedFile = null;

@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading.Tasks;
 using LLMR.Models.ModelSettingsManager;
 using LLMR.Models.ModelSettingsManager.ModelParameters;
-using LLMR.Models.ModelSettingsManager.ModelParameters;
 using LLMR.Models.ModelSettingsManager.ModelSettingsModules;
 using Python.Runtime;
 
@@ -17,9 +16,9 @@ namespace LLMR.Services.OpenAI_Multicaller;
 
     public class OpenAI_Multicaller_APIHandler : IAPIHandler, IDisposable
     {
-        private readonly PythonExecutionService _pythonService;
+        private readonly PythonExecutionService? _pythonService;
         
-        public OpenAI_Multicaller_APIHandler(PythonExecutionService pythonService, string? pythonPath)
+        public OpenAI_Multicaller_APIHandler(PythonExecutionService? pythonService, string? pythonPath)
         {
             _pythonService = pythonService;
             PythonPath = pythonPath ?? throw new ArgumentNullException(nameof(pythonPath));
