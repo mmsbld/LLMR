@@ -3856,7 +3856,7 @@
     "/Users/moritz/.nuget/packages/": {}
   },
   "project": {
-    "version": "1.0.0",
+    "version": "0.4.2",
     "restore": {
       "projectUniqueName": "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj",
       "projectName": "LLMR",
