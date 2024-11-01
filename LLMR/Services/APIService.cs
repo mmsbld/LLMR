@@ -7,12 +7,12 @@ namespace LLMR.Services;
 
 public class APIService:IAPIService
 {
-    private readonly IAPIHandler _apiHandler;
+    private readonly IAPIHandler? _apiHandler;
 
     public event EventHandler<string> ConsoleMessageOccured;
     public event EventHandler<string> ErrorMessageOccured;
 
-    public APIService(IAPIHandler apiHandler)
+    public APIService(IAPIHandler? apiHandler)
     {
         _apiHandler = apiHandler;
         _apiHandler.ConsoleMessageOccured += HandleConsoleMessageOccured;
@@ -39,7 +39,7 @@ public class APIService:IAPIService
         return await _apiHandler.GetAvailableModelsAsync(apiKey);
     }
 
-    public async Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey, IModelSettings settings)
+    public async Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey, IModelSettings? settings)
     {
         return await _apiHandler.StartGradioInterfaceAsync(apiKey, settings);
     }

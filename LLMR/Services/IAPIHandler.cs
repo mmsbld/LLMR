@@ -16,7 +16,7 @@ public interface IAPIHandler
     public Task<List<string>> GetAvailableModelsAsync(string apiKey);
 
     public Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey,
-        IModelSettings settings);
+        IModelSettings? settings);
 
     public Task<string> StopGradioInterfaceAsync();
 

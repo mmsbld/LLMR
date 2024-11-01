@@ -18,7 +18,7 @@ public class PythonExecutionService : IDisposable
     private readonly BlockingCollection<Func<Task>?> _taskQueue = new();
     private bool _isDisposed;
     private bool _isPythonInitialized;
-    private readonly string _pythonPath;
+    private readonly string? _pythonPath;
     private Exception _threadException; // exceptions thrown in background thread
 
     private readonly TaskCompletionSource<bool> _initTcs = new();
@@ -28,7 +28,7 @@ public class PythonExecutionService : IDisposable
     public event EventHandler<string>? ConsoleMessageOccurred;
     
     // private constructor (-> singleton, GoF)
-    private PythonExecutionService(string pythonPath)
+    private PythonExecutionService(string? pythonPath)
     {
         ArgumentNullException.ThrowIfNull(pythonPath);
         _pythonPath = pythonPath;
@@ -41,7 +41,7 @@ public class PythonExecutionService : IDisposable
     }
 
     // public getter for singleton
-    public static PythonExecutionService GetInstance(string pythonPath)
+    public static PythonExecutionService GetInstance(string? pythonPath)
     {
         lock (_lock)
         {

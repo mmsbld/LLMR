@@ -65,7 +65,7 @@ namespace LLMR.Services.OpenAI_Multicaller;
             });
         }
 
-        public Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey, IModelSettings settings)
+        public Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey, IModelSettings? settings)
         {
             throw new NotImplementedException("<OAI MulticallerAPIH: no gradio interface in multicaller mode.>");
         }
@@ -75,7 +75,7 @@ namespace LLMR.Services.OpenAI_Multicaller;
             throw new NotImplementedException("<OAI MulticallerAPIH: no gradio interface in multicaller mode.>");
         }
 
-        public async Task<string> RunMulticallerAsync(string apiKey, IModelSettings settings)
+        public async Task<string> RunMulticallerAsync(string apiKey, IModelSettings? settings)
         {
             if (!(settings is OpenAI_Multicaller_ModelSettings))
             {

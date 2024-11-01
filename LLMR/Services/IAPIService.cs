@@ -12,6 +12,6 @@ public interface IAPIService : IDisposable
     
     Task<bool> ValidateApiKeyAsync(string apiKey);
     Task<List<string>> GetAvailableModelsAsync(string apiKey);
-    Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey, IModelSettings settings);
+    Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey, IModelSettings? settings);
     Task<string> StopGradioInterfaceAsync();
 }

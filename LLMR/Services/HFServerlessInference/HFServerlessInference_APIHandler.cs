@@ -74,7 +74,7 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
         });
     }
 
-    public async Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiToken, IModelSettings settings)
+    public async Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiToken, IModelSettings? settings)
     {
         if (!(settings is HFServerlessInferenceModelSettings))
         {

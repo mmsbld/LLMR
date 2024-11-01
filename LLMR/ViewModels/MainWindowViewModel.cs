@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -40,16 +44,16 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 {
     #region Fields
 
-    private string _serverStatus;
-    private IImmutableSolidColorBrush _serverStatusColor;
+    private string? _serverStatus;
+    private IImmutableSolidColorBrush? _serverStatusColor;
     private string? _apiKey;
     private string? _pythonPath;
     private bool _isBusy;
     private int _selectedConsoleIndex;
-    private Bitmap _generatedPublicLinkQRCode;
-    private IModelSettings _modelSettings;
-    private string _selectedModelType;
-    private IAPIService _apiService;
+    private Bitmap? _generatedPublicLinkQRCode;
+    private IModelSettings? _modelSettingsModule;
+    private string? _selectedModelType;
+    private IAPIService? _apiService;
     private bool _isServerRunning;
     PythonExecutionService? _pythonService;
     private bool _pythonRunning;
@@ -79,13 +83,13 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         set => this.RaiseAndSetIfChanged(ref _pythonPath, value);
     }
     
-    public string ServerStatus
+    public string? ServerStatus
     {
         get => _serverStatus;
         set => this.RaiseAndSetIfChanged(ref _serverStatus, value);
     }
 
-    public IImmutableSolidColorBrush ServerStatusColor
+    public IImmutableSolidColorBrush? ServerStatusColor
     {
         get => _serverStatusColor;
         set => this.RaiseAndSetIfChanged(ref _serverStatusColor, value);
@@ -103,19 +107,19 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         set => this.RaiseAndSetIfChanged(ref _selectedConsoleIndex, value);
     }
 
-    public Bitmap GeneratedPublicLinkQRCode
+    public Bitmap? GeneratedPublicLinkQRCode
     {
         get => _generatedPublicLinkQRCode;
         set => this.RaiseAndSetIfChanged(ref _generatedPublicLinkQRCode, value);
     }
 
-    public IModelSettings CurrentModelSettings
+    public IModelSettings? CurrentModelSettingsModule
     {
-        get => _modelSettings;
-        set => this.RaiseAndSetIfChanged(ref _modelSettings, value);
+        get => _modelSettingsModule;
+        set => this.RaiseAndSetIfChanged(ref _modelSettingsModule, value);
     }
 
-    public string SelectedModelType
+    public string? SelectedModelType
     {
         get => _selectedModelType;
         set => this.RaiseAndSetIfChanged(ref _selectedModelType, value);
@@ -162,8 +166,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public ReactiveCommand<Unit, Unit> AddNewApiKeyCommand { get; }
     public ReactiveCommand<Unit, Unit> RemoveApiKeyCommand { get; }
-    public ReactiveCommand<Unit, Unit> ConfirmLoginCommand { get; set; }
-    public ReactiveCommand<Unit, Unit> SelectModuleCommand { get; set; }
+    public ReactiveCommand<Unit, Unit>? ConfirmLoginCommand { get; set; }
+    public ReactiveCommand<Unit, Unit>? SelectModuleCommand { get; set; }
     public ReactiveCommand<Unit, Unit> ValidateApiKeyCommand { get; }
     public ReactiveCommand<Unit, Unit> GenerateLinkCommand { get; }
     public ReactiveCommand<Unit, Unit> RunMulticallerCommand { get; }
@@ -231,17 +235,62 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         QuestPDF.Settings.License = LicenseType.Community; // we can obviously use the MIT community license, right? 
 
         ViewManager.SwitchToLogin();
-
-        AddToConsole("In case of connection issues, make sure that your internet connection is working properly and the necessary ports and protocols are not blocked!");
-        AddToConsole("Your incoming ports might be blocked in large public networks.");
-        AddToConsole("Switch to your mobile internet connection first, to test if connection issues persist in a private network.");
-
+        
         AddSuccessMessageToConsole("<init complete>");
+        DisplayStartupMessages();
     }
 
     #endregion
 
     #region Methods
+    
+            private void DisplayStartupMessages()
+        {
+            var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
+            var osDescription = RuntimeInformation.OSDescription;
+            var osName = "Unknown OS";
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                osName = "macOS";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                osName = "Linux";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                osName = "Windows";
+            }
+
+
+            var currentDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            var timezone = TimeZoneInfo.Local.DisplayName;
+
+            const string listOfHyphens = "– – – – – –";
+            const string lineOfStars = "*************";
+            var appInfo = $"LLMR v{version} running on {osName} ({osDescription}).";
+            var dateTime = $"Current time: {currentDate} ({timezone}).";
+
+            const string networkWarningLineOne = "Please make sure that your connection is stable and all required ports are open.";
+            const string networkWarningLineTwo = "In public networks (e.g., schools or universities), some ports may be restricted.";
+            const string networkWarningLineThree = "Consider using a private network, such as a mobile hotspot for running LLMR.";
+            const string networkWarningLineFour = "The client interface is not affected, clients can use school or university networks.";
+            const string networkWarningLineFive = "In spite of LLMR running in a private network, for the chat histories are saved locally. ";
+
+            AddToConsole(lineOfStars, new SolidColorBrush(Colors.DarkGreen));
+            AddToConsole(appInfo, new SolidColorBrush(Colors.DarkGreen)); 
+            AddToConsole(dateTime, new SolidColorBrush(Colors.DarkGreen)); 
+            AddToConsole(lineOfStars, new SolidColorBrush(Colors.DarkGreen));
+
+            AddToConsole(listOfHyphens, new SolidColorBrush(Colors.Tomato));
+            AddToConsole(networkWarningLineOne, new SolidColorBrush(Colors.Tomato));
+            AddToConsole(networkWarningLineTwo, new SolidColorBrush(Colors.Tomato));
+            AddToConsole(networkWarningLineThree, new SolidColorBrush(Colors.Tomato));
+            AddToConsole(networkWarningLineFour, new SolidColorBrush(Colors.Tomato));
+            AddToConsole(networkWarningLineFive, new SolidColorBrush(Colors.Tomato));
+            AddToConsole(listOfHyphens, new SolidColorBrush(Colors.Tomato));
+        }
     private async Task AddNewApiKeyAsync()
     {
         var name = await PromptUserAsync("Enter a name for the API key:");
@@ -343,14 +392,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         {
             var json = File.ReadAllText(filePath);
             var keys = JsonConvert.DeserializeObject<List<ApiKeyEntry>>(json);
-            if (keys != null)
+            if (keys == null) return;
+            foreach (var key in keys)
             {
-                foreach (var key in keys)
-                {
-                    SavedApiKeys.Add(key);
-                }
-                SelectedApiKey = SavedApiKeys.FirstOrDefault(k => k != null && k.IsLastUsed) ?? SavedApiKeys.FirstOrDefault();
+                SavedApiKeys.Add(key);
             }
+            SelectedApiKey = SavedApiKeys.FirstOrDefault(k => k != null && k.IsLastUsed) ?? SavedApiKeys.FirstOrDefault();
         }
     }
 
@@ -369,15 +416,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             return _pythonRunning;
         }
 
-        IAPIHandler apiHandler = null;
-
         try
         {
             AddToConsole("Initializing PES...");
             _pythonService = PythonExecutionService.GetInstance(PythonPath);
             AddToConsole("PES instantiated successfully.");
-        
-            // Subscribe to ExceptionOccurred
+
             _pythonService.ExceptionOccurred += (_, errorMessage) =>
             {
                 Dispatcher.UIThread.InvokeAsync(() =>
@@ -385,17 +429,17 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                     AddExceptionMessageToConsole(new Exception($"<PES> Error: {errorMessage}"));
                     _pythonRunning = false;
                     _pythonService = null; // reset to allow new singleton (PES.cs)
-                    IsPythonPathLocked = false; 
+                    IsPythonPathLocked = false;
                 });
             };
-        
-            // Subscribe to ConsoleMessageOccurred
+
             _pythonService.ConsoleMessageOccurred += (_, message) =>
             {
                 Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     SolidColorBrush color;
-                    if (message.Contains("error", StringComparison.OrdinalIgnoreCase) || message.Contains("exception", StringComparison.OrdinalIgnoreCase))
+                    if (message.Contains("error", StringComparison.OrdinalIgnoreCase) ||
+                        message.Contains("exception", StringComparison.OrdinalIgnoreCase))
                     {
                         color = new SolidColorBrush(Colors.DarkRed);
                     }
@@ -407,43 +451,51 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                     {
                         color = new SolidColorBrush(Colors.DarkSalmon);
                     }
+
                     AddToConsole(message, color);
                 });
             };
-        
-            // Await the initialization task
-            bool initSuccess = await _pythonService.InitializationTask;
-        
+
+            var initSuccess = await _pythonService.InitializationTask;
+
             if (!initSuccess)
             {
                 AddToConsole("PES failed to initialize.");
                 _pythonService = null; // reset for new singleton (pes.cs)
-                IsPythonPathLocked = false; 
+                IsPythonPathLocked = false;
                 return false;
             }
 
+            IAPIHandler? apiHandler = null;
             switch (SelectedModelType)
             {
                 case "OpenAI":
-                    CurrentModelSettings = new OpenAI_v2_ModelSettings();
+                    CurrentModelSettingsModule = new OpenAI_v2_ModelSettings();
                     apiHandler = new OpenAI_v2_APIHandler(_pythonService, PythonPath);
                     _apiService = new APIService(apiHandler);
                     ViewManager.GradioMode = true;
                     break;
                 case "Hugging Face Serverless Inference":
-                    CurrentModelSettings = new HFServerlessInferenceModelSettings();
+                    CurrentModelSettingsModule = new HFServerlessInferenceModelSettings();
                     apiHandler = new HFServerlessInference_APIHandler(_pythonService, PythonPath);
                     _apiService = new APIService(apiHandler);
                     ViewManager.GradioMode = true;
                     break;
                 case "OpenAI Multicaller":
-                    CurrentModelSettings = new OpenAI_Multicaller_ModelSettings();
+                    CurrentModelSettingsModule = new OpenAI_Multicaller_ModelSettings();
                     apiHandler = new OpenAI_Multicaller_APIHandler(_pythonService, PythonPath);
                     _apiService = new OpenAI_Multicaller_APIService(apiHandler);
                     ViewManager.MulticallerMode = true;
                     break;
             }
-        
+
+            if (_apiService == null)
+            {
+                AddExceptionMessageToConsole(new ArgumentNullException("PES is uninitializable, since APIS is not initialized."));
+                _pythonRunning = false;
+                return false;
+            }
+
             _apiService.ConsoleMessageOccured += (_, args) =>
                 Dispatcher.UIThread.InvokeAsync(() => AddToConsole("<APIS> " + args));
 
@@ -481,6 +533,10 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             return;
         try
         {
+            if (_apiService == null)
+            {
+                throw new Exception(new StringBuilder().Append("<< FATAL CRASH >> << TRY TO CLOSE AND REOPEN THE APPLICATION! >>: _apiService is uninitialized but _pythonRunning is flagged as true.").ToString());
+            }
             Dispatcher.UIThread.InvokeAsync(() => { AddToConsole("<MWVM> Validating API Key ..."); });
             IsBusy = true;
 
@@ -489,7 +545,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                 throw new ArgumentException("Could not find an API key / token. Did you enter one?");
             }
 
-            bool validApiKey = false;
+            bool validApiKey;
             try
             {
                 validApiKey = await _apiService.ValidateApiKeyAsync(ApiKey);
@@ -506,21 +562,24 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                 {
                     AddSuccessMessageToConsole("Validated API key / token successfully.");
                 });
+                
+                if (CurrentModelSettingsModule == null)
+                    throw new NullReferenceException("CurrentModelSettingsModule is null.");
 
-                if (CurrentModelSettings.GetType() != typeof(OpenAI_Multicaller_ModelSettings))
+                if (CurrentModelSettingsModule.GetType() != typeof(OpenAI_Multicaller_ModelSettings))
                     ViewManager.SwitchToModelSettings();
                 else
                     ViewManager.SwitchToMulticallerModelSettings();
 
                 var models = await _apiService.GetAvailableModelsAsync(ApiKey);
 
-                CurrentModelSettings.AvailableModels.Clear();
+                CurrentModelSettingsModule.AvailableModels.Clear();
                 foreach (string model in models)
                 {
-                    CurrentModelSettings.AvailableModels.Add(model);
+                    CurrentModelSettingsModule.AvailableModels.Add(model);
                 }
 
-                CurrentModelSettings.SelectedModel = CurrentModelSettings.AvailableModels.FirstOrDefault();
+                CurrentModelSettingsModule.SelectedModel = CurrentModelSettingsModule.AvailableModels.FirstOrDefault();
             }
             else
             {
@@ -616,7 +675,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         SelectModuleCommand.ThrownExceptions.Subscribe(ex =>
         {
             Dispatcher.UIThread.InvokeAsync(() => { AddExceptionMessageToConsole(ex);});
-            Dispatcher.UIThread.InvokeAsync(() => { CreateOrResetSelectModuleCommand();});
+            Dispatcher.UIThread.InvokeAsync(CreateOrResetSelectModuleCommand);
         });
     }
 
@@ -631,17 +690,24 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
             IsBusy = true;
 
-            var (localLink, publicLink) = await _apiService.StartGradioInterfaceAsync(ApiKey, CurrentModelSettings);
+            if (_apiService == null)
+                throw new NullReferenceException("API Service is null.");
+            
+            
+            var (localLink, publicLink) = await _apiService.StartGradioInterfaceAsync(ApiKey, CurrentModelSettingsModule);
             AddToConsole($"<internal> Local Link: {localLink}, Public Link: {publicLink}");
 
-            CurrentModelSettings.GeneratedLocalLink = localLink;
-            CurrentModelSettings.GeneratedPublicLink = publicLink;
+            if (CurrentModelSettingsModule == null)
+                throw new NullReferenceException("CurrentModelSettingsModule is null.");
+            
+            CurrentModelSettingsModule.GeneratedLocalLink = localLink;
+            CurrentModelSettingsModule.GeneratedPublicLink = publicLink;
 
             using (var qrGenerator = new QRCodeGenerator())
             {
                 var qrCodeData = qrGenerator.CreateQrCode(publicLink, QRCodeGenerator.ECCLevel.Q);
                 var qrCode = new PngByteQRCode(qrCodeData);
-                byte[] qrCodeAsPng = qrCode.GetGraphic(20);
+                var qrCodeAsPng = qrCode.GetGraphic(20);
 
                 using (var stream = new MemoryStream(qrCodeAsPng))
                 {
@@ -677,10 +743,13 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                 throw new ArgumentException("Please enter a valid API key / token.");
             }
 
+            if (_apiService == null)
+                throw new NullReferenceException("API Service is null.");
+            
             if (_apiService.GetType() != typeof(OpenAI_Multicaller_APIService))
                 throw new NotSupportedException("<MWVM> API Service type is not supported.");
 
-            OpenAI_Multicaller_APIService apiService = (OpenAI_Multicaller_APIService)_apiService;
+            var apiService = (OpenAI_Multicaller_APIService)_apiService;
 
             AddToConsole($"<internal> Multicaller started.");
             IsServerRunning = true;
@@ -694,7 +763,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             ViewManager.IsLinkGenerationEnabled = false;
             ViewManager.IsDataCollectionEnabled = true;
             
-            var endMessage = await apiService.RunMulticallerAsync(ApiKey, CurrentModelSettings);
+            var endMessage = await apiService.RunMulticallerAsync(ApiKey, CurrentModelSettingsModule);
             LoadChatHistories();
             AddSuccessMessageToConsole($"<internal> Multicaller ended with message: {endMessage}.");
             IsServerRunning = false; 
@@ -728,12 +797,10 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         try
         {
-            if (_apiService != null)
-            {
-                await StopGradioServer();
-                IsServerRunning = false;
-                SwitchToDataCollectionAndLoadChatHistories();
-            }
+            if (_apiService == null) return;
+            await StopGradioServer();
+            IsServerRunning = false;
+            SwitchToDataCollectionAndLoadChatHistories();
         }
         catch (Exception e)
         {
@@ -755,11 +822,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     private async Task StopGradioServer()
     {
         AddToConsole("<MWVM> Stopping server...");
+        if (_apiService == null)
+            throw new NullReferenceException("API Service is null.");
         var stopMessage = await _apiService.StopGradioInterfaceAsync();
         AddSuccessMessageToConsole("Server stopped with message: " + stopMessage);
         ViewManager.SwitchToDataCollection();
         ViewManager.IsLinkGenerationEnabled = false;
-        int lala = 42;
     }
 
     private async Task CopyLastMessageAsync()
@@ -769,10 +837,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             var lastMessage = ConsoleMessages.Last();
             var textToCopy = $"[{lastMessage.Timestamp}] {lastMessage.Text}";
             var clipboard = Clipboard.Get();
-            if (clipboard != null)
-            {
-                await clipboard.SetTextAsync(textToCopy);
-            }
+            await clipboard.SetTextAsync(textToCopy);
         }
     }
 
@@ -780,10 +845,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         var allMessages = string.Join(Environment.NewLine, ConsoleMessages.Select(msg => $"[{msg.Timestamp}] {msg.Text}"));
         var clipboard = Clipboard.Get();
-        if (clipboard != null)
-        {
-            await clipboard.SetTextAsync(allMessages);
-        }
+        await clipboard.SetTextAsync(allMessages);
     }
 
     private void AddToConsole(string message)
@@ -864,15 +926,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         try
         {
-            if (ChatHistoryCollection.SelectedItem != null)
-            {
-                ChatHistoryCollection.RemoveItem(ChatHistoryCollection.SelectedItem);
-                AddToConsole("Item removed successfully.");
-            }
-            else
-            {
-                AddToConsole("No item selected to remove.");
-            }
+            ChatHistoryCollection.RemoveItem(ChatHistoryCollection.SelectedItem);
+            AddToConsole("Item removed successfully.");
         }
         catch (Exception ex)
         {
@@ -882,8 +937,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     private async Task RenameItemAsync()
     {
-        if (ChatHistoryCollection.SelectedItem != null)
-        {
             var newName = await PromptUserAsync("Enter the new name:");
             if (string.IsNullOrWhiteSpace(newName))
             {
@@ -900,11 +953,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             {
                 AddExceptionMessageToConsole(ex);
             }
-        }
-        else
-        {
-            AddToConsole("No item selected to rename.");
-        }
     }
 
 
@@ -954,7 +1002,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         try
         {
-            if (ChatHistoryCollection.SelectedFile == null || string.IsNullOrEmpty(ChatHistoryCollection.SelectedFile.Filename))
+            if (string.IsNullOrEmpty(ChatHistoryCollection.SelectedFile.Filename))
             {
                 await ShowMessageAsync("No file chosen", "Please select a chat history to download.");
                 return;
@@ -1024,7 +1072,13 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     private Window GetMainWindow()
     {
-        return (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        var appCurrent = Application.Current;
+        if (appCurrent is null)
+            throw new NullReferenceException("Application.Current is null.");
+        var mainWindow = (appCurrent.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        if (mainWindow != null)
+            return mainWindow;
+        throw new NullReferenceException("mainWindow is null.");
     }
 
     private async Task ShowMessageAsync(string title, string message)
@@ -1053,7 +1107,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     
     public void Dispose()
     {
-        if (_apiService != null) _apiService.Dispose();
+        _apiService?.Dispose();
         _pythonService?.Dispose();
     }
 

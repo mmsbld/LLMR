@@ -78,7 +78,7 @@ namespace LLMR.Services.OpenAI_v2;
             });
         }
 
-        public async Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey, IModelSettings settings)
+        public async Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey, IModelSettings? settings)
         {
             _gradioUrlsTcs = new TaskCompletionSource<(string, string)>();
             

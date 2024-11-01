@@ -12,7 +12,7 @@ public class OpenAI_Multicaller_APIService : IAPIService
     public event EventHandler<string> ConsoleMessageOccured;
     public event EventHandler<string> ErrorMessageOccured;
 
-    public OpenAI_Multicaller_APIService(IAPIHandler apiHandler)
+    public OpenAI_Multicaller_APIService(IAPIHandler? apiHandler)
     {
         if (apiHandler.GetType() != typeof(OpenAI_Multicaller_APIHandler))
             throw new NotSupportedException("<OAI Multicaller APIS>: IAPIH instance must be of the correct type.");
@@ -42,13 +42,13 @@ public class OpenAI_Multicaller_APIService : IAPIService
         return await _apiHandler.GetAvailableModelsAsync(apiKey);
     }
 
-    public async Task<string> RunMulticallerAsync(string apiKey, IModelSettings settings)
+    public async Task<string> RunMulticallerAsync(string apiKey, IModelSettings? settings)
     {
         return await _apiHandler.RunMulticallerAsync(apiKey, settings);
     }
 
     public async Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey,
-        IModelSettings settings)
+        IModelSettings? settings)
     {
         throw new NotImplementedException("<OAI MulticallerAPIS: no gradio interface in multicaller mode.>");
     }
