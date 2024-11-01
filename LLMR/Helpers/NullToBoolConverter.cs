@@ -6,9 +6,9 @@ namespace LLMR.Helpers;
 
     public class NullToBoolConverter : IValueConverter
     {
-        public bool Invert { get; set; } = false;
+        private bool Invert => false;
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object parameter, CultureInfo culture)
         {
             bool isVisible = value != null;
             if (Invert)
