@@ -51,10 +51,21 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     private string _selectedModelType;
     private IAPIService _apiService;
     private bool _isServerRunning;
+    PythonExecutionService? _pythonService;
+    private bool _pythonRunning;
+    private bool _pythonInitSuccess;
 
     #endregion
 
     #region Properties
+    
+    private bool _isPythonPathLocked;
+    public bool IsPythonPathLocked
+    {
+        get => _isPythonPathLocked;
+        set => this.RaiseAndSetIfChanged(ref _isPythonPathLocked, value);
+    }
+
 
     public string? ApiKey
     {
@@ -151,8 +162,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public ReactiveCommand<Unit, Unit> AddNewApiKeyCommand { get; }
     public ReactiveCommand<Unit, Unit> RemoveApiKeyCommand { get; }
-    public ReactiveCommand<Unit, Unit> ConfirmLoginCommand { get; }
-    public ReactiveCommand<Unit, Unit> SelectModuleCommand { get; }
+    public ReactiveCommand<Unit, Unit> ConfirmLoginCommand { get; set; }
+    public ReactiveCommand<Unit, Unit> SelectModuleCommand { get; set; }
     public ReactiveCommand<Unit, Unit> ValidateApiKeyCommand { get; }
     public ReactiveCommand<Unit, Unit> GenerateLinkCommand { get; }
     public ReactiveCommand<Unit, Unit> RunMulticallerCommand { get; }
@@ -174,6 +185,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public MainWindowViewModel()
     {
+        _pythonRunning = false;
         PythonPath = "/Library/Frameworks/Python.framework/Versions/3.12"; // TODO: Load/Save! (+ firstTime Set)
         AvailableModuleTypes = new ObservableCollection<string> { "OpenAI", "Hugging Face Serverless Inference", "OpenAI Multicaller" };
         SelectedModelType = "OpenAI"; // Default selection
@@ -191,8 +203,10 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
         AddNewApiKeyCommand = ReactiveCommand.CreateFromTask(AddNewApiKeyAsync);
         RemoveApiKeyCommand = ReactiveCommand.Create(RemoveSelectedApiKey, this.WhenAnyValue(x => x.IsApiKeySelected));
-        ConfirmLoginCommand = ReactiveCommand.CreateFromTask(ConfirmLoginAsync);
-        SelectModuleCommand = ReactiveCommand.Create(InstantiateModuleWithInstanceOfIAPIHandler);
+        
+        CreateOrResetConfirmLoginCommand();
+        CreateOrResetSelectModuleCommand();
+        
         ValidateApiKeyCommand = ReactiveCommand.CreateFromTask(ValidateApiKeyAsync);
         GenerateLinkCommand = ReactiveCommand.Create(GenerateLink);
         RunMulticallerCommand = ReactiveCommand.Create(RunMulticaller);
@@ -208,13 +222,13 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         IsBusy = false;
 
         LoadApiKeys();
-        LoadChatHistories(); // Note: what happens with files that are written during the session?
+        LoadChatHistories(); // what will happen with files that are written during the session?
         SetupFileWatcher();
 
         DownloadAllFilesCommand = ReactiveCommand.CreateFromTask(DownloadAllFilesAsync);
         DownloadSelectedAsPdfCommand = ReactiveCommand.CreateFromTask(DownloadSelectedAsPdfAsync);
 
-        QuestPDF.Settings.License = LicenseType.Community; // we can obviously use the MIT community license
+        QuestPDF.Settings.License = LicenseType.Community; // we can obviously use the MIT community license, right? 
 
         ViewManager.SwitchToLogin();
 
@@ -254,12 +268,11 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         if (SelectedApiKey != null)
         {
-                SavedApiKeys.Remove(SelectedApiKey);
-                SelectedApiKey = null;
-                SaveApiKeys();
+            SavedApiKeys.Remove(SelectedApiKey);
+            SelectedApiKey = null;
+            SaveApiKeys();
         }
     }
-
 
     private async Task ConfirmLoginAsync()
     {
@@ -272,13 +285,21 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                 throw new ArgumentException("Please select or add an API key.");
             }
 
-            ApiKey = SelectedApiKey.Key;
-            InstantiateModuleWithInstanceOfIAPIHandler();
-            await ValidateApiKeyAsync(); // proceed if successful
+            ApiKey = SelectedApiKey.Key; 
+            _pythonInitSuccess = await InstantiateModuleWithInstanceOfIAPIHandlerAsync();
+    
+            if (_pythonInitSuccess)
+            {
+                await ValidateApiKeyAsync();
+            }
+            else
+            {
+                AddToConsole("Python initialization failed. Please check the Python path and try again.");
+            }
 
             if (SavedApiKeys.Count == 0)
-                throw new ArgumentException("SavedApiKeys are empty.");
-            
+                throw new ArgumentException("Saved API keys are empty.");
+    
             foreach (var apiKey in SavedApiKeys)
             {
                 Debug.Assert(apiKey != null, nameof(apiKey) + " != null");
@@ -291,9 +312,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         }
         finally
         {
-            IsBusy = false;
+            Dispatcher.UIThread.InvokeAsync(() => IsBusy = false);
         }
     }
+
+
+
 
     private async Task<string> PromptUserAsync(string message)
     {
@@ -337,42 +361,127 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         File.WriteAllText(filePath, json);
     }
 
-    private void InstantiateModuleWithInstanceOfIAPIHandler()
+    private async Task<bool> InstantiateModuleWithInstanceOfIAPIHandlerAsync()
     {
-        PythonExecutionService pythonService = null;
-        IAPIHandler apiHandler = null;
-        pythonService = new PythonExecutionService(PythonPath);
-
-        switch (SelectedModelType)
+        if (_pythonService != null)
         {
-            case "OpenAI": // Note: v2 (old API version of pyPkg openai is kicked)
-                CurrentModelSettings = new OpenAI_v2_ModelSettings();
-                apiHandler = new OpenAI_v2_APIHandler(pythonService, PythonPath);
-                _apiService = new APIService(apiHandler);
-                ViewManager.GradioMode = true;
-                break;
-            case "Hugging Face Serverless Inference":
-                CurrentModelSettings = new HFServerlessInferenceModelSettings();
-                apiHandler = new HFServerlessInference_APIHandler(pythonService, PythonPath);
-                _apiService = new APIService(apiHandler);
-                ViewManager.GradioMode = true;
-                break;
-            case "OpenAI Multicaller":
-                CurrentModelSettings = new OpenAI_Multicaller_ModelSettings();
-                apiHandler = new OpenAI_Multicaller_APIHandler(pythonService, PythonPath);
-                _apiService = new OpenAI_Multicaller_APIService(apiHandler);
-                ViewManager.MulticallerMode = true;
-                break;
+            AddToConsole("PES is already initialized.");
+            return _pythonRunning;
         }
-        _apiService.ConsoleMessageOccured += (_, args) => Dispatcher.UIThread.InvokeAsync(() => AddToConsole("<APIS> " + args));
-        _apiService.ErrorMessageOccured += (_, args) => Dispatcher.UIThread.InvokeAsync(() => AddToConsole("<APIS error> " + args, new SolidColorBrush(Colors.DarkRed)));
+
+        IAPIHandler apiHandler = null;
+
+        try
+        {
+            AddToConsole("Initializing PES...");
+            _pythonService = PythonExecutionService.GetInstance(PythonPath);
+            AddToConsole("PES instantiated successfully.");
+        
+            // Subscribe to ExceptionOccurred
+            _pythonService.ExceptionOccurred += (_, errorMessage) =>
+            {
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    AddExceptionMessageToConsole(new Exception($"<PES> Error: {errorMessage}"));
+                    _pythonRunning = false;
+                    _pythonService = null; // reset to allow new singleton (PES.cs)
+                    IsPythonPathLocked = false; 
+                });
+            };
+        
+            // Subscribe to ConsoleMessageOccurred
+            _pythonService.ConsoleMessageOccurred += (_, message) =>
+            {
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    SolidColorBrush color;
+                    if (message.Contains("error", StringComparison.OrdinalIgnoreCase) || message.Contains("exception", StringComparison.OrdinalIgnoreCase))
+                    {
+                        color = new SolidColorBrush(Colors.DarkRed);
+                    }
+                    else if (message.Contains("successfully", StringComparison.OrdinalIgnoreCase))
+                    {
+                        color = new SolidColorBrush(Colors.ForestGreen);
+                    }
+                    else
+                    {
+                        color = new SolidColorBrush(Colors.DarkSalmon);
+                    }
+                    AddToConsole(message, color);
+                });
+            };
+        
+            // Await the initialization task
+            bool initSuccess = await _pythonService.InitializationTask;
+        
+            if (!initSuccess)
+            {
+                AddToConsole("PES failed to initialize.");
+                _pythonService = null; // reset for new singleton (pes.cs)
+                IsPythonPathLocked = false; 
+                return false;
+            }
+
+            switch (SelectedModelType)
+            {
+                case "OpenAI":
+                    CurrentModelSettings = new OpenAI_v2_ModelSettings();
+                    apiHandler = new OpenAI_v2_APIHandler(_pythonService, PythonPath);
+                    _apiService = new APIService(apiHandler);
+                    ViewManager.GradioMode = true;
+                    break;
+                case "Hugging Face Serverless Inference":
+                    CurrentModelSettings = new HFServerlessInferenceModelSettings();
+                    apiHandler = new HFServerlessInference_APIHandler(_pythonService, PythonPath);
+                    _apiService = new APIService(apiHandler);
+                    ViewManager.GradioMode = true;
+                    break;
+                case "OpenAI Multicaller":
+                    CurrentModelSettings = new OpenAI_Multicaller_ModelSettings();
+                    apiHandler = new OpenAI_Multicaller_APIHandler(_pythonService, PythonPath);
+                    _apiService = new OpenAI_Multicaller_APIService(apiHandler);
+                    ViewManager.MulticallerMode = true;
+                    break;
+            }
+        
+            _apiService.ConsoleMessageOccured += (_, args) =>
+                Dispatcher.UIThread.InvokeAsync(() => AddToConsole("<APIS> " + args));
+
+            _apiService.ErrorMessageOccured += (_, args) =>
+                Dispatcher.UIThread.InvokeAsync(() =>
+                    AddToConsole("<APIS error> " + args, new SolidColorBrush(Colors.DarkRed)));
+
+            AddToConsole("PES initialized and running.", new SolidColorBrush(Colors.DarkSalmon));
+            _pythonRunning = true;
+            IsPythonPathLocked = true; 
+            return true; 
+        }
+        catch (Exception e)
+        {
+            AddExceptionMessageToConsole(e);
+            _pythonRunning = false;
+            _pythonService = null; // reset for new singleton (pes.cs)!
+            IsPythonPathLocked = false; 
+            return false; 
+        }
+        finally
+        {
+            Dispatcher.UIThread.InvokeAsync(() => { IsBusy = false; });
+        }
     }
+
+
+
+
+
 
     private async Task ValidateApiKeyAsync()
     {
+        if (!_pythonRunning)
+            return;
         try
         {
-            AddToConsole("<MWVM> Validating API Key ...");
+            Dispatcher.UIThread.InvokeAsync(() => { AddToConsole("<MWVM> Validating API Key ..."); });
             IsBusy = true;
 
             if (string.IsNullOrEmpty(ApiKey))
@@ -380,17 +489,28 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                 throw new ArgumentException("Could not find an API key / token. Did you enter one?");
             }
 
-            bool validApiKey = await _apiService.ValidateApiKeyAsync(ApiKey);
+            bool validApiKey = false;
+            try
+            {
+                validApiKey = await _apiService.ValidateApiKeyAsync(ApiKey);
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new InvalidOperationException($"Error validating API key: {ex.Message}", ex);
+            }
+
 
             if (validApiKey)
             {
-                AddSuccessMessageToConsole("Validated API key / token successfully.");
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    AddSuccessMessageToConsole("Validated API key / token successfully.");
+                });
+
                 if (CurrentModelSettings.GetType() != typeof(OpenAI_Multicaller_ModelSettings))
                     ViewManager.SwitchToModelSettings();
                 else
-                {
                     ViewManager.SwitchToMulticallerModelSettings();
-                }
 
                 var models = await _apiService.GetAvailableModelsAsync(ApiKey);
 
@@ -407,14 +527,97 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                 throw new ArgumentException("Could not verify the entered API key / token. Please validate your credentials and try again.");
             }
         }
-        catch (Exception e)
+        catch (InvalidOperationException ex)
         {
-            AddExceptionMessageToConsole(e);
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                AddExceptionMessageToConsole(
+                    new Exception($"Validation failed due to an error in the API service: {ex.Message}", ex));
+            });
+        }
+        catch (ArgumentException ex)
+        {
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                AddExceptionMessageToConsole(ex);
+            });
+        }
+        catch (Exception ex)
+        {
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                AddExceptionMessageToConsole(new Exception($"An unexpected error occurred: {ex.Message}", ex));
+            });
         }
         finally
         {
             IsBusy = false;
         }
+    }
+    
+    void CreateOrResetConfirmLoginCommand()
+    {
+        var canExecute = this.WhenAnyValue(vm => vm.SelectedApiKey)
+            .Select(apiKey => apiKey != null);
+    
+        ConfirmLoginCommand = ReactiveCommand.CreateFromTask(
+            async () =>
+            {
+                try
+                {
+                    await ConfirmLoginAsync();
+                }
+                catch (Exception ex)
+                {
+                    AddExceptionMessageToConsole(ex);
+                }
+            },
+            canExecute
+        );
+    }
+
+
+
+    void CreateOrResetSelectModuleCommand()
+    {
+        var canExecute = this.WhenAnyValue(vm => vm.SelectedModelType)
+            .Select(modelType => !string.IsNullOrEmpty(modelType));
+        
+        SelectModuleCommand = ReactiveCommand.CreateFromTask(
+            async () =>
+            {
+                try
+                {
+                    await InstantiateModuleWithInstanceOfIAPIHandlerAsync();
+                }
+                catch (Exception ex)
+                {
+                    AddExceptionMessageToConsole(ex);
+                }
+                finally
+                {
+                    Dispatcher.UIThread.InvokeAsync(() => { CreateOrResetSelectModuleCommand();});
+                }
+            },
+            canExecute
+        );
+        
+        SelectModuleCommand.IsExecuting.Subscribe(isExecuting =>
+        {
+            IsBusy = isExecuting;
+            Dispatcher.UIThread.InvokeAsync(() => { AddToConsole($"<MWVM> SelectModuleCommand State of IsExecuting is: {isExecuting}", new SolidColorBrush(Colors.DarkSalmon)); });
+        });
+        
+        SelectModuleCommand.CanExecute.Subscribe(canExecute =>
+        {
+            Dispatcher.UIThread.InvokeAsync(() => { AddToConsole($"<MWVM> SelectModuleCommand State of CanExecute is: {canExecute}", new SolidColorBrush(Colors.OliveDrab)); });
+        });
+        
+        SelectModuleCommand.ThrownExceptions.Subscribe(ex =>
+        {
+            Dispatcher.UIThread.InvokeAsync(() => { AddExceptionMessageToConsole(ex);});
+            Dispatcher.UIThread.InvokeAsync(() => { CreateOrResetSelectModuleCommand();});
+        });
     }
 
     private async void GenerateLink()
@@ -434,7 +637,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             CurrentModelSettings.GeneratedLocalLink = localLink;
             CurrentModelSettings.GeneratedPublicLink = publicLink;
 
-            // Generate QR Code
             using (var qrGenerator = new QRCodeGenerator())
             {
                 var qrCodeData = qrGenerator.CreateQrCode(publicLink, QRCodeGenerator.ECCLevel.Q);
@@ -504,8 +706,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             ViewManager.IsMulticallerModelSettingsEnabled = true;
             ViewManager.IsLinkGenerationEnabled = false;
             ViewManager.IsDataCollectionEnabled = true;
-
-            // SwitchToDataCollectionAndLoadChatHistories();
         }
         catch (Exception e)
         {
@@ -710,7 +910,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     private void OnFilesChanged(object sender, FileSystemEventArgs e)
     {
-        // Add delay to make sure that the file has been saved
+        // add delay to ensure file has been saved (.5 s)
         Task.Delay(500).ContinueWith(_ => ChatHistoryCollection.LoadFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Models", "chat_histories")));
     }
 
@@ -850,13 +1050,11 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     #endregion
 
     #endregion
-
-    #region IDisposable Implementation
-
+    
     public void Dispose()
     {
         if (_apiService != null) _apiService.Dispose();
+        _pythonService?.Dispose();
     }
 
-    #endregion
 }
