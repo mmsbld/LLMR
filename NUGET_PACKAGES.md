@@ -70,45 +70,10 @@ This document provides an overview of all NuGet packages used in the **LLMR** ap
 
 **License Information:**
 
-All NuGet packages used in this project are open-source and their licenses are listed above. Please ensure compliance with each license when using or modifying these packages.
+All NuGet packages used in this project are open-source and their licenses are .. (<-- ToDo!)
 
 ---
 
-*This document is a work in progress. I have a ps script for extracting all nuget packages that we use, but we have to double check it before switching to public!.*
+*This document is a work in progress: I have added ps script for extracting all nuget packages that we use, but we have to double check it before switching to public!.*
 
 - [ ] ToDo: ✔️ Check packages and dep.
-
----
-5. PYTHON_PACKAGES.md
-markdown
-Code kopieren
-<!-- 
-PYTHON_PACKAGES.md
-
-This document provides an overview of all Python packages used in the LLMR project, along with their respective licenses and links to their official repositories. It ensures transparency and helps in maintaining license compliance.
--->
-
-# Python Packages Overview
-
-This document provides an overview of all Python packages used in the **LLMR** application, along with their respective licenses and links to their official repositories.
-
-| Package   | Version | License          | Repository Link                                            |
-|-----------|---------|------------------|------------------------------------------------------------|
-| requests  | 2.31.0  | Apache 2.0       | [Requests](https://github.com/psf/requests)                |
-| gradio    | 3.0.0   | Apache 2.0       | [Gradio](https://github.com/gradio-app/gradio)             |
-| openai    | 0.27.0  | MIT              | [OpenAI Python](https://github.com/openai/openai-python)    |
-
-*Note: Replace the version numbers with the actual versions used in your project.*
-
----
-
-**License Information:**
-
-- [ ] ToDO: CHECKEN ob das zu8trifft!
-All Python packages used in this project are open-source and their licenses are listed above. Please ensure compliance with each license when using or modifying these packages.
-
----
-
-*This document is a work in progress. Please update it with new packages and license information as the project evolves.*
-
----
