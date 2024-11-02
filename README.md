@@ -5,12 +5,10 @@ README.md
 This README serves as the main landing page for the LLMR project. It provides an overview of the application, download links for various platforms, a demo GIF placeholder, a demo video placeholder, and links to additional documentation files such as package overviews and contribution guidelines.
 -->
 
-<p align="center">
   <picture>
     <source srcset="LLMR/Assets/logo_wide_DARK.png" media="(prefers-color-scheme: dark)">
     <img src="LLMR/Assets/logo_wide.png" alt="LLMR Logo" width="30%">
   </picture>
-</p>
 
 # LLMR
 
@@ -192,7 +190,7 @@ We extend our gratitude to the developers and communities behind the following p
 - Gradio - Apache 2.0 License
 - OpenAI Python Library - MIT License
 - QuestPDF - MIT License
-<!-- Add more acknowledgments as needed -->
+<!-- ToDO: Add links to packages.md files -->
 
 **ToDos:**
 
