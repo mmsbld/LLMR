@@ -27,7 +27,7 @@ public class Clipboard {
     }
 }
 
-// note from Moe: Code from Oliver Henriksson (https://stackoverflow.com/questions/76855551/how-do-i-copy-text-to-clipboard-in-avalonia)
+// note from Moe: Code from O.Henriksson (https://stackoverflow.com/questions/76855551/how-do-i-copy-text-to-clipboard-in-avalonia)
 // sample use:
 
 // var clipboard = Clipboard.Get();
