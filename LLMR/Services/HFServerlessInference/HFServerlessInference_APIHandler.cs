@@ -162,7 +162,7 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
             }
             else 
             {
-                throw new NotImplementedException("<OAI Multicaller APIHandler:> calling from not implemented RuntimeInformation.OSPlatform.");
+                throw new Exception("<OAI HFServerlessInference APIHandler:> calling from not implemented RuntimeInformation.OSPlatform.");
             }
 
             var startInfo = new ProcessStartInfo
