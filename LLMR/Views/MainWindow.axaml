@@ -570,7 +570,7 @@
                     <TreeView x:Name="ChatHistoryTreeView"
                               Grid.Row="1" Grid.Column="0"
                               ItemsSource="{Binding ChatHistoryCollection.Categories}"
-                              SelectedItem="{Binding ChatHistoryCollection.SelectedItem}"
+                              SelectedItem="{Binding ChatHistoryCollection.SelectedFile}"
                               BorderThickness="1"
                               BorderBrush="#BDBDBD"
                               CornerRadius="4">

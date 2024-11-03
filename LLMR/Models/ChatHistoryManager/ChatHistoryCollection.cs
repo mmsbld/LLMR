@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using LLMR.Models.ModelSettingsManager;
 using LLMR.Models.ModelSettingsManager.ModelParameters;
 using LLMR.Models.ModelSettingsManager.ModelSettingsModules;
@@ -14,11 +12,12 @@ namespace LLMR.Models.ChatHistoryManager;
 
 public class ChatHistoryCollection : ReactiveObject
 {
-    public ObservableCollection<ChatHistoryCategory> Categories { get; set; } = new ObservableCollection<ChatHistoryCategory>();
+    public ObservableCollection<ChatHistoryCategory> Categories { get; set; } = [];
     
     private ChatHistoryFile? _selectedFile;
-
-    public ChatHistoryFile SelectedFile
+    private string? _apiKey;
+    
+    public ChatHistoryFile? SelectedFile
     {
         get => _selectedFile;
         set
@@ -27,32 +26,6 @@ public class ChatHistoryCollection : ReactiveObject
             LoadFileContent(value);
         }
     }
-    
-    public object SelectedItem
-    {
-        get => _selectedItem;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _selectedItem, value);
-
-            if (value is ChatHistoryFile file)
-            {
-                LoadFileContent(file);
-            }
-            else
-            {
-                // Clear the displayed content if not a file
-                Settings = null;
-                Conversation.Clear();
-            }
-        }
-    }
-
-
-    private object _selectedItem;
-
-
-    private string? _apiKey;
 
     public string? ApiKey
     {
@@ -100,7 +73,7 @@ public class ChatHistoryCollection : ReactiveObject
         }
     }
 
-    public void RemoveItem(object item)
+    public void RemoveItem(object? item)
     {
         if (item is ChatHistoryCategory category)
         {
@@ -126,7 +99,7 @@ public class ChatHistoryCollection : ReactiveObject
         }
     }
 
-    public void RenameItem(object item, string newName)
+    public void RenameItem(object? item, string newName)
     {
         if (item is ChatHistoryCategory category)
         {
@@ -231,59 +204,9 @@ public class ChatHistoryCollection : ReactiveObject
             }
         }
     }
+    
 
-
-
-/*
-    private void LoadFilesFromDirectory(string directoryPath, ChatHistoryCategory category)
-    {
-        var files = Directory.GetFiles(directoryPath, "*.json");
-        var fileList = new List<ChatHistoryFile>();
-
-        foreach (var file in files)
-        {
-            try
-            {
-                var fileContent = File.ReadAllText(file);
-                dynamic jsonData = JsonConvert.DeserializeObject(fileContent);
-
-                string downloadedOnStr = jsonData.settings.downloaded_on;
-                DateTime downloadedOn = DateTime.ParseExact(downloadedOnStr, "MMMM dd, yyyy 'at' HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-
-                var chatHistoryFile = new ChatHistoryFile
-                {
-                    Filename = Path.GetFileName(file),
-                    DownloadedOn = downloadedOn,
-                    FullPath = file
-                };
-
-                fileList.Add(chatHistoryFile);
-            }
-            catch (Exception ex)
-            {
-                throw new ArgumentException("<CHC> Unable to load file: " + ex.Message);
-            }
-        }
-
-        // group by date
-        var groupedFiles = fileList
-            .GroupBy(f => f.DownloadedOn.Date)
-            .OrderByDescending(g => g.Key) 
-            .Select(g => new ChatHistoryGroup
-            {
-                Date = g.Key.ToString("yyyy-MM-dd"),
-                Files = new ObservableCollection<ChatHistoryFile>(
-                    g.OrderByDescending(f => f.DownloadedOn)) 
-            });
-
-        foreach (var group in groupedFiles)
-        {
-            category.Groups.Add(group);
-        }
-    }
-*/
-
-    private void LoadFileContent(ChatHistoryFile file)
+    private void LoadFileContent(ChatHistoryFile? file)
     {
         if (file == null) return;
 
@@ -392,9 +315,7 @@ public class ChatHistoryCollection : ReactiveObject
             }
             else if (jsonData.responses != null)
             {
-                // ------------------
                 // Multicaller format:
-                // ------------------
                 string userPrompt = jsonData.settings.prompt;
                 int totalResponses = jsonData.responses.Count;
 
@@ -435,7 +356,4 @@ public class ChatHistoryCollection : ReactiveObject
             throw new Exception("<CHC> Unable to load chat history file: " + filePath, ex);
         }
     }
-
-
-
 }

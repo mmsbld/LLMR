@@ -964,7 +964,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         try
         {
-            ChatHistoryCollection.RemoveItem(ChatHistoryCollection.SelectedItem);
+            ChatHistoryCollection.RemoveItem(ChatHistoryCollection.SelectedFile);
             AddToConsole("Item removed successfully.");
         }
         catch (Exception ex)
@@ -984,7 +984,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
         try
         {
-            ChatHistoryCollection.RenameItem(ChatHistoryCollection.SelectedItem, newName);
+            ChatHistoryCollection.RenameItem(ChatHistoryCollection.SelectedFile, newName);
             AddToConsole("Item renamed successfully.");
         }
         catch (Exception ex)
