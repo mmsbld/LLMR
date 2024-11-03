@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <OutputType>WinExe</OutputType>
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
@@ -9,6 +8,17 @@
         <UseAppHost>true</UseAppHost>
         <Version>0.4.2</Version>
         <Authors>Moritz Seibold</Authors>
+    </PropertyGroup>
+
+    <!-- Windows -->
+    <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'win-x64' Or '$(RuntimeIdentifier)' == 'win-x86' Or '$(RuntimeIdentifier)' == 'win-arm64'">
+        <OutputType>WinExe</OutputType>
+        <ApplicationIcon>Assets\512_300dpi.ico</ApplicationIcon>
+    </PropertyGroup>
+
+    <!-- macOS & linux -->
+    <PropertyGroup Condition="'$(RuntimeIdentifier)' != 'win-x64' And '$(RuntimeIdentifier)' != 'win-x86' And '$(RuntimeIdentifier)' != 'win-arm64'">
+        <OutputType>Exe</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -36,30 +46,30 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Scripts\hfServerlessInference_apiHandler.py">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Scripts\hfServerlessInference_gradioServer.py">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Scripts\openAI_apiHandler.py">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Scripts\openAI_gradioServer.py">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Scripts\openAI_multicaller.py">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Scripts\openAI_v2_apiHandler.py">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Scripts\openAI_v2_gradioServer.py">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Scripts\chat_histories\Multicaller\multicaller_8c0d6a6d1eb54fab81043c913beb551b.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <None Update="Scripts\hfServerlessInference_apiHandler.py">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Scripts\hfServerlessInference_gradioServer.py">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Scripts\openAI_apiHandler.py">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Scripts\openAI_gradioServer.py">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Scripts\openAI_multicaller.py">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Scripts\openAI_v2_apiHandler.py">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Scripts\openAI_v2_gradioServer.py">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Scripts\chat_histories\Multicaller\multicaller_8c0d6a6d1eb54fab81043c913beb551b.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
