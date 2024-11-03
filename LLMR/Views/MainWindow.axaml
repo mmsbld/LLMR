@@ -355,6 +355,7 @@
                         <!-- Module selection -->
                         <TextBlock Text="Select Module:" Classes="bold" Margin="0,0,0,8" />
                         <ComboBox ItemsSource="{Binding AvailableModuleTypes}"
+                                  IsEnabled="{Binding IsPythonPathLocked, Converter={StaticResource InverseBooleanConverter}}"
                                   SelectedItem="{Binding SelectedModelType}"
                                   Margin="0,0,0,16" />
 
@@ -404,7 +405,7 @@
                             </Button>
                         </StackPanel>
 
-                        <!-- Button Confirm -->
+                        <!-- Button ConfirmLogin -->
                         <Button Command="{Binding ConfirmLoginCommand}"
                                 HorizontalAlignment="Center"
                                 MinWidth="150"
