@@ -199,6 +199,9 @@ sys.stderr = StdErrRedirector()
             {
                 try
                 {
+                    // note by moe: This relies on the deprecated (and highly risky!) BinaryFormatter. 
+                    // until it is fixxed, we can only initialize the PE once!
+                    // presumably this will change in the very near future: https://github.com/pythonnet/pythonnet/issues/2282
                     PythonEngine.Shutdown();
                     ConsoleMessageOccurred?.Invoke(this, "PythonEngine shutdown successfully.");
                 }
