@@ -188,7 +188,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public MainWindowViewModel()
     {
         _pythonRunning = false;
-        PythonPath = "/Library/Frameworks/Python.framework/Versions/3.12"; // TODO: Load/Save! (+ firstTime Set)
+        LoadPythonPath();
         AvailableModuleTypes = new ObservableCollection<string> { "OpenAI", "Hugging Face Serverless Inference", "OpenAI Multicaller" };
         SelectedModelType = "OpenAI"; // Default selection
 
@@ -291,6 +291,20 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         AddToConsole(networkWarningLineFive, new SolidColorBrush(Colors.Tomato));
         AddToConsole(listOfHyphens, new SolidColorBrush(Colors.Tomato));
     }
+    
+    private void LoadPythonPath()
+    {
+        var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pythonpath.txt");
+        PythonPath = File.Exists(filePath) ? File.ReadAllText(filePath) : "/Library/Frameworks/Python.framework/Versions/3.12"; // default value
+    }
+
+    private void SavePythonPath()
+    {
+        var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pythonpath.txt");
+        File.WriteAllText(filePath, PythonPath);
+    }
+
+    
     private async Task AddNewApiKeyAsync()
     {
         var name = await PromptUserAsync("Enter a name for the API key:");
@@ -340,6 +354,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             if (_pythonInitSuccess)
             {
                 await ValidateApiKeyAsync();
+                SavePythonPath();
             }
             else
             {
