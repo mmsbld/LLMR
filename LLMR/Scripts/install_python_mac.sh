@@ -2,42 +2,36 @@
 
 set -e
 
-BASE_DIR="$(cd "$(dirname "$0")"; pwd)"
-PYTHON_INSTALL_DIR="$BASE_DIR/Python/312"
+if [ -z "$1" ]; then
+    echo "<ip_mac.sh> No installation directory specified."
+    exit 1
+fi
+
+PYTHON_INSTALL_DIR="$1"
 
 if [ ! -d "$PYTHON_INSTALL_DIR" ]; then
-    echo "<ip_mac.sh> Python virtual environment not found. Proceeding with installation."
+    echo "<ip_mac.sh> Python installation not found at $PYTHON_INSTALL_DIR. Proceeding with installation."
 else
-    echo "<ip_mac.sh> Python virtual environment already exists at $PYTHON_INSTALL_DIR."
+    echo "<ip_mac.sh> Python installation already exists at $PYTHON_INSTALL_DIR."
     exit 0
 fi
 
-echo "<ip_mac.sh> Installing Python 3.12 and required packages..."
+echo "<ip_mac.sh> Downloading and installing Python 3.12..."
 
-if ! command -v brew &> /dev/null; then
-    echo "<ip_mac.sh> Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
+# download Python 3.12
+PYTHON_PKG_URL="https://www.python.org/ftp/python/3.12.0/python-3.12.0-macosx10.9.pkg"
+curl -o python.pkg "$PYTHON_PKG_URL"
 
-if ! brew ls --versions python@3.12 > /dev/null; then
-    echo "<ip_mac.sh> Installing Python 3.12..."
-    brew install python@3.12
-else
-    echo "<ip_mac.sh> Python 3.12 is already installed."
-fi
+pkgutil --expand-full python.pkg python_expanded
+mkdir -p "$PYTHON_INSTALL_DIR"
+cp -R "python_expanded/Python_Framework.pkg/Payload/Library/Frameworks/Python.framework/Versions/3.12" "$PYTHON_INSTALL_DIR/"
+rm -rf python.pkg python_expanded
 
-export PATH="/opt/homebrew/opt/python@3.12/bin:$PATH"
-
-echo "<ip_mac.sh> Creating virtual environment..."
-python3.12 -m venv "$PYTHON_INSTALL_DIR"
-
-echo "<ip_mac.sh> Activating virtual environment..."
-source "$PYTHON_INSTALL_DIR/bin/activate"
-
-echo "<ip_mac.sh> Upgrading pip..."
-pip install --upgrade pip
+export PATH="$PYTHON_INSTALL_DIR/3.12/bin:$PATH"
 
 echo "<ip_mac.sh> Installing required packages..."
-pip install openai==1.54 gradio==5.4
+"$PYTHON_INSTALL_DIR/3.12/bin/python3.12" -m ensurepip
+"$PYTHON_INSTALL_DIR/3.12/bin/python3.12" -m pip install --upgrade pip
+"$PYTHON_INSTALL_DIR/3.12/bin/python3.12" -m pip install openai==1.54 gradio==5.4 requests==2.31
 
 echo "<ip_mac.sh> Python environment installed successfully."

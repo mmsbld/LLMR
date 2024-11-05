@@ -55,6 +55,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     private string? _selectedModelType;
     private IAPIService? _apiService;
     private bool _isServerRunning;
+    private PythonEnvironmentManager? _pythonEnvironmentManager;
     PythonExecutionService? _pythonService;
     private bool _pythonRunning;
     private bool _pythonInitSuccess;
@@ -165,6 +166,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public ReactiveCommand<Unit, Unit> AddNewApiKeyCommand { get; }
     public ReactiveCommand<Unit, Unit> RemoveApiKeyCommand { get; }
+    public ReactiveCommand<Unit, Unit> EnsurePythonEnvironmentCommand { get; }
     public ReactiveCommand<Unit, Unit>? ConfirmLoginCommand { get; set; }
     public ReactiveCommand<Unit, Unit>? SelectModuleCommand { get; set; }
     public ReactiveCommand<Unit, Unit> ValidateApiKeyCommand { get; }
@@ -189,6 +191,23 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         _pythonRunning = false;
         LoadPythonPath();
+        
+        _pythonEnvironmentManager = new PythonEnvironmentManager();
+        _pythonEnvironmentManager.ConsoleMessageOccurred += (message, color) => {
+            Dispatcher.UIThread.InvokeAsync(() => AddToConsole(message, color));
+        };
+        _pythonEnvironmentManager.ExceptionOccurred += (ex) => {
+            Dispatcher.UIThread.InvokeAsync(() => AddExceptionMessageToConsole(ex));
+        };
+
+        EnsurePythonEnvironmentCommand = ReactiveCommand.CreateFromTask(async () => {
+            IsBusy = true;
+            await _pythonEnvironmentManager.EnsurePythonEnvironmentAsync();
+            PythonPath = _pythonEnvironmentManager.GetPythonLibraryPath();
+            IsPythonPathLocked = true; 
+            IsBusy = false;
+        });
+        
         AvailableModuleTypes = new ObservableCollection<string> { "OpenAI", "Hugging Face Serverless Inference", "OpenAI Multicaller" };
         SelectedModelType = "OpenAI"; // Default selection
 

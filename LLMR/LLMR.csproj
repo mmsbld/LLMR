@@ -70,6 +70,9 @@
         <None Update="Scripts\chat_histories\Multicaller\multicaller_8c0d6a6d1eb54fab81043c913beb551b.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Scripts\install_python_mac.sh">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

@@ -299,7 +299,7 @@
                                 <Grid>
                                     <Image Width="200" Source="avares://LLMR/Assets/logo_wide.png"
                                            HorizontalAlignment="Left" />
-                                    <TextBlock Text="0.4.2 (pre-alpha)"
+                                    <TextBlock Text="0.4.3 (pre-alpha)"
                                                FontFamily="Consolas, Courier New, monospace"
                                                FontWeight="Bold"
                                                FontSize="11"
@@ -404,29 +404,55 @@
                                 </ToolTip.Tip>
                             </Button>
                         </StackPanel>
-
-                        <!-- Button ConfirmLogin -->
-                        <Button Command="{Binding ConfirmLoginCommand}"
-                                HorizontalAlignment="Center"
-                                MinWidth="150"
-                                MinHeight="40"
-                                Width="200"
-                                Classes="confirm"
-                                Margin="5">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <i:Icon Value="fa-solid fa-check"
-                                        Width="18"
-                                        Height="18"
-                                        Margin="0,0,8,0"
-                                        Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
-                                <TextBlock Text="Confirm"
-                                           VerticalAlignment="Center"
-                                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
-                            </StackPanel>
-                            <ToolTip.Tip>
-                                <ToolTip Content="Continue with the selected module and API key." />
-                            </ToolTip.Tip>
-                        </Button>
+                        
+                        <!-- EnsurePythonEnvironmentCommand -->
+                        <StackPanel Orientation="Horizontal">
+                            <!-- Button EnsurePythonEnvironmentCommand -->
+                            <Button Command="{Binding EnsurePythonEnvironmentCommand}"
+                                    HorizontalAlignment="Center"
+                                    MinWidth="150"
+                                    MinHeight="40"
+                                    Width="200"
+                                    Classes="confirm"
+                                    Margin="5">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <i:Icon Value="fa-solid fa-check"
+                                            Width="18"
+                                            Height="18"
+                                            Margin="0,0,8,0"
+                                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                    <TextBlock Text="Ensure Python"
+                                               VerticalAlignment="Center"
+                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                </StackPanel>
+                                <ToolTip.Tip>
+                                    <ToolTip Content="Install python as virtual environment with all needed packages automatically, if not installed already." />
+                                </ToolTip.Tip>
+                            </Button>
+                            <!-- Button ConfirmLogin -->
+                            <Button Command="{Binding ConfirmLoginCommand}"
+                                    HorizontalAlignment="Center"
+                                    MinWidth="150"
+                                    MinHeight="40"
+                                    Width="200"
+                                    Classes="confirm"
+                                    Margin="5">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <i:Icon Value="fa-solid fa-check"
+                                            Width="18"
+                                            Height="18"
+                                            Margin="0,0,8,0"
+                                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                    <TextBlock Text="Confirm"
+                                               VerticalAlignment="Center"
+                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                </StackPanel>
+                                <ToolTip.Tip>
+                                    <ToolTip Content="Continue with the selected module and API key." />
+                                </ToolTip.Tip>
+                            </Button>
+                        
+                        </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
