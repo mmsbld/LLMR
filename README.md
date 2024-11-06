@@ -1,8 +1,7 @@
-
 <!-- 
 README.md
 
-This README serves as the main landing page for the LLMR project. It provides an overview of the application, download links for various platforms, a demo GIF placeholder, a demo video placeholder, and links to additional documentation files such as package overviews and contribution guidelines.
+This README serves as the main landing page for our project. Later, when we switch the repository to public, this should provide an overview of the application, download links for various platforms and links to documentation files.
 -->
 
   <picture>
@@ -13,6 +12,38 @@ This README serves as the main landing page for the LLMR project. It provides an
 # LLMR
 
 *Running Flexible Language Models in Math Education Research*
+
+---
+
+---
+
+**LLMR: Deploy and Share Language Models with Ease**
+
+LLMR is an open-source application that allows you to deploy and manage Language Models (LLMs) through a user-friendly interface. Choose from various models via APIs, customize parameters like temperature and system prompts, and share interactive chat sessions with clients—all without writing a single line of code. LLMR logs and archives all chat histories locally, offering easy export options, including PDF generation.
+
+---
+
+### Model Selection
+
+![Model Selection](LLMR/Assets/GIFs/loginWithAPIkeyANDpythoPath.gif)
+
+Select your preferred LLM through Hugging Face's Serverless Inference API or OpenAI's API with just a few clicks. LLMR seamlessly integrates with these platforms, providing access to a wide range of models.
+
+### Customizable OpenAI Models
+
+![OpenAI Model Selection](LLMR/Assets/GIFs/openAiModelSelection.gif)
+
+LLMR supports multiple OpenAI models, including the latest versions of ChatGPT. Easily choose the model that best fits your needs and adjust settings to optimize performance and output.
+
+### Shareable Links for Client Access
+
+![Shareable Link](LLMR/Assets/GIFs/shareLink.gif)
+
+Instantly generate a public link and QR code to share your LLM-powered chatbot with clients. Clients can interact with the chatbot interface without any login requirements, ensuring a smooth and accessible user experience.
+
+---
+
+**Get started with LLMR today and simplify the way you deploy and share language models!**
 
 ---
 
