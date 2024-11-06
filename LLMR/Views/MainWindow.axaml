@@ -355,7 +355,7 @@
                         <!-- Module selection -->
                         <TextBlock Text="Select Module:" Classes="bold" Margin="0,0,0,8" />
                         <ComboBox ItemsSource="{Binding AvailableModuleTypes}"
-                                  IsEnabled="{Binding IsPythonPathLocked, Converter={StaticResource InverseBooleanConverter}}"
+                                  IsEnabled="True"
                                   SelectedItem="{Binding SelectedModelType}"
                                   Margin="0,0,0,16" />
 
@@ -447,7 +447,8 @@
                                        Margin="0,0,8,0" />
                             <ComboBox Grid.Row="0" Grid.Column="1"
                                       ItemsSource="{Binding CurrentModelSettingsModule.AvailableModels}"
-                                      SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}" Margin="0,0,0,12" />
+                                      SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}"
+                                      Margin="0,0,0,12" />
                         </Grid>
                         <ItemsControl ItemsSource="{Binding CurrentModelSettingsModule.Parameters}" />
                         <!-- Generate Link Button -->
@@ -486,7 +487,8 @@
                                        Margin="0,0,8,0" />
                             <ComboBox Grid.Row="0" Grid.Column="1"
                                       ItemsSource="{Binding CurrentModelSettingsModule.AvailableModels}"
-                                      SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}" Margin="0,0,0,12" />
+                                      SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}"
+                                      Margin="0,0,0,12" />
                         </Grid>
                         <ItemsControl ItemsSource="{Binding CurrentModelSettingsModule.Parameters}" />
                         <Button Command="{Binding RunMulticallerCommand}"

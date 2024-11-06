@@ -25,6 +25,7 @@
         <Folder Include="Models/"/>
         <AvaloniaResource Include="Assets/**"/>
         <Folder Include="Scripts/chat_histories/Multicaller/" />
+        <Folder Include="Scripts\Python\Miniforge3\envs\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -68,6 +69,12 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Scripts\chat_histories\Multicaller\multicaller_8c0d6a6d1eb54fab81043c913beb551b.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="Scripts/Python/Miniforge3/**/*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
