@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Python.Runtime;
 using System.IO;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace LLMR.Services;
 
@@ -71,23 +72,44 @@ public class PythonExecutionService : IDisposable
                 throw new DirectoryNotFoundException($"<PES.cs error> Invalid Python path. The specified path '{_pythonPath}' does not exist.");
             }
 
-            var pythonExecutable = Path.Combine(_pythonPath, "bin", "python3.12");
+            string pythonExecutable;
+            string pythonDllPath;
+            var pythonVersion = "3.12";
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                pythonExecutable = Path.Combine(_pythonPath, "python.exe");
+                pythonDllPath = Path.Combine(_pythonPath, "python3.dll"); // Adjust based on actual DLL name
+            }
+            else
+            {
+                pythonExecutable = Path.Combine(_pythonPath, "bin", "python3.12");
+                var result = GetPythonVersionAndDllPath(pythonExecutable);
+                pythonVersion = result.Version;
+                pythonDllPath = result.PythonDllPath;
+            }
+
+            ConsoleMessageOccurred?.Invoke(this, $"Detected Python version: {pythonVersion}.");
+            ConsoleMessageOccurred?.Invoke(this, $"Python executable path: {pythonExecutable}.");
+            if (!string.IsNullOrEmpty(pythonDllPath))
+            {
+                ConsoleMessageOccurred?.Invoke(this, $"Python dynamic library path: {pythonDllPath}");
+            }
+
             if (!File.Exists(pythonExecutable))
             {
                 throw new FileNotFoundException($"<PES.cs error> Python executable not found at '{pythonExecutable}'.");
             }
 
-            var (pythonVersion, pythonDllPath) = GetPythonVersionAndDllPath(pythonExecutable);
-
-            ConsoleMessageOccurred?.Invoke(this, $"Detected Python version: {pythonVersion}.");
-            ConsoleMessageOccurred?.Invoke(this, $"Python dynamic library path: {pythonDllPath}");
-
-            if (!File.Exists(pythonDllPath))
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                throw new FileNotFoundException($"Python dynamic library not found at '{pythonDllPath}'.");
-            }
+                if (!File.Exists(pythonDllPath))
+                {
+                    throw new FileNotFoundException($"Python dynamic library not found at '{pythonDllPath}'.");
+                }
 
-            Runtime.PythonDLL = pythonDllPath;
+                Runtime.PythonDLL = pythonDllPath;
+            }
 
             PythonEngine.Initialize();
             ConsoleMessageOccurred?.Invoke(this, "PythonEngine initialized successfully.");
@@ -97,14 +119,19 @@ public class PythonExecutionService : IDisposable
             using (Py.GIL())
             {
                 dynamic sys = Py.Import("sys");
-                string baseDir = AppContext.BaseDirectory;
-                string scriptsPath = Path.Combine(baseDir, "Scripts", "Python", "312", "lib", $"python{pythonVersion}");
-                string sitePackagesPath = Path.Combine(scriptsPath, "site-packages");
-                string scriptsDir = Path.Combine(baseDir, "Scripts");
+                var baseDir = AppContext.BaseDirectory;
+                var scriptsPath = Path.Combine(baseDir, "Scripts", "Python", "312", "lib", $"python{pythonVersion}");
+                var sitePackagesPath = Path.Combine(scriptsPath, "site-packages");
+                var scriptsDir = Path.Combine(baseDir, "Scripts");
 
                 sys.path.append(scriptsPath);
                 sys.path.append(sitePackagesPath);
                 sys.path.append(scriptsDir);
+
+                foreach (var path in sys.path)
+                {
+                    ConsoleMessageOccurred?.Invoke(this, $"sys.path: {path}");
+                }
 
                 const string redirectScript = @"
 import sys
@@ -185,6 +212,7 @@ sys.stderr = StdErrRedirector()
         }
     }
 
+
     public Task<T> ExecuteAsync<T>(Func<T> func)
     {
         var tcs = new TaskCompletionSource<T>();
@@ -249,7 +277,22 @@ sys.stderr = StdErrRedirector()
         }
     }
 
-    private (string Version, string PythonDllPath) GetPythonVersionAndDllPath(string pythonExecutable)
+private (string Version, string PythonDllPath) GetPythonVersionAndDllPath(string pythonExecutable)
+{
+    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+    {
+        // On Windows, adjust based on actual DLL name
+        string pythonDllName = "python3.dll"; // Confirm the exact DLL name
+        string pythonDllPath = Path.Combine(_pythonPath, pythonDllName);
+
+        if (!File.Exists(pythonDllPath))
+        {
+            throw new FileNotFoundException($"<PES.cs error> Python dynamic library not found at '{pythonDllPath}'.");
+        }
+
+        return ("3.12", pythonDllPath);
+    }
+    else
     {
         var processStartInfo = new ProcessStartInfo
         {
@@ -301,6 +344,8 @@ sys.stderr = StdErrRedirector()
 
         return (version, pythonDllPath);
     }
+}
+
 
     public static void PythonStdout(string message)
     {
