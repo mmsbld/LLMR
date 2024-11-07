@@ -12,7 +12,7 @@ namespace LLMR.Services;
 
 public class PythonEnvironmentManager : ReactiveObject
 {
-    private readonly string _pythonPath;
+    private readonly string _pythonInstallDir;
     public bool IsPythonEnvironmentReady { get; private set; }
 
     public event Action<string, SolidColorBrush>? ConsoleMessageOccurred;
@@ -21,7 +21,7 @@ public class PythonEnvironmentManager : ReactiveObject
     public PythonEnvironmentManager()
     {
         var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        _pythonPath = Path.Combine(baseDir, "Scripts", "Python", "312");
+        _pythonInstallDir = Path.Combine(baseDir, "Scripts", "Python", "312");
     }
 
     public async Task EnsurePythonEnvironmentAsync()
@@ -95,7 +95,7 @@ public class PythonEnvironmentManager : ReactiveObject
             if (!lines[0].StartsWith("3.12"))
                 return false;
 
-            return lines[1].StartsWith("1.54") && lines[2].StartsWith("5.4");
+            return lines[1].StartsWith("1.54") && lines[2].StartsWith("3.40");
         }
         catch
         {
@@ -107,21 +107,23 @@ public class PythonEnvironmentManager : ReactiveObject
     {
         try
         {
-            Dispatcher.UIThread.Post(() => {
+            Dispatcher.UIThread.Post(() =>
+            {
                 ConsoleMessageOccurred?.Invoke("<PEM> Installing Python environment...", new SolidColorBrush(Colors.MediumSlateBlue));
             });
+
             string scriptPath;
             string arguments;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scripts", "install_python_windows.bat");
-                arguments = $"\"{_pythonPath}\"";
+                arguments = $"\"{_pythonInstallDir}\"";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scripts", "install_python_mac.sh");
-                arguments = $"\"{_pythonPath}\"";
+                arguments = $"\"{_pythonInstallDir}\"";
             }
             else
             {
@@ -130,10 +132,8 @@ public class PythonEnvironmentManager : ReactiveObject
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "cmd.exe" : "/bin/bash",
-                Arguments = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? $"/c \"{scriptPath}\" {arguments}"
-                    : $"{scriptPath} {arguments}",
+                FileName = "/bin/bash",
+                Arguments = $"{scriptPath} {arguments}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
@@ -143,16 +143,20 @@ public class PythonEnvironmentManager : ReactiveObject
 
             var process = new Process { StartInfo = startInfo };
 
-            process.OutputDataReceived += (sender, args) => {
+            process.OutputDataReceived += (sender, args) =>
+            {
                 if (args.Data != null)
-                    Dispatcher.UIThread.Post(() => {
+                    Dispatcher.UIThread.Post(() =>
+                    {
                         ConsoleMessageOccurred?.Invoke($"<PEM> {args.Data}", new SolidColorBrush(Colors.MediumSpringGreen));
                     });
             };
 
-            process.ErrorDataReceived += (sender, args) => {
+            process.ErrorDataReceived += (sender, args) =>
+            {
                 if (args.Data != null)
-                    Dispatcher.UIThread.Post(() => {
+                    Dispatcher.UIThread.Post(() =>
+                    {
                         ConsoleMessageOccurred?.Invoke($"<PEM> {args.Data}", new SolidColorBrush(Colors.PaleVioletRed));
                     });
             };
@@ -166,7 +170,8 @@ public class PythonEnvironmentManager : ReactiveObject
             if (process.ExitCode != 0)
                 throw new Exception("<PEM> Python installation failed.");
 
-            Dispatcher.UIThread.Post(() => {
+            Dispatcher.UIThread.Post(() =>
+            {
                 ConsoleMessageOccurred?.Invoke("<PEM> Python environment installed successfully.", new SolidColorBrush(Colors.MediumSpringGreen));
             });
         }
@@ -179,13 +184,11 @@ public class PythonEnvironmentManager : ReactiveObject
 
     public string GetPythonExecutablePath()
     {
-        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? Path.Combine(_pythonPath, "Scripts", "python.exe")
-            : Path.Combine(_pythonPath, "bin", "python3");
+        return Path.Combine(_pythonInstallDir, "bin", "python3.12");
     }
 
     public string GetPythonLibraryPath()
     {
-        return _pythonPath;
+        return _pythonInstallDir;
     }
 }

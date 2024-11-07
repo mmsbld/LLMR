@@ -55,8 +55,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     private string? _selectedModelType;
     private IAPIService? _apiService;
     private bool _isServerRunning;
-    private PythonEnvironmentManager? _pythonEnvironmentManager;
-    PythonExecutionService? _pythonService;
+    private readonly PythonEnvironmentManager? _pythonEnvironmentManager;
+    private PythonExecutionService? _pythonService;
     private bool _pythonRunning;
     private bool _pythonInitSuccess;
 
@@ -72,7 +72,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     }
 
 
-    public string? ApiKey
+    private string? ApiKey
     {
         get => _apiKey;
         set => this.RaiseAndSetIfChanged(ref _apiKey, value);
@@ -453,6 +453,9 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         try
         {
             AddToConsole("Initializing PES...");
+            if (PythonPath == null)
+                throw new Exception("Python initialization failed. Python path is null.");
+
             _pythonService = PythonExecutionService.GetInstance(PythonPath);
             AddToConsole("PES instantiated successfully.");
 
@@ -647,8 +650,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             IsBusy = false;
         }
     }
-    
-    void CreateOrResetConfirmLoginCommand()
+
+    private void CreateOrResetConfirmLoginCommand()
     {
         var canExecute = this.WhenAnyValue(vm => vm.SelectedApiKey)
             .Select(apiKey => apiKey != null);
@@ -670,8 +673,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     }
 
 
-
-    void CreateOrResetSelectModuleCommand()
+    private void CreateOrResetSelectModuleCommand()
     {
         var canExecute = this.WhenAnyValue(vm => vm.SelectedModelType)
             .Select(modelType => !string.IsNullOrEmpty(modelType));
