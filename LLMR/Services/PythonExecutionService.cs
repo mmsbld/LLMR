@@ -39,7 +39,6 @@ public class PythonExecutionService : IDisposable
         _pythonThread.Start();
     }
 
-
     public static PythonExecutionService GetInstance(string pythonPath)
     {
         if (string.IsNullOrEmpty(pythonPath))
@@ -95,14 +94,17 @@ public class PythonExecutionService : IDisposable
             _isPythonInitialized = true;
             _initTcs.TrySetResult(true);
 
-            ConsoleMessageOccurred?.Invoke(this, $"PythonEngine.PythonHome is '{PythonEngine.PythonHome}'.");
-            ConsoleMessageOccurred?.Invoke(this, $"PythonEngine.PythonPath is '{PythonEngine.PythonPath}'.");
-
             using (Py.GIL())
             {
                 dynamic sys = Py.Import("sys");
-                sys.path.append(Path.Combine(_pythonPath, "lib", $"python{pythonVersion}"));
-                sys.path.append(Path.Combine(_pythonPath, "lib", $"python{pythonVersion}", "site-packages"));
+                string baseDir = AppContext.BaseDirectory;
+                string scriptsPath = Path.Combine(baseDir, "Scripts", "Python", "312", "lib", $"python{pythonVersion}");
+                string sitePackagesPath = Path.Combine(scriptsPath, "site-packages");
+                string scriptsDir = Path.Combine(baseDir, "Scripts");
+
+                sys.path.append(scriptsPath);
+                sys.path.append(sitePackagesPath);
+                sys.path.append(scriptsDir);
 
                 const string redirectScript = @"
 import sys
@@ -221,7 +223,7 @@ sys.stderr = StdErrRedirector()
         {
             dynamic importlibMetadata = Py.Import("importlib.metadata");
 
-            string[] requiredPackages = { "requests", "openai", "gradio", };
+            string[] requiredPackages = { "requests", "openai", "gradio" };
             string[] requiredVersions = { "2.31", "1.54", "5.1" };
 
             for (var i = 0; i < requiredPackages.Length; i++)
@@ -247,7 +249,7 @@ sys.stderr = StdErrRedirector()
         }
     }
 
-    private static (string Version, string PythonDllPath) GetPythonVersionAndDllPath(string pythonExecutable)
+    private (string Version, string PythonDllPath) GetPythonVersionAndDllPath(string pythonExecutable)
     {
         var processStartInfo = new ProcessStartInfo
         {
@@ -289,7 +291,8 @@ sys.stderr = StdErrRedirector()
             pythonDllName = instSoName;
         }
 
-        var pythonDllPath = Path.Combine(libDir, pythonDllName);
+        var baseDir = AppContext.BaseDirectory;
+        var pythonDllPath = Path.Combine(baseDir, "Scripts", "Python", "312", "lib", pythonDllName);
 
         if (!File.Exists(pythonDllPath))
         {
@@ -320,7 +323,6 @@ sys.stderr = StdErrRedirector()
         }
         catch
         {
-            //suppress any error! 
         }
         lock (Lock)
         {
