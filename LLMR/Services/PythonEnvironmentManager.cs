@@ -95,7 +95,7 @@ public class PythonEnvironmentManager : ReactiveObject
             if (!lines[0].StartsWith("3.12"))
                 return false;
 
-            return lines[1].StartsWith("1.54") && lines[2].StartsWith("3.40");
+            return lines[1].StartsWith("1.54") && lines[2].StartsWith("5.1");
         }
         catch
         {
@@ -132,14 +132,23 @@ public class PythonEnvironmentManager : ReactiveObject
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = "/bin/bash",
-                Arguments = $"{scriptPath} {arguments}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                startInfo.FileName = "cmd.exe";
+                startInfo.Arguments = "/c \"" + scriptPath + "\" " + arguments;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                startInfo.FileName = "/bin/bash";
+                startInfo.Arguments = $"\"{scriptPath}\" {arguments}";
+            }
 
             var process = new Process { StartInfo = startInfo };
 
@@ -184,7 +193,14 @@ public class PythonEnvironmentManager : ReactiveObject
 
     public string GetPythonExecutablePath()
     {
-        return Path.Combine(_pythonInstallDir, "bin", "python3.12");
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return Path.Combine(_pythonInstallDir, "python.exe");
+        }
+        else
+        {
+            return Path.Combine(_pythonInstallDir, "bin", "python3.12");
+        }
     }
 
     public string GetPythonLibraryPath()
