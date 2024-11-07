@@ -1,51 +1,36 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
-REM TODO: Needs to be updated to *.dylib copy approach!
 if "%~1"=="" (
-    echo <ip_win.bat> No installation directory specified.
+    echo <install_python_windows.bat> No installation directory specified.
     exit /b 1
 )
 
 set "PYTHON_INSTALL_DIR=%~1"
 
 if exist "%PYTHON_INSTALL_DIR%" (
-    echo <ip_win.bat> Python virtual environment already exists at %PYTHON_INSTALL_DIR%.
+    echo <install_python_windows.bat> Python installation already exists at %PYTHON_INSTALL_DIR%.
     exit /b 0
 ) else (
-    echo <ip_win.bat> Python virtual environment not found at %PYTHON_INSTALL_DIR%. Proceeding with installation.
+    echo <install_python_windows.bat> Creating installation directory at %PYTHON_INSTALL_DIR%.
+    mkdir "%PYTHON_INSTALL_DIR%"
 )
 
-echo <ip_win.bat> Installing Python 3.12 and required packages...
+echo <install_python_windows.bat> Downloading Python 3.12.0 installer...
 
-REM check if Python 3.12 is installed
-for /f "tokens=2 delims==" %%a in ('py -3.12 --version 2^>nul') do (
-    set "PYTHON_VERSION=%%a"
-)
+set "PYTHON_VERSION=3.12.0"
+set "PYTHON_INSTALLER=python-%PYTHON_VERSION%-amd64.exe"
+curl -L -o "%PYTHON_INSTALLER%" "https://www.python.org/ftp/python/%PYTHON_VERSION%/%PYTHON_INSTALLER%"
 
-if "%PYTHON_VERSION%"=="" (
-    echo <ip_win.bat> Python 3.12 is not installed. Downloading installer...
-    set "PYTHON_INSTALLER=python-3.12.0-amd64.exe"
-    powershell -Command "(New-Object Net.WebClient).DownloadFile('https://www.python.org/ftp/python/3.12.0/python-3.12.0-amd64.exe', '%PYTHON_INSTALLER%')"
-    echo <ip_win.bat> Installing Python 3.12...
-    start /wait "" "%PYTHON_INSTALLER%" /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
-    del "%PYTHON_INSTALLER%"
-) else (
-    echo <ip_win.bat> Python 3.12 is already installed.
-)
+echo <install_python_windows.bat> Installing Python 3.12.0...
 
-echo <ip_win.bat> Creating virtual environment...
-py -3.12 -m venv "%PYTHON_INSTALL_DIR%"
+"%PYTHON_INSTALLER%" /quiet InstallAllUsers=1 TargetDir="%PYTHON_INSTALL_DIR%" PrependPath=0 Include_pip=1 Include_test=0
 
-echo <ip_win.bat> Activating virtual environment...
-call "%PYTHON_INSTALL_DIR%\Scripts\activate.bat"
+del "%PYTHON_INSTALLER%"
 
-echo <ip_win.bat> Upgrading pip...
-python -m pip install --upgrade pip
+echo <install_python_windows.bat> Installing required Python packages...
 
-echo <ip_win.bat> Installing required packages...
-pip install openai==1.54 gradio==5.4
+"%PYTHON_INSTALL_DIR%\python.exe" -m pip install --upgrade pip setuptools
+"%PYTHON_INSTALL_DIR%\python.exe" -m pip install openai==1.54 requests==2.31 gradio==5.1.0
 
-echo <ip_win.bat> Python environment installed successfully.
-
-endlocal
+echo <install_python_windows.bat> Python environment installed successfully.
