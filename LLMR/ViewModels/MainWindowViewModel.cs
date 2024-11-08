@@ -189,9 +189,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public MainWindowViewModel()
     {
+        // SelectedModelType = "OpenAI"; // Default selection
+        // CurrentModelSettingsModule = new OpenAI_v2_ModelSettings();
+
         _pythonRunning = false;
         LoadPythonPath();
-        
+
         _pythonEnvironmentManager = new PythonEnvironmentManager();
         _pythonEnvironmentManager.ConsoleMessageOccurred += (message, color) => {
             Dispatcher.UIThread.InvokeAsync(() => AddToConsole(message, color));
@@ -200,34 +203,75 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             Dispatcher.UIThread.InvokeAsync(() => AddExceptionMessageToConsole(ex));
         };
 
-        EnsurePythonEnvironmentCommand = ReactiveCommand.CreateFromTask(async () => {
-            IsBusy = true;
-            await _pythonEnvironmentManager.EnsurePythonEnvironmentAsync();
-            PythonPath = _pythonEnvironmentManager.GetPythonLibraryPath();
-            IsPythonPathLocked = true; 
-            IsBusy = false;
-        });
-        
+        EnsurePythonEnvironmentCommand = ReactiveCommand.CreateFromTask(async () => { await EnsurePythonEnvironment(); });
+
         AvailableModuleTypes = new ObservableCollection<string> { "OpenAI", "Hugging Face Serverless Inference", "OpenAI Multicaller" };
         SelectedModelType = "OpenAI"; // Default selection
 
         ViewManager = new MainWindowViewManager();
-        
+
         ServerStatus = "Stopped";
         ServerStatusColor = Brushes.Red;
 
         ChatHistoryCollection = new ChatHistoryCollection();
-        
+        // ChatHistoryCollection.Settings ??= new GenericModelSettings();
+
         _isApiKeySelected = this.WhenAnyValue(x => x.SelectedApiKey)
             .Select(apiKey => apiKey is not null)
             .ToProperty(this, x => x.IsApiKeySelected);
 
         AddNewApiKeyCommand = ReactiveCommand.CreateFromTask(AddNewApiKeyAsync);
         RemoveApiKeyCommand = ReactiveCommand.Create(RemoveSelectedApiKey, this.WhenAnyValue(x => x.IsApiKeySelected));
-        
-        CreateOrResetConfirmLoginCommand();
-        CreateOrResetSelectModuleCommand();
-        
+
+        // Initialize ConfirmLoginCommand directly
+        ConfirmLoginCommand = ReactiveCommand.CreateFromTask(
+            async () =>
+            {
+                try
+                {
+                    await ConfirmLoginAsync();
+                }
+                catch (Exception ex)
+                {
+                    AddExceptionMessageToConsole(ex);
+                }
+            },
+            this.WhenAnyValue(vm => vm.SelectedApiKey).Select(apiKey => apiKey != null)
+        );
+
+        // Initialize SelectModuleCommand directly
+        SelectModuleCommand = ReactiveCommand.CreateFromTask(
+            async () =>
+            {
+                try
+                {
+                    await InstantiateModuleWithInstanceOfIAPIHandlerAsync();
+                }
+                catch (Exception ex)
+                {
+                    AddExceptionMessageToConsole(ex);
+                }
+            },
+            this.WhenAnyValue(vm => vm.SelectedModelType).Select(modelType => !string.IsNullOrEmpty(modelType))
+        );
+
+        // Subscribe to SelectModuleCommand events
+        SelectModuleCommand.IsExecuting.Subscribe(isExecuting =>
+        {
+            IsBusy = isExecuting;
+            Dispatcher.UIThread.InvokeAsync(() => { AddToConsole($"<MWVM> SelectModuleCommand State of IsExecuting is: {isExecuting}", new SolidColorBrush(Colors.DarkSalmon)); });
+        });
+
+        SelectModuleCommand.CanExecute.Subscribe(canExecute =>
+        {
+            Dispatcher.UIThread.InvokeAsync(() => { AddToConsole($"<MWVM> SelectModuleCommand State of CanExecute is: {canExecute}", new SolidColorBrush(Colors.OliveDrab)); });
+        });
+
+        SelectModuleCommand.ThrownExceptions.Subscribe(ex =>
+        {
+            Dispatcher.UIThread.InvokeAsync(() => { AddExceptionMessageToConsole(ex); });
+        });
+
         ValidateApiKeyCommand = ReactiveCommand.CreateFromTask(ValidateApiKeyAsync);
         GenerateLinkCommand = ReactiveCommand.Create(GenerateLink);
         RunMulticallerCommand = ReactiveCommand.Create(RunMulticaller);
@@ -239,28 +283,27 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         RemoveItemCommand = ReactiveCommand.Create(RemoveItem);
         RenameItemCommand = ReactiveCommand.CreateFromTask(RenameItemAsync);
 
-
         IsBusy = false;
 
         LoadApiKeys();
-        LoadChatHistories(); // what will happen with files that are written during the session?
+        LoadChatHistories(); // Handle file writes during session appropriately
         SetupFileWatcher();
 
         DownloadAllFilesCommand = ReactiveCommand.CreateFromTask(DownloadAllFilesAsync);
         DownloadSelectedAsPdfCommand = ReactiveCommand.CreateFromTask(DownloadSelectedAsPdfAsync);
 
-        QuestPDF.Settings.License = LicenseType.Community; // we can obviously use the MIT community license, right? 
+        QuestPDF.Settings.License = LicenseType.Community; // MIT community license
 
         ViewManager.SwitchToLogin();
-        
+
         AddSuccessMessageToConsole("<init complete>");
         DisplayStartupMessages();
-        
+
         Trace.Listeners.Add(new InternalConsoleTraceListener(message => AddToConsole(message, new SolidColorBrush(Colors.Gray))));
     }
 
     #endregion
-
+    
     #region Methods
     
     private void DisplayStartupMessages()
@@ -314,7 +357,9 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     private void LoadPythonPath()
     {
         var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pythonpath.txt");
-        PythonPath = File.Exists(filePath) ? File.ReadAllText(filePath) : "/Library/Frameworks/Python.framework/Versions/3.12"; // default value
+        PythonPath = File.Exists(filePath) 
+            ? File.ReadAllText(filePath).Trim() // Removed TrimEnd('.')
+            : "/Library/Frameworks/Python.framework/Versions/3.12"; // default value
     }
 
     private void SavePythonPath()
@@ -322,6 +367,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "pythonpath.txt");
         File.WriteAllText(filePath, PythonPath);
     }
+
 
     
     private async Task AddNewApiKeyAsync()
@@ -356,48 +402,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
-    private async Task ConfirmLoginAsync()
-    {
-        try
-        {
-            IsBusy = true;
-
-            if (SelectedApiKey == null)
-            {
-                throw new ArgumentException("Please select or add an API key.");
-            }
-
-            ApiKey = SelectedApiKey.Key; 
-            _pythonInitSuccess = await InstantiateModuleWithInstanceOfIAPIHandlerAsync();
-    
-            if (_pythonInitSuccess)
-            {
-                await ValidateApiKeyAsync();
-                SavePythonPath();
-            }
-            else
-            {
-                AddToConsole("Python initialization failed. Please check the Python path and try again.");
-            }
-
-            if (SavedApiKeys.Count == 0)
-                throw new ArgumentException("Saved API keys are empty.");
-    
-            foreach (var apiKey in SavedApiKeys)
-            {
-                Debug.Assert(apiKey != null, nameof(apiKey) + " != null");
-                apiKey.IsLastUsed = apiKey == SelectedApiKey;
-            }
-        }
-        catch (Exception e)
-        {
-            AddExceptionMessageToConsole(e);
-        }
-        finally
-        {
-            Dispatcher.UIThread.InvokeAsync(() => IsBusy = false);
-        }
-    }
 
 
 
@@ -442,31 +446,113 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         File.WriteAllText(filePath, json);
     }
 
+    #region PythonAndLogin
+
+    private async Task EnsurePythonEnvironment()
+    {
+        IsBusy = true;
+        try
+        {
+            await _pythonEnvironmentManager.EnsurePythonEnvironmentAsync();
+            PythonPath = _pythonEnvironmentManager.GetPythonLibraryPath();
+            IsPythonPathLocked = true; 
+            AddToConsole("<MWVM> Python environment ensured and path locked.", new SolidColorBrush(Colors.MediumSpringGreen));
+        }
+        catch (Exception ex)
+        {
+            AddExceptionMessageToConsole(ex);
+            // Unlock the path if installation failed
+            IsPythonPathLocked = false;
+            AddToConsole("<MWVM> Failed to ensure Python environment. Path is unlocked.", new SolidColorBrush(Colors.PaleVioletRed));
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task ConfirmLoginAsync()
+    {
+        try
+        {
+            IsBusy = true;
+
+            if (SelectedApiKey == null)
+            {
+                throw new ArgumentException("Please select or add an API key.");
+            }
+
+            ApiKey = SelectedApiKey.Key;
+            _pythonInitSuccess = await InstantiateModuleWithInstanceOfIAPIHandlerAsync();
+
+            if (_pythonInitSuccess)
+            {
+                await ValidateApiKeyAsync();
+                SavePythonPath();
+                AddToConsole("<MWVM> API key validated and Python path saved.", new SolidColorBrush(Colors.MediumSpringGreen));
+            }
+            else
+            {
+                AddToConsole("Python initialization failed. Please check the Python path and try again.", new SolidColorBrush(Colors.PaleVioletRed));
+            }
+
+            if (SavedApiKeys.Count == 0)
+                throw new ArgumentException("Saved API keys are empty.");
+
+            foreach (var apiKey in SavedApiKeys)
+            {
+                Debug.Assert(apiKey != null, nameof(apiKey) + " != null");
+                apiKey.IsLastUsed = apiKey == SelectedApiKey;
+            }
+        }
+        catch (Exception e)
+        {
+            AddExceptionMessageToConsole(e);
+        }
+        finally
+        {
+            Dispatcher.UIThread.InvokeAsync(() => IsBusy = false);
+        }
+    }
+
     private async Task<bool> InstantiateModuleWithInstanceOfIAPIHandlerAsync()
     {
         if (_pythonService != null)
         {
-            AddToConsole("PES is already initialized.");
-            return _pythonRunning;
+            // Check if the existing Python service uses a different path
+            if (!_pythonService.PythonPath.Equals(PythonPath, StringComparison.OrdinalIgnoreCase))
+            {
+                // Dispose the existing service and reset
+                _pythonService.Dispose();
+                _pythonService = null;
+            }
+            else
+            {
+                AddToConsole("PES is already initialized.", new SolidColorBrush(Colors.Gray));
+                return _pythonRunning;
+            }
         }
 
         try
         {
-            AddToConsole("Initializing PES...");
-            if (PythonPath == null)
-                throw new Exception("Python initialization failed. Python path is null.");
+            AddToConsole("Initializing PES...", new SolidColorBrush(Colors.MediumSlateBlue));
+            if (string.IsNullOrEmpty(PythonPath))
+                throw new Exception("Python initialization failed. Python path is null or empty.");
 
-            _pythonService = PythonExecutionService.GetInstance(PythonPath);
-            AddToConsole("PES instantiated successfully.");
+            // Use the singleton instance
+            _pythonService = PythonExecutionService.GetInstance(this.PythonPath);
+            AddToConsole("PES instantiated successfully.", new SolidColorBrush(Colors.MediumSpringGreen));
 
             _pythonService.ExceptionOccurred += (_, errorMessage) =>
             {
                 Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     AddExceptionMessageToConsole(new Exception($"<PES> Error: {errorMessage}"));
-                    //_pythonRunning = false;
-                    //_pythonService = null; // reset to allow new singleton (PES.cs)
-                    //IsPythonPathLocked = false;
+                    _pythonRunning = false;
+                    _pythonService?.Dispose(); // Dispose of the service
+                    _pythonService = null; // Reset to allow new instance
+                    IsPythonPathLocked = false;
+                    AddToConsole("<MWVM> PES disposed due to error.", new SolidColorBrush(Colors.PaleVioletRed));
                 });
             };
 
@@ -497,9 +583,11 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
             if (!initSuccess)
             {
-                AddToConsole("PES failed to initialize.");
-                _pythonService = null; // reset for new singleton (pes.cs)
+                AddToConsole("PES failed to initialize.", new SolidColorBrush(Colors.PaleVioletRed));
+                _pythonService.Dispose();
+                _pythonService = null; // Reset for new instance
                 IsPythonPathLocked = false;
+                AddToConsole("Please set the Python path again and try confirming login.", new SolidColorBrush(Colors.Yellow));
                 return false;
             }
 
@@ -524,17 +612,23 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                     _apiService = new OpenAI_Multicaller_APIService(apiHandler);
                     ViewManager.MulticallerMode = true;
                     break;
+                default:
+                    throw new InvalidOperationException("Selected model type is not supported.");
             }
 
             if (_apiService == null)
             {
-                AddExceptionMessageToConsole(new ArgumentNullException("PES is uninitializable, since APIS is not initialized."));
+                AddExceptionMessageToConsole(new ArgumentNullException("PES is uninitializable, since API service is not initialized."));
                 _pythonRunning = false;
+                _pythonService.Dispose();
+                _pythonService = null; // Reset for new instance
+                IsPythonPathLocked = false;
+                AddToConsole("API service initialization failed.", new SolidColorBrush(Colors.PaleVioletRed));
                 return false;
             }
 
             _apiService.ConsoleMessageOccured += (_, args) =>
-                Dispatcher.UIThread.InvokeAsync(() => AddToConsole("<APIS> " + args));
+                Dispatcher.UIThread.InvokeAsync(() => AddToConsole("<APIS> " + args, new SolidColorBrush(Colors.DarkSalmon)));
 
             _apiService.ErrorMessageOccured += (_, args) =>
                 Dispatcher.UIThread.InvokeAsync(() =>
@@ -542,39 +636,37 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
             AddToConsole("PES initialized and running.", new SolidColorBrush(Colors.DarkSalmon));
             _pythonRunning = true;
-            IsPythonPathLocked = true; 
-            return true; 
+            IsPythonPathLocked = true;
+            return true;
         }
         catch (Exception e)
         {
             AddExceptionMessageToConsole(e);
             _pythonRunning = false;
-            _pythonService = null; // reset for new singleton (pes.cs)!
-            IsPythonPathLocked = false; 
-            return false; 
-        }
-        finally
-        {
-            Dispatcher.UIThread.InvokeAsync(() => { IsBusy = false; });
+            _pythonService?.Dispose(); // Reset for new instance
+            _pythonService = null;
+            IsPythonPathLocked = false;
+            AddToConsole("Failed to initialize PES. Please set the Python path again and try confirming login.", new SolidColorBrush(Colors.PaleVioletRed));
+            return false;
         }
     }
-
-
-
-
-
 
     private async Task ValidateApiKeyAsync()
     {
         if (!_pythonRunning)
             return;
+
         try
         {
             if (_apiService == null)
             {
-                throw new Exception(new StringBuilder().Append("<< FATAL CRASH >> << TRY TO CLOSE AND REOPEN THE APPLICATION! >>: _apiService is uninitialized but _pythonRunning is flagged as true.").ToString());
+                throw new Exception("<< FATAL CRASH >> << TRY TO CLOSE AND REOPEN THE APPLICATION! >>: _apiService is uninitialized but _pythonRunning is flagged as true.");
             }
-            Dispatcher.UIThread.InvokeAsync(() => { AddToConsole("<MWVM> Validating API Key ..."); });
+
+            await Dispatcher.UIThread.InvokeAsync(() => 
+                AddToConsole("<MWVM> Validating API Key ...", new SolidColorBrush(Colors.Blue))
+            );
+
             IsBusy = true;
 
             if (string.IsNullOrEmpty(ApiKey))
@@ -585,21 +677,34 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             bool validApiKey;
             try
             {
-                validApiKey = await _apiService.ValidateApiKeyAsync(ApiKey);
+                var validateTask = _apiService.ValidateApiKeyAsync(ApiKey);
+                var completedTask = await Task.WhenAny(validateTask, Task.Delay(10000));
+
+                if (completedTask == validateTask)
+                {
+                    validApiKey = await validateTask; // Use await instead of .Result
+                }
+                else
+                {
+                    throw new TimeoutException("API key validation timed out.");
+                }
             }
             catch (InvalidOperationException ex)
             {
                 throw new InvalidOperationException($"Error validating API key: {ex.Message}", ex);
             }
-
+            catch (TimeoutException ex)
+            {
+                throw new TimeoutException($"Error validating API key: {ex.Message}", ex);
+            }
 
             if (validApiKey)
             {
-                Dispatcher.UIThread.InvokeAsync(() =>
+                await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     AddSuccessMessageToConsole("Validated API key / token successfully.");
                 });
-                
+
                 if (CurrentModelSettingsModule == null)
                     throw new NullReferenceException("CurrentModelSettingsModule is null.");
 
@@ -625,22 +730,30 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         }
         catch (InvalidOperationException ex)
         {
-            Dispatcher.UIThread.InvokeAsync(() =>
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 AddExceptionMessageToConsole(
                     new Exception($"Validation failed due to an error in the API service: {ex.Message}", ex));
             });
         }
+        catch (TimeoutException ex)
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                AddExceptionMessageToConsole(new Exception($"Validation failed due to timeout: {ex.Message}", ex));
+                AddToConsole("Please check your network connection and try again.", new SolidColorBrush(Colors.Yellow));
+            });
+        }
         catch (ArgumentException ex)
         {
-            Dispatcher.UIThread.InvokeAsync(() =>
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 AddExceptionMessageToConsole(ex);
             });
         }
         catch (Exception ex)
         {
-            Dispatcher.UIThread.InvokeAsync(() =>
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 AddExceptionMessageToConsole(new Exception($"An unexpected error occurred: {ex.Message}", ex));
             });
@@ -651,69 +764,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
-    private void CreateOrResetConfirmLoginCommand()
-    {
-        var canExecute = this.WhenAnyValue(vm => vm.SelectedApiKey)
-            .Select(apiKey => apiKey != null);
-    
-        ConfirmLoginCommand = ReactiveCommand.CreateFromTask(
-            async () =>
-            {
-                try
-                {
-                    await ConfirmLoginAsync();
-                }
-                catch (Exception ex)
-                {
-                    AddExceptionMessageToConsole(ex);
-                }
-            },
-            canExecute
-        );
-    }
-
-
-    private void CreateOrResetSelectModuleCommand()
-    {
-        var canExecute = this.WhenAnyValue(vm => vm.SelectedModelType)
-            .Select(modelType => !string.IsNullOrEmpty(modelType));
-        
-        SelectModuleCommand = ReactiveCommand.CreateFromTask(
-            async () =>
-            {
-                try
-                {
-                    await InstantiateModuleWithInstanceOfIAPIHandlerAsync();
-                }
-                catch (Exception ex)
-                {
-                    AddExceptionMessageToConsole(ex);
-                }
-                finally
-                {
-                    Dispatcher.UIThread.InvokeAsync(() => { CreateOrResetSelectModuleCommand();});
-                }
-            },
-            canExecute
-        );
-        
-        SelectModuleCommand.IsExecuting.Subscribe(isExecuting =>
-        {
-            IsBusy = isExecuting;
-            Dispatcher.UIThread.InvokeAsync(() => { AddToConsole($"<MWVM> SelectModuleCommand State of IsExecuting is: {isExecuting}", new SolidColorBrush(Colors.DarkSalmon)); });
-        });
-        
-        SelectModuleCommand.CanExecute.Subscribe(canExecute =>
-        {
-            Dispatcher.UIThread.InvokeAsync(() => { AddToConsole($"<MWVM> SelectModuleCommand State of CanExecute is: {canExecute}", new SolidColorBrush(Colors.OliveDrab)); });
-        });
-        
-        SelectModuleCommand.ThrownExceptions.Subscribe(ex =>
-        {
-            Dispatcher.UIThread.InvokeAsync(() => { AddExceptionMessageToConsole(ex);});
-            Dispatcher.UIThread.InvokeAsync(CreateOrResetSelectModuleCommand);
-        });
-    }
+    #endregion
 
     private async void GenerateLink()
     {
@@ -919,8 +970,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         SelectedConsoleIndex = ConsoleMessages.Count - 1;
     }
 
-
-
     private void AddExceptionMessageToConsole(Exception exception)
     {
         if (exception.Message.Contains("<PES stderr>"))
@@ -933,7 +982,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         }
     }
 
-
     private void AddSuccessMessageToConsole(string message)
     {
         if (message.Contains("<PES stdout>"))
@@ -945,6 +993,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             AddToConsole("<MWVM> " + message, new SolidColorBrush(Colors.ForestGreen));
         }
     }
+
     #endregion
 
 
@@ -1181,8 +1230,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     
     public void Dispose()
     {
-        _apiService?.Dispose();
         _pythonService?.Dispose();
+        _apiService?.Dispose();
         
         var listener = Trace.Listeners.OfType<InternalConsoleTraceListener>().FirstOrDefault();
         if (listener == null) return;
