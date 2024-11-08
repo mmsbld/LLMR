@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj": {}
+    "C:\\Users\\Morit\\RiderProjects\\LLMR\\LLMR\\LLMR.csproj": {}
   },
   "projects": {
-    "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj": {
+    "C:\\Users\\Morit\\RiderProjects\\LLMR\\LLMR\\LLMR.csproj": {
       "version": "0.4.3",
       "restore": {
-        "projectUniqueName": "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj",
+        "projectUniqueName": "C:\\Users\\Morit\\RiderProjects\\LLMR\\LLMR\\LLMR.csproj",
         "projectName": "LLMR",
-        "projectPath": "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj",
-        "packagesPath": "/Users/moritz/.nuget/packages/",
-        "outputPath": "/Users/moritz/RiderProjects/LLMR/LLMR/obj/",
+        "projectPath": "C:\\Users\\Morit\\RiderProjects\\LLMR\\LLMR\\LLMR.csproj",
+        "packagesPath": "C:\\Users\\Morit\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Morit\\RiderProjects\\LLMR\\LLMR\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/moritz/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Morit\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -70,7 +70,7 @@
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.0-rc.2.24473.5, )",
+              "version": "[9.0.0-rc.1.24431.7, )",
               "autoReferenced": true
             },
             "Newtonsoft.Json": {
@@ -118,7 +118,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.100-rc.2.24474.11/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\Morit\\.dotnet\\sdk\\9.0.100-rc.1.24452.12/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
