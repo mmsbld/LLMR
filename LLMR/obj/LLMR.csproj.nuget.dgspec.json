@@ -5,7 +5,7 @@
   },
   "projects": {
     "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj": {
-      "version": "0.4.2",
+      "version": "0.4.3",
       "restore": {
         "projectUniqueName": "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj",
         "projectName": "LLMR",
@@ -66,6 +66,12 @@
             "MessageBox.Avalonia": {
               "target": "Package",
               "version": "[3.2.0, )"
+            },
+            "Microsoft.NET.ILLink.Tasks": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0-rc.2.24473.5, )",
+              "autoReferenced": true
             },
             "Newtonsoft.Json": {
               "target": "Package",

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "rTxdLCMOBsY=",
+  "dgSpecHash": "j+rc8FOUyqA=",
   "success": true,
   "projectFilePath": "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj",
   "expectedPackageFiles": [
@@ -27,6 +27,7 @@
     "/Users/moritz/.nuget/packages/messagebox.avalonia/3.2.0/messagebox.avalonia.3.2.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/microcom.runtime/0.11.0/microcom.runtime.0.11.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/microsoft.csharp/4.7.0/microsoft.csharp.4.7.0.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/microsoft.net.illink.tasks/9.0.0-rc.2.24473.5/microsoft.net.illink.tasks.9.0.0-rc.2.24473.5.nupkg.sha512",
     "/Users/moritz/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/microsoft.netcore.targets/1.1.0/microsoft.netcore.targets.1.1.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",

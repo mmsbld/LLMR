@@ -6,8 +6,11 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <MacOSBundleIcon>Assets/512_300dpi_full.icns</MacOSBundleIcon>
         <UseAppHost>true</UseAppHost>
-        <Version>0.4.2</Version>
+        <Version>0.4.3</Version>
         <Authors>Moritz Seibold</Authors>
+        <PublishSingleFile>true</PublishSingleFile>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     </PropertyGroup>
 
     <!-- Windows -->
@@ -61,17 +64,25 @@
         <None Update="Scripts\openAI_multicaller.py">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Scripts\openAI_v2_apiHandler.py">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Scripts\openAI_v2_gradioServer.py">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="Scripts\chat_histories\Multicaller\multicaller_8c0d6a6d1eb54fab81043c913beb551b.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Scripts\install_python_mac.sh">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Scripts\openAI_v2_apiHandler.py">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Scripts\openAI_v2_gradioServer.py">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Scripts\install_python_windows.bat">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Scripts\GenerateNuGetPkgsList.ps1">
+          <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
-
     <ItemGroup>
         <None Update="Assets/512_300dpi_full.icns">
             <LogicalName>Resources/512_300dpi_full.icns</LogicalName>

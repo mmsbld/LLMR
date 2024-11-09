@@ -1,7 +1,9 @@
+using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using LLMR.Helpers;
 using LLMR.ViewModels;
 using LLMR.Views;
 
@@ -18,6 +20,7 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        InitializeDataDirectories();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow
@@ -28,5 +31,16 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+    
+    private void InitializeDataDirectories()
+    {
+        string baseDataDir = AppDataPath.GetBaseDataDirectory();
+        string chatHistoriesDir = Path.Combine(baseDataDir, "chat_histories");
+
+        if (!Directory.Exists(chatHistoriesDir))
+        {
+            Directory.CreateDirectory(chatHistoriesDir);
+        }
     }
 }

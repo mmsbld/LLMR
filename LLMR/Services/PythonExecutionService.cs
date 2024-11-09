@@ -3,9 +3,10 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Python.Runtime;
-using System.Runtime.InteropServices;
 using System.IO;
 using System.Diagnostics;
+using System.Reflection;
+using LLMR.Helpers;
 
 namespace LLMR.Services;
 
@@ -18,46 +19,75 @@ public class PythonExecutionService : IDisposable
     private readonly BlockingCollection<Func<Task>?> _taskQueue = new();
     private bool _isDisposed;
     private bool _isPythonInitialized;
-    private readonly string? _pythonPath;
-    private readonly Exception? _threadException; // exceptions thrown in background thread
+    private readonly string _pythonPath;
 
     private readonly TaskCompletionSource<bool> _initTcs = new();
     public Task<bool> InitializationTask => _initTcs.Task;
 
     public event EventHandler<string>? ExceptionOccurred;
     public event EventHandler<string>? ConsoleMessageOccurred;
-    
-    // private constructor (-> singleton, GoF)
-    private PythonExecutionService(string? pythonPath)
-    {
-        _threadException = null;
-        ArgumentNullException.ThrowIfNull(pythonPath);
-        _pythonPath = pythonPath;
 
-        _pythonThread = new Thread(PythonThreadStart)
-        {
-            IsBackground = true
-        };
+    private PythonExecutionService(string pythonPath)
+    {
+        if (string.IsNullOrEmpty(pythonPath))
+            throw new ArgumentNullException(nameof(pythonPath));
+
+        _pythonPath = pythonPath;
+        _pythonThread = new Thread(PythonThreadStart) { IsBackground = true };
         _pythonThread.Start();
     }
 
-    // public getter for singleton
-    public static PythonExecutionService GetInstance(string? pythonPath)
+    public static PythonExecutionService GetInstance(string pythonPath)
     {
+        if (string.IsNullOrEmpty(pythonPath))
+            throw new ArgumentNullException(nameof(pythonPath), "Python path cannot be null or empty.");
+
         lock (Lock)
         {
-            // if no instance exists (logical or) the existing instance failed to initialize (logical or) a different python path is provided
             if (_instance == null || !_instance._isPythonInitialized || !_instance.InitializationTask.IsCompleted || !_instance.InitializationTask.Result)
             {
                 _instance?.Dispose();
                 _instance = new PythonExecutionService(pythonPath);
             }
-            var instancePythonPath = _instance._pythonPath ?? throw new NullReferenceException("dere_instance._pythonPath is null");
-            if (_instance._pythonPath.Equals(pythonPath, StringComparison.OrdinalIgnoreCase)) return _instance;
-            // if different python path is provided --> dispose current singleton and create a new one (potentially a bad or at least useless idea!)
-            _instance.Dispose();
-            _instance = new PythonExecutionService(pythonPath);
+            else if (!_instance._pythonPath.Equals(pythonPath, StringComparison.OrdinalIgnoreCase))
+            {
+                _instance.Dispose();
+                _instance = new PythonExecutionService(pythonPath);
+            }
             return _instance;
+        }
+    }
+
+    private void ExtractEmbeddedScripts(string targetDirectory)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceNames = assembly.GetManifestResourceNames();
+
+        foreach (var resourceName in resourceNames)
+        {
+            if (!resourceName.EndsWith(".py")) continue;
+            var fileName = Path.GetFileName(resourceName);
+            var filePath = Path.Combine(targetDirectory, fileName);
+
+            ConsoleMessageOccurred?.Invoke(this, $"Extracting script: {fileName} to {filePath}");
+
+            if (!File.Exists(filePath))
+            {
+                using var stream = assembly.GetManifestResourceStream(resourceName);
+                if (stream == null)
+                {
+                    ConsoleMessageOccurred?.Invoke(this, $"Resource stream for {resourceName} is null.");
+                    continue;
+                }
+
+                using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+                stream.CopyTo(fileStream);
+                ConsoleMessageOccurred?.Invoke(this, $"Script {fileName} extracted successfully.");
+            }
+            else
+            {
+                ConsoleMessageOccurred?.Invoke(this, $"Script {fileName} already exists at {filePath}.");
+            }
         }
     }
 
@@ -65,78 +95,48 @@ public class PythonExecutionService : IDisposable
     {
         try
         {
+            var baseDataDir = AppDataPath.GetBaseDataDirectory();
+            ConsoleMessageOccurred?.Invoke(this, $"Base data directory: {baseDataDir}");
+            ExtractEmbeddedScripts(baseDataDir);
+
             if (!Directory.Exists(_pythonPath))
-            {
-                throw new DirectoryNotFoundException($"<PES.cs (!) error: > Invalid Python path. The specified path '{_pythonPath}' does not exist or is incorrect. Ensure it contains the correct Python installation.");
-            }
+                throw new DirectoryNotFoundException($"<PES.cs error> Invalid Python path: {_pythonPath}");
 
-            ConsoleMessageOccurred?.Invoke(this, $"Setting PYTHONHOME to '{_pythonPath}'.");
+            var pythonExecutable = Path.Combine(_pythonPath, "bin", "python3.12");
+            ConsoleMessageOccurred?.Invoke(this, $"Python Executable Path: {pythonExecutable}");
 
-            Environment.SetEnvironmentVariable("PYTHONHOME", _pythonPath);
+            if (!File.Exists(pythonExecutable))
+                throw new FileNotFoundException($"<PES.cs error> Python executable not found at {pythonExecutable}");
 
-            var pythonVersion = GetPythonVersion();
+            var (pythonVersion, pythonDllPath) = GetPythonVersionAndDllPath(pythonExecutable);
 
-            var currentVersion = Version.Parse(pythonVersion);
-            var minRequiredVersion = new Version(3, 12);
-            ConsoleMessageOccurred?.Invoke(this, $"Installed Python version: {currentVersion}. Minimum required version: {minRequiredVersion}.");
-
-            if (currentVersion < minRequiredVersion)
-            {
-                throw new InvalidOperationException($"<PES.cs (!) error: > Python version {currentVersion} is too low. The minimum required version is {minRequiredVersion}.");
-            }
-
-            var majorMinor = $"{currentVersion.Major}.{currentVersion.Minor}"; // Extract major.minor
-
-            string dllName;
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                string path = Environment.GetEnvironmentVariable("PATH") ?? "";
-                string newPath = $"{_pythonPath};{path}";
-                Environment.SetEnvironmentVariable("PATH", newPath);
-                        
-                dllName = $"python{currentVersion.Major}{currentVersion.Minor}.dll"; // e.g. python312.dll
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Environment.SetEnvironmentVariable("LD_LIBRARY_PATH", Path.Combine(_pythonPath, "lib"));
-                dllName = $"libpython{majorMinor}.so"; // e.g. libpython3.12.so
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Environment.SetEnvironmentVariable("DYLD_LIBRARY_PATH", Path.Combine(_pythonPath, "lib"));
-                dllName = $"libpython{majorMinor}.dylib"; // e.g. libpython3.12.dylib
-            }
-            else
-            {
-                throw new PlatformNotSupportedException("<PES.cs (!) error: > Unsupported operating system.");
-            }
-
-            var pythonDllPath = Path.Combine(_pythonPath, "lib", dllName);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                pythonDllPath = Path.Combine(_pythonPath, dllName);
-            }
-
-            ConsoleMessageOccurred?.Invoke(this, $"Attempting to open dynamic library: '{pythonDllPath}'.");
+            ConsoleMessageOccurred?.Invoke(this, $"Detected Python version: {pythonVersion}");
+            ConsoleMessageOccurred?.Invoke(this, $"Python DLL Path: {pythonDllPath}");
 
             if (!File.Exists(pythonDllPath))
-            {
-                throw new FileNotFoundException($"<PES.cs (!) error: > Python DLL not found at '{pythonDllPath}'. Ensure the correct Python version is installed and the DLL is present. Bitte überprüfen Sie den Pfad im Dateiexplorer.");
-            }
-
-            ConsoleMessageOccurred?.Invoke(this, $"Successfully found Python DLL at '{pythonDllPath}'.");
+                throw new FileNotFoundException($"<PES.cs error> Python dynamic library not found at {pythonDllPath}");
 
             Runtime.PythonDLL = pythonDllPath;
-
             PythonEngine.Initialize();
             ConsoleMessageOccurred?.Invoke(this, "PythonEngine initialized successfully.");
             _isPythonInitialized = true;
             _initTcs.TrySetResult(true);
-            
+
             using (Py.GIL())
             {
-                string redirectScript = @"
+                dynamic sys = Py.Import("sys");
+                var scriptsPath = Path.Combine(baseDataDir, "Python", "312", "lib", $"python{pythonVersion}");
+                var sitePackagesPath = Path.Combine(scriptsPath, "site-packages");
+                var scriptsDir = Path.Combine(baseDataDir, "Scripts");
+
+                ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {scriptsPath}");
+                sys.path.append(scriptsPath);
+                ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {sitePackagesPath}");
+                sys.path.append(sitePackagesPath);
+                ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {scriptsDir}");
+                sys.path.append(scriptsDir);
+
+                const string redirectScript = @"
 import sys
 import clr
 clr.AddReference('LLMR')
@@ -166,31 +166,18 @@ sys.stderr = StdErrRedirector()
 
             while (!_isDisposed)
             {
-                Func<Task>? taskFunc = null;
-
-                try
-                {
-                    taskFunc = _taskQueue.Take();
-                }
-                catch (InvalidOperationException)
-                {
-                    break;
-                }
-
-                if (taskFunc != null)
-                {
-                    taskFunc().Wait();
-                }
+                Func<Task>? taskFunc = _taskQueue.Take();
+                taskFunc?.Invoke().Wait();
             }
         }
         catch (Exception ex)
         {
             ExceptionOccurred?.Invoke(this, $"{ex.Message}\n{ex.StackTrace}");
             _initTcs.TrySetResult(false);
-            _isDisposed = true; 
+            _isDisposed = true;
             lock (Lock)
             {
-                _instance = null; // allow re-init on failure
+                _instance = null;
             }
         }
         finally
@@ -199,31 +186,19 @@ sys.stderr = StdErrRedirector()
             {
                 try
                 {
-                    // note by moe: This relies on the deprecated (and highly risky!) BinaryFormatter. 
-                    // until it is fixxed, we can only initialize the PE once!
-                    // presumably this will change in the very near future: https://github.com/pythonnet/pythonnet/issues/2282
                     PythonEngine.Shutdown();
                     ConsoleMessageOccurred?.Invoke(this, "PythonEngine shutdown successfully.");
                 }
                 catch (Exception ex)
                 {
                     ExceptionOccurred?.Invoke(this, $"{ex.Message}\n{ex.StackTrace}");
-                    _initTcs.TrySetResult(false);
-                    _isDisposed = true; 
+                    _isDisposed = true;
                     lock (Lock)
                     {
                         _instance = null;
                     }
                 }
             }
-        }
-    }
-
-    private void CheckForThreadException()
-    {
-        if (_threadException != null)
-        {
-            throw _threadException;
         }
     }
 
@@ -231,13 +206,12 @@ sys.stderr = StdErrRedirector()
     {
         var tcs = new TaskCompletionSource<T>();
 
-        _taskQueue.Add(() =>
+        _taskQueue.Add(async () =>
         {
             using (Py.GIL())
             {
                 try
                 {
-                    CheckForThreadException(); 
                     var result = func();
                     tcs.SetResult(result);
                 }
@@ -245,7 +219,7 @@ sys.stderr = StdErrRedirector()
                 {
                     ExceptionOccurred?.Invoke(this, $"{ex.Message}\n{ex.StackTrace}");
                     _initTcs.TrySetResult(false);
-                    _isDisposed = true; 
+                    _isDisposed = true;
                     lock (Lock)
                     {
                         _instance = null;
@@ -253,113 +227,88 @@ sys.stderr = StdErrRedirector()
                     tcs.SetException(ex);
                 }
             }
-
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         });
 
         return tcs.Task;
-    }
-
-    private string GetPythonVersion()
-    {
-        if (_pythonPath == null)
-            throw new NullReferenceException("Python path is null.");
-        var pythonExecutable = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Path.Combine(_pythonPath, "python.exe") : Path.Combine(_pythonPath, "bin", "python3");
-
-        if (!File.Exists(pythonExecutable))
-        {
-            throw new FileNotFoundException($"<PES.cs (!) error: > Python executable not found in '{pythonExecutable}'. Ensure the correct Python version is installed.");
-        }
-
-        var processStartInfo = new ProcessStartInfo
-        {
-            FileName = pythonExecutable,
-            Arguments = "--version",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true, // capture version info from stderr if needed (do not forget the -u calls in the scripts!)
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        using var process = Process.Start(processStartInfo);
-        if (process == null)
-        {
-            throw new InvalidOperationException("<PES.cs (!) error: > Failed to start Python process.");
-        }
-
-        var output = process.StandardOutput.ReadToEnd();
-        var errorOutput = process.StandardError.ReadToEnd();
-        process.WaitForExit();
-
-        if (string.IsNullOrEmpty(output))
-        {
-            // output version info to stderr
-            output = errorOutput;
-        }
-
-        if (!output.ToLower().StartsWith("python"))
-        {
-            throw new InvalidOperationException("<PES.cs (!) error: > Unable to determine Python version.");
-        }
-
-        // should be something like this: "Python 3.12.4"
-        var parts = output.Split(' ');
-        if (parts.Length < 2)
-        {
-            throw new InvalidOperationException("<PES.cs (!) error: > Unable to parse Python version.");
-        }
-
-        ConsoleMessageOccurred?.Invoke(this, $"Detected Python version: {parts[1].Trim()}.");
-
-        return parts[1].Trim();
     }
 
     private void VerifyRequiredPackages()
     {
         using (Py.GIL())
         {
-            dynamic pip = Py.Import("pip");
-            // ReSharper disable once InconsistentNaming
-            dynamic pkg_resources = Py.Import("pkg_resources");
-
-            string[] requiredPackages = { "requests", "gradio", "openai" };
-            string[] versions = { "2.32.3", "5.1.0", "1.52.0" };
+            dynamic importlibMetadata = Py.Import("importlib.metadata");
+            string[] requiredPackages = { "requests", "openai", "gradio" };
+            string[] requiredVersions = { "2.31", "1.54", "5.1" };
 
             for (var i = 0; i < requiredPackages.Length; i++)
             {
                 var package = requiredPackages[i];
-                var requiredVersion = versions[i];
+                var requiredVersion = requiredVersions[i];
                 try
                 {
-                    dynamic dist = pkg_resources.get_distribution(package);
-                    string installedVersion = dist.version;
+                    string installedVersion = importlibMetadata.version(package);
+                    ConsoleMessageOccurred?.Invoke(this, $"Checking package '{package}'. Installed version: {installedVersion}, Required version: {requiredVersion}");
 
-                    ConsoleMessageOccurred?.Invoke(this, $"Checking package '{package}'. Installed version: {installedVersion}, Minimum required version: {requiredVersion}.");
-
-                    if (Version.Parse(installedVersion) < Version.Parse(requiredVersion))
-                    {
-                        throw new InvalidOperationException($"<PES.cs (!) error: > Package '{package}' version {installedVersion} is too old. Minimum required version is {requiredVersion}.");
-                    }
+                    if (!installedVersion.StartsWith(requiredVersion))
+                        throw new InvalidOperationException($"<PES.cs error> Package '{package}' version {installedVersion} does not match required version prefix {requiredVersion}.");
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    throw new InvalidOperationException($"<PES.cs (!) error: > Required package '{package}' is not installed or outdated.");
+                    throw new InvalidOperationException($"<PES.cs error> Loading required package '{package}' leads to problems: {ex.Message}.");
                 }
             }
         }
     }
-    
-    // ReSharper disable once UnusedMember.Global [is used in PythonThreadStart()].
+
+    private (string Version, string PythonDllPath) GetPythonVersionAndDllPath(string pythonExecutable)
+    {
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = pythonExecutable,
+            Arguments = "-c \"import sys; import sysconfig; print(sys.version_info[0:2]); print(sysconfig.get_config_var('LIBDIR')); print(sysconfig.get_config_var('LDLIBRARY')); print(sysconfig.get_config_var('INSTSONAME'))\"",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using var process = Process.Start(processStartInfo) ?? throw new InvalidOperationException("<PES.cs error> Failed to start Python process.");
+        var output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+
+        var lines = output.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        if (lines.Length < 4)
+            throw new InvalidOperationException("<PES.cs error> Unable to get Python version and library info.");
+
+        var versionInfo = lines[0].Trim('(', ')').Split(',');
+        var major = versionInfo[0].Trim();
+        var minor = versionInfo[1].Trim();
+        var version = $"{major}.{minor}";
+
+        var libDir = lines[1].Trim();
+        var pythonDllName = $"libpython{version}.dylib";
+        var pythonDllPath = Path.Combine(libDir, pythonDllName);
+
+        ConsoleMessageOccurred?.Invoke(this, $"LIBDIR: {libDir}");
+        ConsoleMessageOccurred?.Invoke(this, $"Python DLL Name: {pythonDllName}");
+        ConsoleMessageOccurred?.Invoke(this, $"Python DLL Path: {pythonDllPath}");
+
+        if (!File.Exists(pythonDllPath))
+            throw new FileNotFoundException($"<PES.cs error> Python dynamic library not found at '{pythonDllPath}'.");
+
+        return (version, pythonDllPath);
+    }
+
     public static void PythonStdout(string message)
     {
         _instance?.ConsoleMessageOccurred?.Invoke(_instance, $"<PES stdout> {message}");
     }
-    // ReSharper disable once UnusedMember.Global [is used in PythonThreadStart()].
+
     public static void PythonStderr(string message)
     {
         _instance?.ExceptionOccurred?.Invoke(_instance, $"<PES stderr> {message}");
     }
-        
+
     public void Dispose()
     {
         if (_isDisposed) return;
@@ -369,10 +318,7 @@ sys.stderr = StdErrRedirector()
         {
             _pythonThread.Join();
         }
-        catch
-        {
-            // suppress all exceptions during disposal 
-        }
+        catch { }
         lock (Lock)
         {
             _instance = null;
