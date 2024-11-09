@@ -89,7 +89,4 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-    <ItemGroup>
-        <EmbeddedResource Include="Scripts\**\*.py" />
-    </ItemGroup>
 </Project>
