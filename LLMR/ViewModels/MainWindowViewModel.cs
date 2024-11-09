@@ -217,6 +217,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         ServerStatusColor = Brushes.Red;
 
         ChatHistoryCollection = new ChatHistoryCollection();
+        ChatHistoryCollection.ConsoleMessageOccurred += ChatHistoryCollectionOnConsoleMessageOccurred;
+        ChatHistoryCollection.ExceptionOccurred += ChatHistoryCollectionOnExceptionOccurred;
         
         _isApiKeySelected = this.WhenAnyValue(x => x.SelectedApiKey)
             .Select(apiKey => apiKey is not null)
@@ -257,6 +259,16 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         DisplayStartupMessages();
         
         Trace.Listeners.Add(new InternalConsoleTraceListener(message => AddToConsole(message, new SolidColorBrush(Colors.Gray))));
+    }
+
+    private void ChatHistoryCollectionOnExceptionOccurred(object? sender, string e)
+    {
+        AddToConsole($"<<CHC_OnConsole>>: {e}", new SolidColorBrush(Colors.MediumVioletRed));
+    }
+
+    private void ChatHistoryCollectionOnConsoleMessageOccurred(object? sender, string message)
+    {
+        AddToConsole($"<<CHC_OnConsole>>: {message}", new SolidColorBrush(Colors.Indigo));
     }
 
     #endregion
