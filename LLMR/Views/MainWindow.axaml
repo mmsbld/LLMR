@@ -767,70 +767,88 @@
             </TabItem>
         </TabControl>
         <!-- Console -->
-        <Expander Grid.Row="2" Header="Console" IsExpanded="{Binding IsConsoleExpanded, Mode=TwoWay}"
-                  HorizontalAlignment="Stretch">
-            <Grid HorizontalAlignment="Stretch" RowDefinitions="Auto,*">
-                <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
-                    <!-- Your existing buttons -->
-                </StackPanel>
-                <Border Classes="console-border" Grid.Row="1" Background="{DynamicResource ConsoleBackgroundBrush}"
-                        MaxHeight="{Binding #MainWindowGrid.Bounds.Height, Converter={StaticResource PercentageConverter}, ConverterParameter=0.3}">
-                    <ScrollViewer x:Name="ConsoleScrollViewer" VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
-                        <ItemsControl x:Name="ConsoleItemsControl" ItemsSource="{Binding ConsoleMessages}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="model:ConsoleMessage">
-                                    <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource ConsoleTextBrush}" FontSize="13" FontFamily="Consolas, Lucida Console">
-                                        <!-- (opening bracket) "[" -->
-                                        <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                            <Run.Text>
-                                                <MultiBinding Converter="{StaticResource BoolToTextConverter}">
-                                                    <Binding Path="Data.ShowTimestamp"
-                                                             Source="{StaticResource MainViewModelProxy}" />
-                                                    <Binding>
-                                                        <Binding.Source>
-                                                            <system:String>[</system:String>
-                                                        </Binding.Source>
-                                                    </Binding>
-                                                </MultiBinding>
-                                            </Run.Text>
-                                        </Run>
-                                        <!-- (timestamp) -->
-                                        <Run Foreground="{DynamicResource TimestampForegroundBrush}">
-                                            <Run.Text>
-                                                <MultiBinding Converter="{StaticResource BoolToTextConverter}">
-                                                    <Binding Path="Data.ShowTimestamp"
-                                                             Source="{StaticResource MainViewModelProxy}" />
-                                                    <Binding Path="Timestamp" />
-                                                </MultiBinding>
-                                            </Run.Text>
-                                        </Run>
-                                        <!-- (closing bracket+ space) "] " -->
-                                        <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                            <Run.Text>
-                                                <MultiBinding Converter="{StaticResource BoolToTextConverter}">
-                                                    <Binding Path="Data.ShowTimestamp"
-                                                             Source="{StaticResource MainViewModelProxy}" />
-                                                    <Binding>
-                                                        <Binding.Source>
-                                                            <system:String>] </system:String>
-                                                        </Binding.Source>
-                                                    </Binding>
-                                                </MultiBinding>
-                                            </Run.Text>
-                                        </Run>
-                                        <!-- Message Text -->
-                                        <Run Text="{Binding Text}" Foreground="{Binding Color}"
-                                             FontWeight="{Binding IsBold, Converter={StaticResource BooleanToBoldFontWeightConverter}}" />
-                                    </TextBlock>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
+<Expander Grid.Row="2" Header="Console" IsExpanded="{Binding IsConsoleExpanded, Mode=TwoWay}"
+          HorizontalAlignment="Stretch">
+    <Grid HorizontalAlignment="Stretch" RowDefinitions="Auto,*">
+        <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
+            <Button Command="{Binding CopyLastTenMessagesCommand}" Width="40" Height="40" Classes="secondary">
+                <i:Icon Value="fa-solid fa-copy" Width="20" Height="20" Foreground="#1F5222" />
+                <ToolTip.Tip>
+                    <ToolTip Content="Copy last ten console messages" />
+                </ToolTip.Tip>
+            </Button>
+            <Button Command="{Binding CopyAllMessagesCommand}" Width="40" Height="40" Classes="secondary">
+                <i:Icon Value="fa-solid fa-clipboard" Width="20" Height="20" Foreground="#1F5222" />
+                <ToolTip.Tip>
+                    <ToolTip Content="Copy all console messages" />
+                </ToolTip.Tip>
+            </Button>
+            <Button Command="{Binding ToggleShowTimestampCommand}" Width="40" Height="40" Classes="secondary">
+                <i:Icon Value="fa-solid fa-clock" Width="20" Height="20" Foreground="#1F5222" />
+                <ToolTip.Tip>
+                    <ToolTip Content="Hide/Show Timestamp for console messages" />
+                </ToolTip.Tip>
+            </Button>
+        </StackPanel>
+        <Border Classes="console-border" Grid.Row="1" Background="{DynamicResource ConsoleBackgroundBrush}"
+                MaxHeight="{Binding #MainWindowGrid.Bounds.Height, Converter={StaticResource PercentageConverter}, ConverterParameter=0.3}">
+            <ScrollViewer x:Name="ConsoleScrollViewer" VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl x:Name="ConsoleItemsControl" ItemsSource="{Binding ConsoleMessages}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="model:ConsoleMessage">
+                            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource ConsoleTextBrush}" FontSize="13" FontFamily="Consolas, Lucida Console">
+                                <!-- (opening bracket) "[" -->
+                                <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                    <Run.Text>
+                                        <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                                            <Binding Path="Data.ShowTimestamp"
+                                                     Source="{StaticResource MainViewModelProxy}" />
+                                            <Binding>
+                                                <Binding.Source>
+                                                    <system:String>[</system:String>
+                                                </Binding.Source>
+                                            </Binding>
+                                        </MultiBinding>
+                                    </Run.Text>
+                                </Run>
+                                <!-- (timestamp) -->
+                                <Run Foreground="{DynamicResource TimestampForegroundBrush}">
+                                    <Run.Text>
+                                        <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                                            <Binding Path="Data.ShowTimestamp"
+                                                     Source="{StaticResource MainViewModelProxy}" />
+                                            <Binding Path="Timestamp" />
+                                        </MultiBinding>
+                                    </Run.Text>
+                                </Run>
+                                <!-- (closing bracket+ space) "] " -->
+                                <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                    <Run.Text>
+                                        <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                                            <Binding Path="Data.ShowTimestamp"
+                                                     Source="{StaticResource MainViewModelProxy}" />
+                                            <Binding>
+                                                <Binding.Source>
+                                                    <system:String>] </system:String>
+                                                </Binding.Source>
+                                            </Binding>
+                                        </MultiBinding>
+                                    </Run.Text>
+                                </Run>
+                                <!-- Message Text -->
+                                <Run Text="{Binding Text}" Foreground="{Binding Color}"
+                                     FontWeight="{Binding IsBold, Converter={StaticResource BooleanToBoldFontWeightConverter}}" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
 
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Border>
-            </Grid>
-        </Expander>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Expander>
+
 
         <!-- freeze UI IsBusy -->
         <Grid Grid.RowSpan="3" IsVisible="{Binding IsBusy}" Background="#80000000">
