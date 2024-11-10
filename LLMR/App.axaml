@@ -3,7 +3,7 @@
              x:Class="LLMR.App"
              xmlns:local="using:LLMR"
              xmlns:helpers="clr-namespace:LLMR.Helpers"
-             RequestedThemeVariant="Light"> <!-- set to Light only! -->
+             RequestedThemeVariant="Default"> <!-- set to Light only! -->
     <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>

@@ -18,29 +18,72 @@
         Width="1200" Height="800"
         MinWidth="900"
         FontFamily="Segoe UI, Arial, sans-serif"
-        Background="#F5F5F5">
+        Background="{DynamicResource WindowBackgroundBrush}">
 
     <Window.Resources>
-        <helpers:PercentageConverter x:Key="PercentageConverter" />
-        <helpers:NullToBoolConverter x:Key="NullToBoolConverter" />
-        <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter" />
-        <helpers:BooleanToBoldFontWeightConverter x:Key="BooleanToBoldFontWeightConverter" />
-        <!-- <helpers:TypedBindingConverter x:Key="TypedBindingConverter" /> -->
-        <!-- <helpers:TimestampConverter x:Key="TimestampConverter" /> -->
-        <!-- <helpers:BindingProxy x:Key="Proxy" Data="{Binding}" /> -->
-        <!-- <helpers:ShowTimestampTextConverter x:Key="ShowTimestampTextConverter" /> -->
-        <!-- <helpers:ShowTimestampTextMultiConverter x:Key="ShowTimestampTextMultiConverter" /> -->
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <!-- Light Theme Brushes -->
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F5F5F5" />
+                    <SolidColorBrush x:Key="TextForegroundBrush" Color="#444444" />
+                    <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#E0E0E0" />
+                    <SolidColorBrush x:Key="ButtonForegroundBrush" Color="#000000" />
+                    <SolidColorBrush x:Key="ButtonBorderBrush" Color="#BDBDBD" />
+                    <SolidColorBrush x:Key="DangerButtonBackgroundBrush" Color="#E57373" />
+                    <SolidColorBrush x:Key="DangerButtonForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="ConfirmButtonBackgroundBrush" Color="#205322" />
+                    <SolidColorBrush x:Key="ConfirmButtonForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="BorderBrush" Color="#BDBDBD" />
+                    <SolidColorBrush x:Key="ConsoleBackgroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="ConsoleTextBrush" Color="#000000" />
+                    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="#888888" />
+                    <SolidColorBrush x:Key="TimestampForegroundBrush" Color="#1F5222" />
+                    <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="#F0F0F0" />
+                    <Bitmap x:Key="LogoImageSource">avares://LLMR/Assets/logo_wide.png</Bitmap>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <!-- Dark Theme Brushes -->
+                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#1E1E1E" />
+                    <SolidColorBrush x:Key="TextForegroundBrush" Color="#CCCCCC" />
+                    <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#3A3A3A" />
+                    <SolidColorBrush x:Key="ButtonForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="ButtonBorderBrush" Color="#555555" />
+                    <SolidColorBrush x:Key="DangerButtonBackgroundBrush" Color="#D32F2F" />
+                    <SolidColorBrush x:Key="DangerButtonForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="ConfirmButtonBackgroundBrush" Color="#388E3C" />
+                    <SolidColorBrush x:Key="ConfirmButtonForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="BorderBrush" Color="#555555" />
+                    <SolidColorBrush x:Key="ConsoleBackgroundBrush" Color="#2D2D2D" />
+                    <SolidColorBrush x:Key="ConsoleTextBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="#AAAAAA" />
+                    <SolidColorBrush x:Key="TimestampForegroundBrush" Color="#80C080" />
+                    <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="#2D2D2D" />
+                    <Bitmap x:Key="LogoImageSource">avares://LLMR/Assets/logo_wide_DARK.png</Bitmap>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
 
-        <helpers:BoolToTextConverter x:Key="BoolToTextConverter" />
-        <helpers:BindingProxy x:Key="MainViewModelProxy"
-                              x:TypeArguments="vm:MainWindowViewModel"
-                              Data="{Binding}" />
+            <!-- Existing Resources -->
+            <helpers:PercentageConverter x:Key="PercentageConverter" />
+            <helpers:NullToBoolConverter x:Key="NullToBoolConverter" />
+            <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+            <helpers:BooleanToBoldFontWeightConverter x:Key="BooleanToBoldFontWeightConverter" />
+            <!-- <helpers:TypedBindingConverter x:Key="TypedBindingConverter" /> -->
+            <!-- <helpers:TimestampConverter x:Key="TimestampConverter" /> -->
+            <!-- <helpers:BindingProxy x:Key="Proxy" Data="{Binding}" /> -->
+            <!-- <helpers:ShowTimestampTextConverter x:Key="ShowTimestampTextConverter" /> -->
+            <!-- <helpers:ShowTimestampTextMultiConverter x:Key="ShowTimestampTextMultiConverter" /> -->
+            <helpers:BoolToTextConverter x:Key="BoolToTextConverter" />
+            <helpers:BindingProxy x:Key="MainViewModelProxy"
+                                  x:TypeArguments="vm:MainWindowViewModel"
+                                  Data="{Binding}" />
+        </ResourceDictionary>
     </Window.Resources>
 
     <Window.Styles>
-        <!-- general styles -->
+        <!-- General Styles -->
         <Style Selector="TextBlock">
-            <Setter Property="Foreground" Value="#444444" />
+            <Setter Property="Foreground" Value="{DynamicResource TextForegroundBrush}" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="Normal" />
         </Style>
@@ -48,40 +91,40 @@
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
 
-        <!-- button styles -->
+        <!-- Button Styles -->
         <Style Selector="Button.primary">
-            <Setter Property="Background" Value="#E0E0E0" />
-            <Setter Property="Foreground" Value="#000000" />
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundBrush}" />
             <Setter Property="CornerRadius" Value="4" />
             <Setter Property="Height" Value="34" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="BorderBrush" Value="#BDBDBD" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Button.secondary">
-            <Setter Property="Background" Value="#E0E0E0" />
-            <Setter Property="Foreground" Value="#000000" />
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundBrush}" />
             <Setter Property="CornerRadius" Value="4" />
             <Setter Property="Height" Value="34" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="BorderBrush" Value="#BDBDBD" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style Selector="Button.danger">
-            <Setter Property="Background" Value="#E57373" />
-            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Background" Value="{DynamicResource DangerButtonBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource DangerButtonForegroundBrush}" />
             <Setter Property="CornerRadius" Value="4" />
             <Setter Property="Height" Value="34" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
 
-        <!-- confirm btn  -->
+        <!-- Confirm Button -->
         <Style Selector="Button.confirm">
-            <Setter Property="Background" Value="#205322" />
-            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Background" Value="{DynamicResource ConfirmButtonBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ConfirmButtonForegroundBrush}" />
             <Setter Property="CornerRadius" Value="4" />
             <Setter Property="Height" Value="34" />
             <Setter Property="FontSize" Value="13" />
@@ -102,61 +145,60 @@
             </Setter>
         </Style>
 
-        <!-- hover -->
+        <!-- Hover and Pressed States -->
         <Style Selector="Button.confirm:pointerover">
-            <Setter Property="Foreground" Value="#000000" />
-            <Setter Property="Background" Value="#E0E0E0" />
+            <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" />
         </Style>
-
-        <!-- pressed -->
         <Style Selector="Button.confirm:pressed">
-            <Setter Property="Foreground" Value="#000000" />
-            <Setter Property="Background" Value="#E0E0E0" />
+            <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" />
         </Style>
 
-        <!-- margin ALL btns -->
+        <!-- Margin for All Buttons -->
         <Style Selector="Button">
             <Setter Property="Margin" Value="5" />
         </Style>
 
+        <!-- Input Controls -->
         <Style Selector="TextBox">
-            <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#BDBDBD" />
+            <Setter Property="Background" Value="{DynamicResource ConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
             <Setter Property="CornerRadius" Value="4" />
             <Setter Property="Height" Value="34" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
         </Style>
         <Style Selector="NumericUpDown">
-            <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#BDBDBD" />
+            <Setter Property="Background" Value="{DynamicResource ConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
             <Setter Property="CornerRadius" Value="4" />
             <Setter Property="Height" Value="34" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
         </Style>
         <Style Selector="ComboBox">
-            <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#BDBDBD" />
+            <Setter Property="Background" Value="{DynamicResource ConsoleBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
             <Setter Property="CornerRadius" Value="4" />
             <Setter Property="Height" Value="34" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
         </Style>
 
-        <!-- Console styles -->
+        <!-- Console Styles -->
         <Style Selector="Border.console-border">
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="#BDBDBD" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
             <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="Background" Value="{DynamicResource ConsoleBackgroundBrush}" />
             <Setter Property="Padding" Value="12" />
         </Style>
         <Style Selector="ScrollViewer.console-scroll">
             <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
         </Style>
 
-        <!-- TabControl styles -->
+        <!-- TabControl Styles -->
         <Style Selector="TabControl">
             <Setter Property="TabStripPlacement" Value="Left" />
             <Setter Property="Margin" Value="0" />
@@ -170,13 +212,9 @@
             <Setter Property="FontSize" Value="16" />
             <Setter Property="FontWeight" Value="Normal" />
         </Style>
-
-        <!-- enabled TabItem -->
         <Style Selector="TabItem:enabled">
             <Setter Property="FontWeight" Value="Bold" />
         </Style>
-
-        <!-- TextBlocks inside TabItems -->
         <Style Selector="TabItem TextBlock">
             <Setter Property="FontWeight" Value="Normal" />
         </Style>
@@ -184,6 +222,7 @@
             <Setter Property="FontWeight" Value="Bold" />
         </Style>
     </Window.Styles>
+
 
     <Window.DataTemplates>
         <!-- IntParameter -->
@@ -247,7 +286,7 @@
         </Grid.RowDefinitions>
 
         <!-- Toolbar -->
-        <DockPanel Grid.Row="0" Background="#F0F0F0" LastChildFill="False" MinHeight="50" MaxHeight="50">
+        <DockPanel Grid.Row="0" Background="{DynamicResource ToolbarBackgroundBrush}" LastChildFill="False" MinHeight="50" MaxHeight="50">
             <!-- Server Status Indicator -->
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Center">
                 <TextBlock Text="Server Status: " FontSize="12" FontWeight="Bold" VerticalAlignment="Center" />
@@ -312,13 +351,12 @@
                             </Grid.ColumnDefinitions>
                             <Grid Grid.Column="0">
                                 <Grid>
-                                    <Image Width="200" Source="avares://LLMR/Assets/logo_wide.png"
-                                           HorizontalAlignment="Left" />
+                                    <Image Width="200" Source="{DynamicResource LogoImageSource}" HorizontalAlignment="Left" />
                                     <TextBlock Text="0.4.3 (pre-alpha)"
                                                FontFamily="Consolas, Courier New, monospace"
                                                FontWeight="Bold"
                                                FontSize="11"
-                                               Foreground="Black"
+                                               Foreground="{DynamicResource TextForegroundBrush}"
                                                HorizontalAlignment="Right"
                                                VerticalAlignment="Bottom"
                                                Margin="0,-12,0,0"
@@ -606,7 +644,7 @@
                               ItemsSource="{Binding ChatHistoryCollection.Categories}"
                               SelectedItem="{Binding ChatHistoryCollection.SelectedFile}"
                               BorderThickness="1"
-                              BorderBrush="#BDBDBD"
+                              BorderBrush="{DynamicResource BorderBrush}"
                               CornerRadius="4">
                         <TreeView.ContextMenu>
                             <ContextMenu
@@ -619,7 +657,7 @@
                         </TreeView.ContextMenu>
                     </TreeView>
                     <!-- GridSplitter -->
-                    <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Width="5" Background="#BDBDBD"
+                    <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Width="5" Background="{DynamicResource BorderBrush}"
                                   HorizontalAlignment="Center" VerticalAlignment="Stretch" />
                     <!-- selected file -->
                     <ScrollViewer Grid.RowSpan="3" Grid.Row="0" Grid.Column="2">
@@ -676,17 +714,17 @@
                                                 <SelectableTextBlock Text="{Binding User}"
                                                                      TextWrapping="Wrap"
                                                                      FontSize="13"
-                                                                     Foreground="#000000"
+                                                                     Foreground="{DynamicResource ForegroundBrush}"
                                                                      Margin="0,2,0,0" />
                                             </StackPanel>
-                                            <!-- dDisplay sssistant message if present -->
+                                            <!-- display assistant message if present -->
                                             <StackPanel Margin="0,5,0,0"
                                                         IsVisible="{Binding Assistant, Converter={StaticResource NullToBoolConverter}}">
                                                 <TextBlock Text="Assistant:" FontWeight="Bold" />
                                                 <SelectableTextBlock Text="{Binding Assistant}"
                                                                      TextWrapping="Wrap"
                                                                      FontSize="13"
-                                                                     Foreground="#000000"
+                                                                     Foreground="{DynamicResource ForegroundBrush}"
                                                                      Margin="0,2,0,0" />
                                             </StackPanel>
                                         </StackPanel>
@@ -735,17 +773,16 @@
                 <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
                     <!-- Your existing buttons -->
                 </StackPanel>
-                <Border Classes="console-border" Grid.Row="1" Background="LightGray"
+                <Border Classes="console-border" Grid.Row="1" Background="{DynamicResource ConsoleBackgroundBrush}"
                         MaxHeight="{Binding #MainWindowGrid.Bounds.Height, Converter={StaticResource PercentageConverter}, ConverterParameter=0.3}">
                     <ScrollViewer x:Name="ConsoleScrollViewer" VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled">
                         <ItemsControl x:Name="ConsoleItemsControl" ItemsSource="{Binding ConsoleMessages}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="model:ConsoleMessage">
-                                    <TextBlock TextWrapping="Wrap" Foreground="#000000" FontSize="13"
-                                               FontFamily="Consolas, Lucida Console">
+                                    <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource ConsoleTextBrush}" FontSize="13" FontFamily="Consolas, Lucida Console">
                                         <!-- (opening bracket) "[" -->
-                                        <Run Foreground="#888888">
+                                        <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
                                             <Run.Text>
                                                 <MultiBinding Converter="{StaticResource BoolToTextConverter}">
                                                     <Binding Path="Data.ShowTimestamp"
@@ -759,7 +796,7 @@
                                             </Run.Text>
                                         </Run>
                                         <!-- (timestamp) -->
-                                        <Run Foreground="#1F5222">
+                                        <Run Foreground="{DynamicResource TimestampForegroundBrush}">
                                             <Run.Text>
                                                 <MultiBinding Converter="{StaticResource BoolToTextConverter}">
                                                     <Binding Path="Data.ShowTimestamp"
@@ -769,7 +806,7 @@
                                             </Run.Text>
                                         </Run>
                                         <!-- (closing bracket+ space) "] " -->
-                                        <Run Foreground="#888888">
+                                        <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
                                             <Run.Text>
                                                 <MultiBinding Converter="{StaticResource BoolToTextConverter}">
                                                     <Binding Path="Data.ShowTimestamp"
@@ -794,7 +831,7 @@
                 </Border>
             </Grid>
         </Expander>
-        
+
         <!-- freeze UI IsBusy -->
         <Grid Grid.RowSpan="3" IsVisible="{Binding IsBusy}" Background="#80000000">
             <TextBlock Text="Please wait..." Foreground="#FFFFFF" FontSize="20" HorizontalAlignment="Center"
