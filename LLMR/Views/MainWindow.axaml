@@ -4,15 +4,19 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="https://github.com/projektanker/icons.avalonia"
-        xmlns:modelParameters="clr-namespace:LLMR.Models.ModelSettingsManager.ModelParameters"
-        xmlns:chatHistoryManager="clr-namespace:LLMR.Models.ChatHistoryManager"
         xmlns:helpers="clr-namespace:LLMR.Helpers"
+        xmlns:modelParameters="clr-namespace:LLMR.Model.ModelSettingModulesManager.ModelParameters"
+        xmlns:chatHistoryManager="clr-namespace:LLMR.Model.ChatHistoryManager"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
+        xmlns:model="clr-namespace:LLMR.Model"
         mc:Ignorable="d"
+        x:Name="RootWindow"
         x:Class="LLMR.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/512_300dpi.png"
         Title="LLMR"
         Width="1200" Height="800"
+        MinWidth="900"
         FontFamily="Segoe UI, Arial, sans-serif"
         Background="#F5F5F5">
 
@@ -21,6 +25,16 @@
         <helpers:NullToBoolConverter x:Key="NullToBoolConverter" />
         <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         <helpers:BooleanToBoldFontWeightConverter x:Key="BooleanToBoldFontWeightConverter" />
+        <!-- <helpers:TypedBindingConverter x:Key="TypedBindingConverter" /> -->
+        <!-- <helpers:TimestampConverter x:Key="TimestampConverter" /> -->
+        <!-- <helpers:BindingProxy x:Key="Proxy" Data="{Binding}" /> -->
+        <!-- <helpers:ShowTimestampTextConverter x:Key="ShowTimestampTextConverter" /> -->
+        <!-- <helpers:ShowTimestampTextMultiConverter x:Key="ShowTimestampTextMultiConverter" /> -->
+
+        <helpers:BoolToTextConverter x:Key="BoolToTextConverter" />
+        <helpers:BindingProxy x:Key="MainViewModelProxy"
+                              x:TypeArguments="vm:MainWindowViewModel"
+                              Data="{Binding}" />
     </Window.Resources>
 
     <Window.Styles>
@@ -428,7 +442,7 @@
                                 </StackPanel>
                                 <ToolTip.Tip>
                                     <ToolTip
-                                        Content="Install python as virtual environment with all needed packages automatically, if not installed already." />
+                                        Content="Ensure that python and all necessary packages will be placed in a folder where LLMRunner can access it." />
                                 </ToolTip.Tip>
                             </Button>
                             <!-- Button ConfirmLogin -->
@@ -714,49 +728,73 @@
                 </Grid>
             </TabItem>
         </TabControl>
-
         <!-- Console -->
         <Expander Grid.Row="2" Header="Console" IsExpanded="{Binding IsConsoleExpanded, Mode=TwoWay}"
                   HorizontalAlignment="Stretch">
             <Grid HorizontalAlignment="Stretch" RowDefinitions="Auto,*">
                 <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
-                    <Button Command="{Binding CopyLastMessageCommand}" Width="40" Height="40" Classes="secondary">
-                        <i:Icon Value="fa-solid fa-copy" Width="20" Height="20" Foreground="#1F5222" />
-                        <ToolTip.Tip>
-                            <ToolTip Content="Copy last console message" />
-                        </ToolTip.Tip>
-                    </Button>
-                    <Button Command="{Binding CopyAllMessagesCommand}" Width="40" Height="40" Classes="secondary">
-                        <i:Icon Value="fa-solid fa-clipboard" Width="20" Height="20" Foreground="#1F5222" />
-                        <ToolTip.Tip>
-                            <ToolTip Content="Copy all console messages" />
-                        </ToolTip.Tip>
-                    </Button>
+                    <!-- Your existing buttons -->
                 </StackPanel>
-
-                <Border Classes="console-border" Grid.Row="1"
-                        Background="LightGray"
+                <Border Classes="console-border" Grid.Row="1" Background="LightGray"
                         MaxHeight="{Binding #MainWindowGrid.Bounds.Height, Converter={StaticResource PercentageConverter}, ConverterParameter=0.3}">
                     <ScrollViewer x:Name="ConsoleScrollViewer" VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled">
                         <ItemsControl x:Name="ConsoleItemsControl" ItemsSource="{Binding ConsoleMessages}">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock TextWrapping="Wrap" Foreground="#000000" FontSize="13">
-                                        <Run Text="[" Foreground="#888888" />
-                                        <Run Text="{Binding Timestamp}" Foreground="#1F5222" />
-                                        <Run Text="] " Foreground="#888888" />
+                                <DataTemplate x:DataType="model:ConsoleMessage">
+                                    <TextBlock TextWrapping="Wrap" Foreground="#000000" FontSize="13"
+                                               FontFamily="Consolas, Lucida Console">
+                                        <!-- (opening bracket) "[" -->
+                                        <Run Foreground="#888888">
+                                            <Run.Text>
+                                                <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                                                    <Binding Path="Data.ShowTimestamp"
+                                                             Source="{StaticResource MainViewModelProxy}" />
+                                                    <Binding>
+                                                        <Binding.Source>
+                                                            <system:String>[</system:String>
+                                                        </Binding.Source>
+                                                    </Binding>
+                                                </MultiBinding>
+                                            </Run.Text>
+                                        </Run>
+                                        <!-- (timestamp) -->
+                                        <Run Foreground="#1F5222">
+                                            <Run.Text>
+                                                <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                                                    <Binding Path="Data.ShowTimestamp"
+                                                             Source="{StaticResource MainViewModelProxy}" />
+                                                    <Binding Path="Timestamp" />
+                                                </MultiBinding>
+                                            </Run.Text>
+                                        </Run>
+                                        <!-- (closing bracket+ space) "] " -->
+                                        <Run Foreground="#888888">
+                                            <Run.Text>
+                                                <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                                                    <Binding Path="Data.ShowTimestamp"
+                                                             Source="{StaticResource MainViewModelProxy}" />
+                                                    <Binding>
+                                                        <Binding.Source>
+                                                            <system:String>] </system:String>
+                                                        </Binding.Source>
+                                                    </Binding>
+                                                </MultiBinding>
+                                            </Run.Text>
+                                        </Run>
+                                        <!-- Message Text -->
                                         <Run Text="{Binding Text}" Foreground="{Binding Color}"
                                              FontWeight="{Binding IsBold, Converter={StaticResource BooleanToBoldFontWeightConverter}}" />
                                     </TextBlock>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
+
                         </ItemsControl>
                     </ScrollViewer>
                 </Border>
             </Grid>
         </Expander>
-
+        
         <!-- freeze UI IsBusy -->
         <Grid Grid.RowSpan="3" IsVisible="{Binding IsBusy}" Background="#80000000">
             <TextBlock Text="Please wait..." Foreground="#FFFFFF" FontSize="20" HorizontalAlignment="Center"

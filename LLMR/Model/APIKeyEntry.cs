@@ -1,4 +1,4 @@
-namespace LLMR.Models;
+namespace LLMR.Model;
 
 public class APIKeyEntry
 {

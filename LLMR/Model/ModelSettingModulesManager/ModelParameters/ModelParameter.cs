@@ -1,6 +1,6 @@
 using ReactiveUI;
 
-namespace LLMR.Models.ModelSettingsManager.ModelParameters;
+namespace LLMR.Model.ModelSettingModulesManager.ModelParameters;
 
 public abstract class ModelParameter : ReactiveObject
 {

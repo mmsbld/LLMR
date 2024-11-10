@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using ReactiveUI;
 
-namespace LLMR.Models.ChatHistoryManager;
+namespace LLMR.Model.ChatHistoryManager;
 
 public class ChatHistoryCategory : ReactiveObject
 {

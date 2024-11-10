@@ -1,7 +1,7 @@
 using System;
 using ReactiveUI;
 
-namespace LLMR.Models.ModelSettingsManager.ModelParameters;
+namespace LLMR.Model.ModelSettingModulesManager.ModelParameters;
 
 public class BoolParameter : ModelParameter
 {

@@ -1,11 +1,14 @@
 using System.Collections.ObjectModel;
-using LLMR.Models.ModelSettingsManager.ModelParameters;
+using LLMR.Model.ModelSettingModulesManager.ModelParameters;
 using ReactiveUI;
 
-namespace LLMR.Models.ModelSettingsManager.ModelSettingsModules;
+namespace LLMR.Model.ModelSettingModulesManager.ModelSettingsModules;
 
-    public class OpenAI_Multicaller_ModelSettings : ReactiveObject, IModelSettings
+    public class OpenAI_v2_ModelSettings : ReactiveObject, IModelSettings
     {
+        private string? _generatedLocalLink;
+        private string? _generatedPublicLink;
+
         private string? _selectedModel;
         public string? SelectedModel
         {
@@ -13,8 +16,17 @@ namespace LLMR.Models.ModelSettingsManager.ModelSettingsModules;
             set => this.RaiseAndSetIfChanged(ref _selectedModel, value);
         }
 
-        public string? GeneratedLocalLink { get; set; }
-        public string? GeneratedPublicLink { get; set; }
+        public string? GeneratedLocalLink
+        {
+            get => _generatedLocalLink;
+            set => this.RaiseAndSetIfChanged(ref _generatedLocalLink, value);
+        }
+
+        public string? GeneratedPublicLink
+        {
+            get => _generatedPublicLink;
+            set => this.RaiseAndSetIfChanged(ref _generatedPublicLink, value);
+        }
 
         private ObservableCollection<ModelParameter> _parameters;
         public ObservableCollection<ModelParameter> Parameters
@@ -30,24 +42,12 @@ namespace LLMR.Models.ModelSettingsManager.ModelSettingsModules;
             set => this.RaiseAndSetIfChanged(ref _availableModels, value);
         }
 
-        public OpenAI_Multicaller_ModelSettings()
+        public OpenAI_v2_ModelSettings()
         {
-            GeneratedLocalLink = GeneratedPublicLink = "<OAI_MC:> no gradio links in multicaller mode";
             SelectedModel = "<select a model!>";
             AvailableModels = new ObservableCollection<string>();
             Parameters = new ObservableCollection<ModelParameter>
             {
-                new StringParameter
-                {
-                    Name = "Prompt (User):",
-                    ValueTyped = ""
-                },
-                new IntParameter
-                {
-                    Name = "n",
-                    ValueTyped = 5,
-                    Min = 1
-                },
                 new StringParameter
                 {
                     Name = "System message",
@@ -72,7 +72,7 @@ namespace LLMR.Models.ModelSettingsManager.ModelSettingsModules;
                 new IntParameter
                 {
                     Name = "MaxTokens",
-                    ValueTyped = null,
+                    ValueTyped = null, 
                     Min = 1
                 },
                 new DoubleParameter

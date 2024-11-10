@@ -25,7 +25,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Models/"/>
         <AvaloniaResource Include="Assets/**"/>
         <Folder Include="Scripts/chat_histories/Multicaller/" />
     </ItemGroup>

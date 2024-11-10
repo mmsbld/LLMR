@@ -3,14 +3,14 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using LLMR.Helpers;
-using LLMR.Models.ModelSettingsManager;
-using LLMR.Models.ModelSettingsManager.ModelParameters;
-using LLMR.Models.ModelSettingsManager.ModelSettingsModules;
+using LLMR.Model.ModelSettingModulesManager;
+using LLMR.Model.ModelSettingModulesManager.ModelParameters;
+using LLMR.Model.ModelSettingModulesManager.ModelSettingsModules;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReactiveUI;
 
-namespace LLMR.Models.ChatHistoryManager
+namespace LLMR.Model.ChatHistoryManager
 {
     public class ChatHistoryCollection : ReactiveObject
     {

@@ -2,7 +2,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
-namespace LLMR.Models.ChatHistoryManager;
+namespace LLMR.Model.ChatHistoryManager;
 
 public class ChatHistoryDocument : IDocument
 {

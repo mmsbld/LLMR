@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using LLMR.Helpers;
-using LLMR.Models;
+using LLMR.Model;
 using Newtonsoft.Json;
 
 namespace LLMR.Services;

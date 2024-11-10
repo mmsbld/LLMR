@@ -7,9 +7,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using LLMR.Models.ModelSettingsManager;
-using LLMR.Models.ModelSettingsManager.ModelParameters;
-using LLMR.Models.ModelSettingsManager.ModelSettingsModules;
+using LLMR.Model.ModelSettingModulesManager;
+using LLMR.Model.ModelSettingModulesManager.ModelParameters;
+using LLMR.Model.ModelSettingModulesManager.ModelSettingsModules;
 using Python.Runtime;
 // ReSharper disable InconsistentNaming
 

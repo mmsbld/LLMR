@@ -5,15 +5,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using LLMR.Helpers;
-using LLMR.Models;
-using LLMR.Models.ChatHistoryManager;
-using LLMR.Models.ModelSettingsManager;
 using LLMR.Services;
 using LLMR.Services.HFServerlessInference;
 using LLMR.Services.OpenAI_Multicaller;
@@ -25,7 +23,10 @@ using ReactiveUI;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media.Imaging;
-using LLMR.Models.ModelSettingsManager.ModelSettingsModules;
+using LLMR.Model;
+using LLMR.Model.ChatHistoryManager;
+using LLMR.Model.ModelSettingModulesManager;
+using LLMR.Model.ModelSettingModulesManager.ModelSettingsModules;
 using Unit = System.Reactive.Unit;
 
 namespace LLMR.ViewModels
@@ -40,6 +41,7 @@ namespace LLMR.ViewModels
         private string? _pythonPath;
         private bool _isBusy;
         private bool _isConsoleExpanded;
+        private bool _showTimestamp;
         private int _selectedConsoleIndex;
         private Bitmap? _generatedPublicLinkQRCode;
         private IModelSettings? _modelSettingsModule;
@@ -111,6 +113,12 @@ namespace LLMR.ViewModels
                     this.RaiseAndSetIfChanged(ref _isConsoleExpanded, true);
                 this.RaiseAndSetIfChanged(ref _isConsoleExpanded, value);
             }
+        }
+        
+        public bool ShowTimestamp
+        {
+            get => _showTimestamp;
+            set => this.RaiseAndSetIfChanged(ref _showTimestamp, value);
         }
 
         public int SelectedConsoleIndex
@@ -186,9 +194,9 @@ namespace LLMR.ViewModels
         public ReactiveCommand<Unit, Unit> DownloadAllFilesCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> DownloadSelectedAsPdfCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> BackToModelSettingsCommand { get; private set; }
-        public ReactiveCommand<Unit, Unit> CopyLastMessageCommand { get; private set; }
+        public ReactiveCommand<Unit, Unit> CopyLastTenMessagesCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> CopyAllMessagesCommand { get; private set; }
-
+        public ReactiveCommand<Unit, bool> ToggleShowTimestampCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> AddFolderCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> RemoveItemCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> RenameItemCommand { get; private set; }
@@ -235,13 +243,15 @@ namespace LLMR.ViewModels
 
             ViewManager.SwitchToLogin();
 
-            DisplayStartupMessages();
-
             Trace.Listeners.Add(new InternalConsoleTraceListener(message =>
             {
                 var consoleMessage = ConsoleMessageManager.CreateConsoleMessage(message, MessageType.Debug);
                 AddToConsole(consoleMessage);
             }));
+            
+            ConsoleMessageManager.PrintSystemInfo();
+            ConsoleMessageManager.PrintNetworkWarning();
+            ConsoleMessageManager.PrintWelcomeMessage();
         }
 
         #endregion
@@ -262,8 +272,9 @@ namespace LLMR.ViewModels
             DownloadAllFilesCommand = ReactiveCommand.CreateFromTask(DownloadAllFilesAsync);
             DownloadSelectedAsPdfCommand = ReactiveCommand.CreateFromTask(DownloadSelectedAsPdfAsync);
             BackToModelSettingsCommand = ReactiveCommand.CreateFromTask(BackToModelSettingsAsync);
-            CopyLastMessageCommand = ReactiveCommand.CreateFromTask(CopyLastMessageAsync);
+            CopyLastTenMessagesCommand = ReactiveCommand.CreateFromTask(CopyLastTenMessagesAsync);
             CopyAllMessagesCommand = ReactiveCommand.CreateFromTask(CopyAllMessagesAsync);
+            ToggleShowTimestampCommand = ReactiveCommand.Create(() => ShowTimestamp = !ShowTimestamp);
             AddFolderCommand = ReactiveCommand.CreateFromTask(AddFolderAsync);
             RemoveItemCommand = ReactiveCommand.Create(RemoveItem);
             RenameItemCommand = ReactiveCommand.CreateFromTask(RenameItemAsync);
@@ -300,60 +311,6 @@ namespace LLMR.ViewModels
                 ConsoleMessages.Add(consoleMessage);
                 SelectedConsoleIndex = ConsoleMessages.Count - 1;
             });
-        }
-
-        private void DisplayStartupMessages()
-        {
-            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
-            var osDescription = System.Runtime.InteropServices.RuntimeInformation.OSDescription;
-            var osName = "Unknown OS";
-
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
-            {
-                osName = "macOS";
-            }
-            else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
-            {
-                osName = "Linux";
-            }
-            else if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-            {
-                osName = "Windows";
-            }
-
-            var currentDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-            var timezone = TimeZoneInfo.Local.DisplayName;
-
-            const string listOfHyphens = "– – – – – –";
-            const string lineOfStars = "*************";
-            var appInfo = $"LLMR v{version} running on {osName} ({osDescription}).";
-            var dateTime = $"Current time: {currentDate} ({timezone}).";
-
-            const string networkWarningLineOne = "Please make sure that your connection is stable and all required ports are open.";
-            const string networkWarningLineTwo = "In public networks (e.g., schools or universities), some ports may be restricted.";
-            const string networkWarningLineThree = "Consider using a private network, such as a mobile hotspot for running LLMR.";
-            const string networkWarningLineFour = "The client interface is not affected; clients can use school or university networks.";
-            const string networkWarningLineFive = "In spite of LLMR running in a private network, chat histories are saved locally.";
-
-            var messages = new[]
-            {
-                (lineOfStars, MessageType.Info),
-                (appInfo, MessageType.Info),
-                (dateTime, MessageType.Info),
-                (lineOfStars, MessageType.Info),
-                (listOfHyphens, MessageType.Warning),
-                (networkWarningLineOne, MessageType.Warning),
-                (networkWarningLineTwo, MessageType.Warning),
-                (networkWarningLineThree, MessageType.Warning),
-                (networkWarningLineFour, MessageType.Warning),
-                (networkWarningLineFive, MessageType.Warning),
-                (listOfHyphens, MessageType.Warning)
-            };
-
-            foreach (var (message, messageType) in messages)
-            {
-                ConsoleMessageManager.CreateConsoleMessage(message, messageType);
-            }
         }
 
         private async Task<Unit> AddNewApiKeyAsync()
@@ -593,6 +550,7 @@ namespace LLMR.ViewModels
 
         private async Task<Unit> ValidateApiKeyAsync()
         {
+            ConsoleMessageManager.PrintNetworkWarning();
             if (!_pythonRunning)
                 return Unit.Default;
 
@@ -676,6 +634,7 @@ namespace LLMR.ViewModels
 
         private async Task<Unit> GenerateLinkAsync()
         {
+            ConsoleMessageManager.PrintNetworkWarning();
             try
             {
                 if (string.IsNullOrEmpty(ApiKey))
@@ -914,15 +873,17 @@ namespace LLMR.ViewModels
             }
         }
 
-        private async Task<Unit> CopyLastMessageAsync()
+        private async Task<Unit> CopyLastTenMessagesAsync()
         {
             if (ConsoleMessages.Any())
             {
-                var lastMessage = ConsoleMessages.Last();
-                var textToCopy = $"[{lastMessage.Timestamp}] {lastMessage.Text}";
+                var lastTenMessages = ConsoleMessages.TakeLast(10);
+                var textToCopy = string.Join(Environment.NewLine, lastTenMessages.Select(msg => $"[{msg.Timestamp}] {msg.Text}"));
+        
                 var clipboard = Clipboard.Get();
                 await clipboard.SetTextAsync(textToCopy);
-                ConsoleMessageManager.LogInfo("Last message copied to clipboard.");
+        
+                ConsoleMessageManager.LogInfo("Last ten messages copied to clipboard.");
             }
             else
             {
@@ -931,6 +892,7 @@ namespace LLMR.ViewModels
 
             return Unit.Default;
         }
+
 
         private async Task<Unit> CopyAllMessagesAsync()
         {
@@ -1053,12 +1015,12 @@ namespace LLMR.ViewModels
 
             return Unit.Default;
         }
-
         #endregion
         
         
         public void Dispose()
         {
+            ConsoleMessageManager.PrintGoodbyeMessage();
             _apiService?.Dispose();
             _pythonService?.Dispose();
 

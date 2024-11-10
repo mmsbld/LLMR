@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LLMR.Models.ModelSettingsManager;
+using LLMR.Model.ModelSettingModulesManager;
 
 namespace LLMR.Services.OpenAI_Multicaller;
 

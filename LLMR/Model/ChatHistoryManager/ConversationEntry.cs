@@ -1,6 +1,6 @@
 using ReactiveUI;
 
-namespace LLMR.Models.ChatHistoryManager;
+namespace LLMR.Model.ChatHistoryManager;
 
 public class ConversationEntry : ReactiveObject
 {

@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
-using LLMR.Models.ModelSettingsManager.ModelParameters;
+using LLMR.Model.ModelSettingModulesManager.ModelParameters;
 
-namespace LLMR.Models.ModelSettingsManager.ModelSettingsModules;
+namespace LLMR.Model.ModelSettingModulesManager.ModelSettingsModules;
 
 public class GenericModelSettings:IModelSettings
 {

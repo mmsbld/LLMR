@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using LLMR.Helpers;
-using LLMR.Models;
+using LLMR.Model;
 using ReactiveUI;
 
 namespace LLMR.Services;

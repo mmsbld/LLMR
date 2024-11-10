@@ -1,7 +1,7 @@
 using System;
 using ReactiveUI;
 
-namespace LLMR.Models.ChatHistoryManager;
+namespace LLMR.Model.ChatHistoryManager;
 
 public class ChatHistoryFile : ReactiveObject
 {
