@@ -20,6 +20,7 @@
         <helpers:PercentageConverter x:Key="PercentageConverter" />
         <helpers:NullToBoolConverter x:Key="NullToBoolConverter" />
         <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <helpers:BooleanToBoldFontWeightConverter x:Key="BooleanToBoldFontWeightConverter" />
     </Window.Resources>
 
     <Window.Styles>
@@ -129,7 +130,7 @@
             <Setter Property="HorizontalAlignment" Value="Stretch" />
         </Style>
 
-        <!-- console -->
+        <!-- Console styles -->
         <Style Selector="Border.console-border">
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="BorderBrush" Value="#BDBDBD" />
@@ -404,7 +405,7 @@
                                 </ToolTip.Tip>
                             </Button>
                         </StackPanel>
-                        
+
                         <!-- EnsurePythonEnvironmentCommand -->
                         <StackPanel Orientation="Horizontal">
                             <!-- Button EnsurePythonEnvironmentCommand -->
@@ -426,7 +427,8 @@
                                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                 </StackPanel>
                                 <ToolTip.Tip>
-                                    <ToolTip Content="Install python as virtual environment with all needed packages automatically, if not installed already." />
+                                    <ToolTip
+                                        Content="Install python as virtual environment with all needed packages automatically, if not installed already." />
                                 </ToolTip.Tip>
                             </Button>
                             <!-- Button ConfirmLogin -->
@@ -451,7 +453,7 @@
                                     <ToolTip Content="Continue with the selected module and API key." />
                                 </ToolTip.Tip>
                             </Button>
-                        
+
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
@@ -473,7 +475,8 @@
                                        Margin="0,0,8,0" />
                             <ComboBox Grid.Row="0" Grid.Column="1"
                                       ItemsSource="{Binding CurrentModelSettingsModule.AvailableModels}"
-                                      SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}" Margin="0,0,0,12" />
+                                      SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}"
+                                      Margin="0,0,0,12" />
                         </Grid>
                         <ItemsControl ItemsSource="{Binding CurrentModelSettingsModule.Parameters}" />
                         <!-- Generate Link Button -->
@@ -512,7 +515,8 @@
                                        Margin="0,0,8,0" />
                             <ComboBox Grid.Row="0" Grid.Column="1"
                                       ItemsSource="{Binding CurrentModelSettingsModule.AvailableModels}"
-                                      SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}" Margin="0,0,0,12" />
+                                      SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}"
+                                      Margin="0,0,0,12" />
                         </Grid>
                         <ItemsControl ItemsSource="{Binding CurrentModelSettingsModule.Parameters}" />
                         <Button Command="{Binding RunMulticallerCommand}"
@@ -565,17 +569,7 @@
                         <TextBlock Text="Data Collection" />
                     </StackPanel>
                 </TabItem.Header>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" />
-                        <ColumnDefinition Width="5" />
-                        <ColumnDefinition Width="3*" />
-                    </Grid.ColumnDefinitions>
+                <Grid ColumnDefinitions="2*,5,3*" RowDefinitions="Auto,*,Auto">
                     <!-- Add/Remove Buttons -->
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left"
                                 Margin="5">
@@ -611,7 +605,7 @@
                         </TreeView.ContextMenu>
                     </TreeView>
                     <!-- GridSplitter -->
-                    <GridSplitter Grid.RowSpan="3" Grid.Column="1" Width="5" Background="#BDBDBD"
+                    <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Width="5" Background="#BDBDBD"
                                   HorizontalAlignment="Center" VerticalAlignment="Stretch" />
                     <!-- selected file -->
                     <ScrollViewer Grid.RowSpan="3" Grid.Row="0" Grid.Column="2">
@@ -722,13 +716,9 @@
         </TabControl>
 
         <!-- Console -->
-        <Expander Grid.Row="2" Header="Console" IsExpanded="False" HorizontalAlignment="Stretch">
-            <Grid HorizontalAlignment="Stretch">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-
+        <Expander Grid.Row="2" Header="Console" IsExpanded="{Binding IsConsoleExpanded, Mode=TwoWay}"
+                  HorizontalAlignment="Stretch">
+            <Grid HorizontalAlignment="Stretch" RowDefinitions="Auto,*">
                 <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
                     <Button Command="{Binding CopyLastMessageCommand}" Width="40" Height="40" Classes="secondary">
                         <i:Icon Value="fa-solid fa-copy" Width="20" Height="20" Foreground="#1F5222" />
@@ -743,7 +733,9 @@
                         </ToolTip.Tip>
                     </Button>
                 </StackPanel>
+
                 <Border Classes="console-border" Grid.Row="1"
+                        Background="LightGray"
                         MaxHeight="{Binding #MainWindowGrid.Bounds.Height, Converter={StaticResource PercentageConverter}, ConverterParameter=0.3}">
                     <ScrollViewer x:Name="ConsoleScrollViewer" VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled">
@@ -754,7 +746,8 @@
                                         <Run Text="[" Foreground="#888888" />
                                         <Run Text="{Binding Timestamp}" Foreground="#1F5222" />
                                         <Run Text="] " Foreground="#888888" />
-                                        <Run Text="{Binding Text}" Foreground="{Binding Color}" />
+                                        <Run Text="{Binding Text}" Foreground="{Binding Color}"
+                                             FontWeight="{Binding IsBold, Converter={StaticResource BooleanToBoldFontWeightConverter}}" />
                                     </TextBlock>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

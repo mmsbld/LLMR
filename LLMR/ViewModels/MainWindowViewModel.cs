@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia;
@@ -24,7 +23,6 @@ using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using ReactiveUI;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media.Imaging;
 using LLMR.Models.ModelSettingsManager.ModelSettingsModules;
@@ -41,6 +39,7 @@ namespace LLMR.ViewModels
         private string? _apiKey;
         private string? _pythonPath;
         private bool _isBusy;
+        private bool _isConsoleExpanded;
         private int _selectedConsoleIndex;
         private Bitmap? _generatedPublicLinkQRCode;
         private IModelSettings? _modelSettingsModule;
@@ -55,7 +54,7 @@ namespace LLMR.ViewModels
         private readonly DialogService _dialogService;
         private PythonExecutionService? _pythonService;
 
-        public MainWindowViewManager ViewManager { get; private set; }
+        public MainWindowViewManager ViewManager { get; }
 
         #endregion
 
@@ -95,7 +94,23 @@ namespace LLMR.ViewModels
         public bool IsBusy
         {
             get => _isBusy;
-            set => this.RaiseAndSetIfChanged(ref _isBusy, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _isBusy, value);
+                if (!IsConsoleExpanded && value)
+                    IsConsoleExpanded = true;
+            }
+        }
+
+        public bool IsConsoleExpanded
+        {
+            get => _isConsoleExpanded;
+            set
+            {
+                if (IsBusy)
+                    this.RaiseAndSetIfChanged(ref _isConsoleExpanded, true);
+                this.RaiseAndSetIfChanged(ref _isConsoleExpanded, value);
+            }
         }
 
         public int SelectedConsoleIndex
@@ -113,7 +128,7 @@ namespace LLMR.ViewModels
         public IModelSettings? CurrentModelSettingsModule
         {
             get => _modelSettingsModule;
-            set => this.RaiseAndSetIfChanged(ref _modelSettingsModule, value);
+            private set => this.RaiseAndSetIfChanged(ref _modelSettingsModule, value);
         }
 
         public string? SelectedModelType
@@ -124,9 +139,9 @@ namespace LLMR.ViewModels
 
         public ObservableCollection<string> AvailableModuleTypes { get; set; }
 
-        public ObservableCollection<ConsoleMessage> ConsoleMessages { get; } = new();
+        public ObservableCollection<ConsoleMessage> ConsoleMessages { get; } = [];
 
-        public ChatHistoryCollection ChatHistoryCollection { get; set; }
+        public ChatHistoryCollection ChatHistoryCollection { get; }
 
         public bool IsServerRunning
         {
@@ -190,7 +205,7 @@ namespace LLMR.ViewModels
             _dialogService = new DialogService();
             _pythonEnvironmentInitializer = new PythonEnvironmentInitializer();
 
-            AvailableModuleTypes = new ObservableCollection<string> { "OpenAI", "Hugging Face Serverless Inference", "OpenAI Multicaller" };
+            AvailableModuleTypes = ["OpenAI", "Hugging Face Serverless Inference", "OpenAI Multicaller"];
             SelectedModelType = "OpenAI"; // Default selection
 
             ViewManager = new MainWindowViewManager();
@@ -793,18 +808,7 @@ namespace LLMR.ViewModels
                 AddExceptionMessageToConsole(e);
             }
         }
-
-        // private void SwitchToDataCollectionAndLoadChatHistories()
-        // {
-        //     LoadChatHistories();
-        //     ViewManager.SwitchToDataCollection();
-        //
-        //     if (SelectedModelType == "OpenAI Multicaller")
-        //     {
-        //         ViewManager.IsMulticallerModelSettingsEnabled = true;
-        //     }
-        // }
-
+        
         private void LoadChatHistories()
         {
             var directoryPath = PathManager.Combine(PathManager.GetBaseDirectory(), "Scripts", "chat_histories");
@@ -868,7 +872,7 @@ namespace LLMR.ViewModels
                     Title = "Export the chosen chat history as a PDF file.",
                     FileTypeChoices = new List<FilePickerFileType>
                     {
-                        new FilePickerFileType("PDF Files") { Patterns = new[] { "*.pdf" } }
+                        new FilePickerFileType("PDF Files") { Patterns = ["*.pdf"] }
                     },
                     SuggestedFileName = $"{System.IO.Path.GetFileNameWithoutExtension(ChatHistoryCollection.SelectedFile.Filename)}.pdf"
                 });
@@ -1021,11 +1025,8 @@ namespace LLMR.ViewModels
 
         private TopLevel GetTopLevel()
         {
-            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                return desktop.MainWindow;
-            }
-            throw new InvalidOperationException("Unable to get the main window.");
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: not null } desktop) return desktop.MainWindow;
+            throw new InvalidOperationException("<MWVM> Unable to get the main window.");
         }
 
         #endregion
@@ -1062,11 +1063,9 @@ namespace LLMR.ViewModels
             _pythonService?.Dispose();
 
             var listener = Trace.Listeners.OfType<InternalConsoleTraceListener>().FirstOrDefault();
-            if (listener != null)
-            {
-                Trace.Listeners.Remove(listener);
-                listener.Dispose();
-            }
+            if (listener == null) return;
+            Trace.Listeners.Remove(listener);
+            listener.Dispose();
         }
     }
 }

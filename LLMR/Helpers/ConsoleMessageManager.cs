@@ -87,7 +87,7 @@ public static class ConsoleMessageManager
                 color = new SolidColorBrush(Colors.Gray);
                 break;
             case MessageType.Path:
-                color = new SolidColorBrush(Color.Parse("#A52A2A")); // Brown color
+                color = new SolidColorBrush(Colors.Turquoise);
                 break;
             default:
                 color = new SolidColorBrush(Colors.Black);
