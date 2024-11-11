@@ -77,7 +77,7 @@ namespace LLMR.Services.OpenAI_Multicaller;
 
         public async Task<string> RunMulticallerAsync(string apiKey, IModelSettings? settings)
         {
-            if (!(settings is OpenAI_Multicaller_ModelSettings))
+            if (settings is not OpenAI_Multicaller_ModelSettings)
             {
                 throw new ArgumentException("Settings must be of type OpenAI_Multicaller_ModelSettings!");
             }
@@ -118,9 +118,10 @@ namespace LLMR.Services.OpenAI_Multicaller;
                 
                 var argumentsBuilder = new StringBuilder();
 
-                argumentsBuilder.Append($"-u Scripts/openAI_multicaller.py");
-                argumentsBuilder.Append($" --api_key \"{apiKey}\"");
-                argumentsBuilder.Append($" --model \"{settings.SelectedModel}\"");
+                // PATH handling happening here!
+                var scriptPath = Path.Combine(AppContext.BaseDirectory, "Scripts", "openAI_multicaller.py");
+                scriptPath = scriptPath.Replace("\\", "/"); // correct path format accross the os'es
+                argumentsBuilder.Append($"-u \"{scriptPath}\"");
                 argumentsBuilder.Append($" --prompt \"{prompt}\"");
                 argumentsBuilder.Append($" --n {n}");
                 argumentsBuilder.Append($" --system_message \"{systemMessage}\"");

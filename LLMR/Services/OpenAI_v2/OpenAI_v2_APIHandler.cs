@@ -34,7 +34,7 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
     {
         if (pythonService == null)
             throw new NullReferenceException("Python service is null.");
-            
+                
         return pythonService.ExecuteAsync<bool>(() =>
         {
             dynamic sys = Py.Import("sys");
@@ -42,7 +42,7 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
 
             dynamic apiModule = Py.Import("openAI_v2_apiHandler");
 
-            dynamic result = apiModule.validate_api_key(apiKey);
+            var result = apiModule.validate_api_key(apiKey);
 
             if (result == null)
             {
@@ -57,7 +57,7 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
     {
         if (pythonService == null)
             throw new NullReferenceException("Python service is null.");
-            
+                
         return pythonService.ExecuteAsync(() =>
         {
             dynamic sys = Py.Import("sys");
@@ -68,7 +68,7 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
             var result = apiModule.get_available_models(apiKey);
 
             var models = new List<string>();
-            foreach (dynamic model in result)
+            foreach (var model in result)
             {
                 models.Add((string)model);
             }
@@ -80,7 +80,7 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
     public async Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey, IModelSettings? settings)
     {
         _gradioUrlsTcs = new TaskCompletionSource<(string, string)>();
-            
+                
         if (!(settings is OpenAI_v2_ModelSettings))
         {
             throw new ArgumentException("<APIH oAIv2> Settings must be of type OpenAI_v2_ModelSettings!");
@@ -117,11 +117,14 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
             var presencePenalty = settings.Parameters
                 .OfType<DoubleParameter>()
                 .FirstOrDefault(p => p.Name == "PresencePenalty")?.ValueTyped ?? 0.0;
-
-            // build arg string
+            
             var argumentsBuilder = new StringBuilder();
 
-            argumentsBuilder.Append($"-u Scripts/openAI_v2_gradioServer.py --start-gradio");
+            // PATH handling happening here!
+            var scriptPath = Path.Combine(AppContext.BaseDirectory, "Scripts", "openAI_v2_gradioServer.py");
+            scriptPath = scriptPath.Replace("\\", "/"); //  correct path format (win/mac/... !)
+
+            argumentsBuilder.Append($"-u \"{scriptPath}\" --start-gradio");
             argumentsBuilder.Append($" --api_key \"{apiKey}\"");
             argumentsBuilder.Append($" --model \"{settings.SelectedModel}\"");
             argumentsBuilder.Append($" --system_message \"{systemMessage}\"");
@@ -139,7 +142,7 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
 
             if (PythonPath is null)
                 throw new NullReferenceException("PythonPath is null.");
-                
+                    
             string pythonExecutable;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -161,7 +164,8 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                // WorkingDirectory = AppContext.BaseDirectory
             };
 
             _gradioProcess = new Process
@@ -174,7 +178,7 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
             {
                 if (!string.IsNullOrEmpty(args.Data))
                 {
-                    // handle output data (gradio -u)
+                    // Handle output data
                     if (args.Data.Contains("Running on local URL"))
                     {
                         _localUrl = args.Data.Split("Running on local URL: ")[1].Trim();
@@ -217,12 +221,12 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
                 }
                 else
                 {
-                    // time over -> default error as link
+                    // Time over -> default error as link
                     _publicUrl = "<internal error APIH 42>";
                     return (_localUrl, _publicUrl);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return ("<internal error APIH 245>", "<internal error APIH 245>");
             }

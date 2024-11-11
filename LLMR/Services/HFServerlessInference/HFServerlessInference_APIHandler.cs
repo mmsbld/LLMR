@@ -46,7 +46,7 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
 
             dynamic apiModule = Py.Import("hfServerlessInference_apiHandler");
 
-            dynamic result = apiModule.validate_api_token(apiToken);
+            var result = apiModule.validate_api_token(apiToken);
             // note from moe: correct functioning true) with status_code 200 in response from HF
 
             return (bool)result;
@@ -62,10 +62,10 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
 
             dynamic apiModule = Py.Import("hfServerlessInference_apiHandler");
 
-            dynamic result = apiModule.get_available_models(apiToken);
+            var result = apiModule.get_available_models(apiToken);
 
             List<string> models = new List<string>();
-            foreach (dynamic model in result)
+            foreach (var model in result)
             {
                 models.Add((string)model);
             }
@@ -118,7 +118,10 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
 
             var argumentsBuilder = new StringBuilder();
 
-            argumentsBuilder.Append($"-u Scripts/hfServerlessInference_gradioServer.py --start-gradio");
+            // PATH handling happening here!
+            var scriptPath = Path.Combine(AppContext.BaseDirectory, "Scripts", "hfServerlessInference_gradioServer.py");
+            scriptPath = scriptPath.Replace("\\", "/"); // correct path format (win/max/...)
+            argumentsBuilder.Append($"-u \"{scriptPath}\" --start-gradio");
             argumentsBuilder.Append($" --api_token \"{apiToken}\"");
             argumentsBuilder.Append($" --model_id \"{settings.SelectedModel}\"");
             argumentsBuilder.Append($" --system_message \"{systemMessage}\"");
@@ -126,19 +129,19 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
 
             if (topP.HasValue)
             {
-                double topPValue = topP.Value;
+                var topPValue = topP.Value;
                 argumentsBuilder.Append($" --top_p {topPValue.ToString(CultureInfo.InvariantCulture)}");
             }
 
             if (frequencyPenalty.HasValue)
             {
-                double frequencyPenaltyValue = frequencyPenalty.Value;
+                var frequencyPenaltyValue = frequencyPenalty.Value;
                 argumentsBuilder.Append($" --frequency_penalty {frequencyPenaltyValue.ToString(CultureInfo.InvariantCulture)}");
             }
 
             if (presencePenalty.HasValue)
             {
-                double presencePenaltyValue = presencePenalty.Value;
+                var presencePenaltyValue = presencePenalty.Value;
                 argumentsBuilder.Append($" --presence_penalty {presencePenaltyValue.ToString(CultureInfo.InvariantCulture)}");
             }
                 

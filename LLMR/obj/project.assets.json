@@ -936,7 +936,7 @@
         }
       }
     },
-    "net9.0/osx-arm64": {
+    "net9.0/osx-x64": {
       "Avalonia/11.2.0": {
         "type": "package",
         "dependencies": {
@@ -1443,7 +1443,7 @@
           }
         },
         "native": {
-          "runtimes/osx-arm64/native/libQuestPdfSkia.dylib": {}
+          "runtimes/osx-x64/native/libQuestPdfSkia.dylib": {}
         },
         "build": {
           "buildTransitive/QuestPDF.targets": {}
@@ -4166,7 +4166,7 @@
         "warn": true,
         "downloadDependencies": [
           {
-            "name": "Microsoft.AspNetCore.App.Runtime.osx-arm64",
+            "name": "Microsoft.AspNetCore.App.Runtime.osx-x64",
             "version": "[9.0.0-rc.2.24474.3, 9.0.0-rc.2.24474.3]"
           },
           {
@@ -4174,7 +4174,11 @@
             "version": "[9.0.0-rc.2.24473.5, 9.0.0-rc.2.24473.5]"
           },
           {
-            "name": "Microsoft.NETCore.App.Runtime.osx-arm64",
+            "name": "Microsoft.NETCore.App.Host.osx-x64",
+            "version": "[9.0.0-rc.2.24473.5, 9.0.0-rc.2.24473.5]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Runtime.osx-x64",
             "version": "[9.0.0-rc.2.24473.5, 9.0.0-rc.2.24473.5]"
           }
         ],
@@ -4187,7 +4191,7 @@
       }
     },
     "runtimes": {
-      "osx-arm64": {
+      "osx-x64": {
         "#import": []
       }
     }
@@ -4200,7 +4204,7 @@
       "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte hoch Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-5f2m-466j-3848.",
       "libraryId": "System.Private.Uri",
       "targetGraphs": [
-        "net9.0/osx-arm64"
+        "net9.0/osx-x64"
       ]
     },
     {
@@ -4210,7 +4214,7 @@
       "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte moderat Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-x5qj-9vmx-7g6g.",
       "libraryId": "System.Private.Uri",
       "targetGraphs": [
-        "net9.0/osx-arm64"
+        "net9.0/osx-x64"
       ]
     },
     {
@@ -4220,7 +4224,7 @@
       "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte hoch Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-xhfc-gr8f-ffwc.",
       "libraryId": "System.Private.Uri",
       "targetGraphs": [
-        "net9.0/osx-arm64"
+        "net9.0/osx-x64"
       ]
     },
     {
@@ -4231,7 +4235,7 @@
       "libraryId": "System.Text.Json",
       "targetGraphs": [
         "net9.0",
-        "net9.0/osx-arm64"
+        "net9.0/osx-x64"
       ]
     }
   ]

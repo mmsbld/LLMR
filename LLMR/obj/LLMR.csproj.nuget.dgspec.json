@@ -116,7 +116,7 @@
           "warn": true,
           "downloadDependencies": [
             {
-              "name": "Microsoft.AspNetCore.App.Runtime.osx-arm64",
+              "name": "Microsoft.AspNetCore.App.Runtime.osx-x64",
               "version": "[9.0.0-rc.2.24474.3, 9.0.0-rc.2.24474.3]"
             },
             {
@@ -124,7 +124,11 @@
               "version": "[9.0.0-rc.2.24473.5, 9.0.0-rc.2.24473.5]"
             },
             {
-              "name": "Microsoft.NETCore.App.Runtime.osx-arm64",
+              "name": "Microsoft.NETCore.App.Host.osx-x64",
+              "version": "[9.0.0-rc.2.24473.5, 9.0.0-rc.2.24473.5]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.osx-x64",
               "version": "[9.0.0-rc.2.24473.5, 9.0.0-rc.2.24473.5]"
             }
           ],
@@ -137,7 +141,7 @@
         }
       },
       "runtimes": {
-        "osx-arm64": {
+        "osx-x64": {
           "#import": []
         }
       }

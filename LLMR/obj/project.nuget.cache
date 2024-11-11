@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "MdnnX4lPN3Q=",
+  "dgSpecHash": "MA/Dd8GdhEQ=",
   "success": true,
   "projectFilePath": "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj",
   "expectedPackageFiles": [
@@ -67,9 +67,10 @@
     "/Users/moritz/.nuget/packages/system.text.json/8.0.4/system.text.json.8.0.4.nupkg.sha512",
     "/Users/moritz/.nuget/packages/system.threading.tasks/4.3.0/system.threading.tasks.4.3.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/tmds.dbus.protocol/0.20.0/tmds.dbus.protocol.0.20.0.nupkg.sha512",
-    "/Users/moritz/.nuget/packages/microsoft.netcore.app.runtime.osx-arm64/9.0.0-rc.2.24473.5/microsoft.netcore.app.runtime.osx-arm64.9.0.0-rc.2.24473.5.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/microsoft.netcore.app.runtime.osx-x64/9.0.0-rc.2.24473.5/microsoft.netcore.app.runtime.osx-x64.9.0.0-rc.2.24473.5.nupkg.sha512",
     "/Users/moritz/.nuget/packages/microsoft.netcore.app.crossgen2.osx-arm64/9.0.0-rc.2.24473.5/microsoft.netcore.app.crossgen2.osx-arm64.9.0.0-rc.2.24473.5.nupkg.sha512",
-    "/Users/moritz/.nuget/packages/microsoft.aspnetcore.app.runtime.osx-arm64/9.0.0-rc.2.24474.3/microsoft.aspnetcore.app.runtime.osx-arm64.9.0.0-rc.2.24474.3.nupkg.sha512"
+    "/Users/moritz/.nuget/packages/microsoft.netcore.app.host.osx-x64/9.0.0-rc.2.24473.5/microsoft.netcore.app.host.osx-x64.9.0.0-rc.2.24473.5.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/microsoft.aspnetcore.app.runtime.osx-x64/9.0.0-rc.2.24474.3/microsoft.aspnetcore.app.runtime.osx-x64.9.0.0-rc.2.24474.3.nupkg.sha512"
   ],
   "logs": [
     {
@@ -79,7 +80,7 @@
       "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte hoch Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-5f2m-466j-3848.",
       "libraryId": "System.Private.Uri",
       "targetGraphs": [
-        "net9.0/osx-arm64"
+        "net9.0/osx-x64"
       ]
     },
     {
@@ -89,7 +90,7 @@
       "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte moderat Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-x5qj-9vmx-7g6g.",
       "libraryId": "System.Private.Uri",
       "targetGraphs": [
-        "net9.0/osx-arm64"
+        "net9.0/osx-x64"
       ]
     },
     {
@@ -99,7 +100,7 @@
       "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte hoch Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-xhfc-gr8f-ffwc.",
       "libraryId": "System.Private.Uri",
       "targetGraphs": [
-        "net9.0/osx-arm64"
+        "net9.0/osx-x64"
       ]
     },
     {
@@ -110,7 +111,7 @@
       "libraryId": "System.Text.Json",
       "targetGraphs": [
         "net9.0",
-        "net9.0/osx-arm64"
+        "net9.0/osx-x64"
       ]
     }
   ]
