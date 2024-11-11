@@ -20,7 +20,7 @@ public class PythonEnvironmentManager : ReactiveObject
 
     public PythonEnvironmentManager()
     {
-        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
         _pythonInstallDir = Path.Combine(baseDir, "Scripts", "Python", "312");
         LogPathUsage(_pythonInstallDir);
     }
@@ -56,7 +56,7 @@ public class PythonEnvironmentManager : ReactiveObject
     {
         try
         {
-            string pythonExecutable = GetPythonExecutablePath();
+            var pythonExecutable = GetPythonExecutablePath();
             LogPathUsage(pythonExecutable);
 
             if (!File.Exists(pythonExecutable))
@@ -88,7 +88,7 @@ public class PythonEnvironmentManager : ReactiveObject
             if (process.ExitCode != 0)
                 return false;
 
-            string output = outputBuilder.ToString();
+            var output = outputBuilder.ToString();
             var lines = output.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             if (lines.Length < 3)
@@ -163,12 +163,17 @@ public class PythonEnvironmentManager : ReactiveObject
             await process.WaitForExitAsync();
 
             if (process.ExitCode != 0)
-                throw new Exception("<PEM> Python installation failed.");
+            {
+                var errorMessage = $"<PEM> Python installation failed with exit code {process.ExitCode}.";
+                PostConsoleMessage(errorMessage, Colors.PaleVioletRed);
+                throw new Exception(errorMessage);
+            }
 
             PostConsoleMessage("<PEM> Python environment installed successfully.", Colors.MediumSpringGreen);
         }
         catch (Exception ex)
         {
+            PostConsoleMessage($"<PEM> Exception occurred: {ex.Message}", Colors.PaleVioletRed);
             ExceptionOccurred?.Invoke(ex);
             throw;
         }
@@ -176,16 +181,18 @@ public class PythonEnvironmentManager : ReactiveObject
 
     public string GetPythonExecutablePath()
     {
-        string executableName = GetPythonExecutableName();
-        string path = Path.Combine(_pythonInstallDir, "bin", executableName);
+        var executableName = GetPythonExecutableName();
+        var path = Path.Combine(_pythonInstallDir, "envs", "myenv", "bin", executableName);
         LogPathUsage(path);
         return path;
     }
 
+
     public string GetPythonLibraryPath()
     {
-        LogPathUsage(_pythonInstallDir);
-        return _pythonInstallDir;
+        var path = Path.Combine(_pythonInstallDir, "envs", "myenv");
+        LogPathUsage(path);
+        return path;
     }
 
     private string GetBashExecutable()
