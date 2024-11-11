@@ -20,7 +20,7 @@ public class PythonEnvironmentManager : ReactiveObject
 
     public PythonEnvironmentManager()
     {
-        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        var baseDir = AppContext.BaseDirectory;
         _pythonInstallDir = Path.Combine(baseDir, "Scripts", "Python", "312");
         LogPathUsage(_pythonInstallDir);
     }

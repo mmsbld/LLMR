@@ -97,7 +97,7 @@ public class PythonExecutionService : IDisposable
         {
             var baseDataDir = AppDataPath.GetBaseDataDirectory();
             ConsoleMessageOccurred?.Invoke(this, $"Base data directory: {baseDataDir}");
-            ExtractEmbeddedScripts(baseDataDir);
+            //ExtractEmbeddedScripts(baseDataDir);
 
             if (!Directory.Exists(_pythonPath))
                 throw new DirectoryNotFoundException($"<PES.cs error> Invalid Python path: {_pythonPath}");
@@ -124,13 +124,20 @@ public class PythonExecutionService : IDisposable
 
             using (Py.GIL())
             {
+                var baseDir = AppContext.BaseDirectory;
                 dynamic sys = Py.Import("sys");
-                var scriptsPath = Path.Combine(baseDataDir, "Python", "312", "lib", $"python{pythonVersion}");
-                var sitePackagesPath = Path.Combine(scriptsPath, "site-packages");
-                var scriptsDir = Path.Combine(baseDataDir, "Scripts");
+                var pythonV = "3.12"; // adjust to correct mac PATH (name of version folder) 
 
+                // PATH handling happening here:
+                var scriptsPath = Path.Combine(_pythonPath, "lib", $"python{pythonV}");
+                var sitePackagesPath = Path.Combine(scriptsPath, "site-packages");
+
+                // PATH handling happening here:
+                var scriptsDir = Path.Combine(baseDir, "Scripts");
+                
                 ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {scriptsPath}");
                 sys.path.append(scriptsPath);
+
                 ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {sitePackagesPath}");
                 sys.path.append(sitePackagesPath);
                 ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {scriptsDir}");
@@ -186,8 +193,9 @@ sys.stderr = StdErrRedirector()
             {
                 try
                 {
+                    ConsoleMessageOccurred?.Invoke(this, "TRYING TO SHUTDOWN PYTHONENGINE IN PES.CS.");
                     PythonEngine.Shutdown();
-                    ConsoleMessageOccurred?.Invoke(this, "PythonEngine shutdown successfully.");
+                    ConsoleMessageOccurred?.Invoke(this, "PythonEngine shutdown (almost) successful.");
                 }
                 catch (Exception ex)
                 {

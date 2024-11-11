@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "j+rc8FOUyqA=",
+  "dgSpecHash": "MdnnX4lPN3Q=",
   "success": true,
   "projectFilePath": "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj",
   "expectedPackageFiles": [
@@ -38,6 +38,14 @@
     "/Users/moritz/.nuget/packages/qrcoder/1.6.0/qrcoder.1.6.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/questpdf/2024.10.2/questpdf.2024.10.2.nupkg.sha512",
     "/Users/moritz/.nuget/packages/reactiveui/20.1.1/reactiveui.20.1.1.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/runtime.any.system.io/4.3.0/runtime.any.system.io.4.3.0.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/runtime.any.system.reflection/4.3.0/runtime.any.system.reflection.4.3.0.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/runtime.any.system.reflection.primitives/4.3.0/runtime.any.system.reflection.primitives.4.3.0.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/runtime.any.system.runtime/4.3.0/runtime.any.system.runtime.4.3.0.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/runtime.any.system.text.encoding/4.3.0/runtime.any.system.text.encoding.4.3.0.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/runtime.any.system.threading.tasks/4.3.0/runtime.any.system.threading.tasks.4.3.0.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/runtime.native.system/4.3.0/runtime.native.system.4.3.0.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/runtime.unix.system.private.uri/4.3.0/runtime.unix.system.private.uri.4.3.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/skiasharp/2.88.8/skiasharp.2.88.8.nupkg.sha512",
     "/Users/moritz/.nuget/packages/skiasharp.nativeassets.linux/2.88.8/skiasharp.nativeassets.linux.2.88.8.nupkg.sha512",
     "/Users/moritz/.nuget/packages/skiasharp.nativeassets.macos/2.88.8/skiasharp.nativeassets.macos.2.88.8.nupkg.sha512",
@@ -47,6 +55,7 @@
     "/Users/moritz/.nuget/packages/system.componentmodel.annotations/5.0.0/system.componentmodel.annotations.5.0.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/system.io/4.3.0/system.io.4.3.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/system.io.pipelines/8.0.0/system.io.pipelines.8.0.0.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/system.private.uri/4.3.0/system.private.uri.4.3.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/system.reactive/6.0.1/system.reactive.6.0.1.nupkg.sha512",
     "/Users/moritz/.nuget/packages/system.reflection/4.3.0/system.reflection.4.3.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/system.reflection.emit/4.3.0/system.reflection.emit.4.3.0.nupkg.sha512",
@@ -57,17 +66,51 @@
     "/Users/moritz/.nuget/packages/system.text.encodings.web/8.0.0/system.text.encodings.web.8.0.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/system.text.json/8.0.4/system.text.json.8.0.4.nupkg.sha512",
     "/Users/moritz/.nuget/packages/system.threading.tasks/4.3.0/system.threading.tasks.4.3.0.nupkg.sha512",
-    "/Users/moritz/.nuget/packages/tmds.dbus.protocol/0.20.0/tmds.dbus.protocol.0.20.0.nupkg.sha512"
+    "/Users/moritz/.nuget/packages/tmds.dbus.protocol/0.20.0/tmds.dbus.protocol.0.20.0.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/microsoft.netcore.app.runtime.osx-arm64/9.0.0-rc.2.24473.5/microsoft.netcore.app.runtime.osx-arm64.9.0.0-rc.2.24473.5.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/microsoft.netcore.app.crossgen2.osx-arm64/9.0.0-rc.2.24473.5/microsoft.netcore.app.crossgen2.osx-arm64.9.0.0-rc.2.24473.5.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/microsoft.aspnetcore.app.runtime.osx-arm64/9.0.0-rc.2.24474.3/microsoft.aspnetcore.app.runtime.osx-arm64.9.0.0-rc.2.24474.3.nupkg.sha512"
   ],
   "logs": [
     {
       "code": "NU1903",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Package 'System.Text.Json' 8.0.4 has a known high severity vulnerability, https://github.com/advisories/GHSA-8g4q-xg66-9fp4",
+      "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte hoch Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-5f2m-466j-3848.",
+      "libraryId": "System.Private.Uri",
+      "targetGraphs": [
+        "net9.0/osx-arm64"
+      ]
+    },
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte moderat Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-x5qj-9vmx-7g6g.",
+      "libraryId": "System.Private.Uri",
+      "targetGraphs": [
+        "net9.0/osx-arm64"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte hoch Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-xhfc-gr8f-ffwc.",
+      "libraryId": "System.Private.Uri",
+      "targetGraphs": [
+        "net9.0/osx-arm64"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Das Paket \"System.Text.Json\" 8.0.4 weist eine bekannte hoch Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-8g4q-xg66-9fp4.",
       "libraryId": "System.Text.Json",
       "targetGraphs": [
-        "net9.0"
+        "net9.0",
+        "net9.0/osx-arm64"
       ]
     }
   ]

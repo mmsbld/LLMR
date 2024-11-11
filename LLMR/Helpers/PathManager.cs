@@ -14,7 +14,7 @@ public static class PathManager
 
     public static string GetBaseDirectory()
     {
-        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        var baseDir = AppContext.BaseDirectory;
         ConsoleMessageManager.LogPathUsage(baseDir);
         return baseDir;
     }

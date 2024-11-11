@@ -59,12 +59,10 @@ namespace LLMR.Model.ChatHistoryManager
             set => this.RaiseAndSetIfChanged(ref _conversation, value);
         }
 
-        // **Füge die fehlenden Ereignisse hinzu**
         public event EventHandler<string>? ConsoleMessageOccurred;
         public event EventHandler<string>? ExceptionOccurred;
         
 
-        // Methode zum Extrahieren eingebetteter Skripte
         private void ExtractEmbeddedScripts(string targetDirectory)
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -72,60 +70,54 @@ namespace LLMR.Model.ChatHistoryManager
 
             foreach (var resourceName in resourceNames)
             {
-                if (resourceName.EndsWith(".py"))
+                if (!resourceName.EndsWith(".py")) continue;
+                var fileName = Path.GetFileName(resourceName);
+                var filePath = Path.Combine(targetDirectory, fileName);
+                
+                ConsoleMessageOccurred?.Invoke(this, $"Extract script: {fileName} to {filePath}");
+
+                if (!File.Exists(filePath))
                 {
-                    string fileName = Path.GetFileName(resourceName);
-                    string filePath = Path.Combine(targetDirectory, fileName);
-            
-                    // Loggen des Extraktionsprozesses
-                    ConsoleMessageOccurred?.Invoke(this, $"Extrahiere Skript: {fileName} nach {filePath}");
-
-                    if (!File.Exists(filePath))
+                    using (var stream = assembly.GetManifestResourceStream(resourceName))
                     {
-                        using (var stream = assembly.GetManifestResourceStream(resourceName))
+                        if (stream == null)
                         {
-                            if (stream == null)
-                            {
-                                ConsoleMessageOccurred?.Invoke(this, $"Ressourcenstrom für {resourceName} ist null.");
-                                continue;
-                            }
-
-                            using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
-                            {
-                                stream.CopyTo(fileStream);
-                            }
-
-                            ConsoleMessageOccurred?.Invoke(this, $"Skript {fileName} erfolgreich extrahiert.");
+                            ConsoleMessageOccurred?.Invoke(this, $"THIS: assembly.GetManifestResourceStream(resourceName) is null for: {resourceName}!");
+                            continue;
                         }
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                        {
+                            stream.CopyTo(fileStream);
+                        }
+
+                        ConsoleMessageOccurred?.Invoke(this, $"Skript {fileName} erfolgreich extrahiert.");
                     }
-                    else
-                    {
-                        ConsoleMessageOccurred?.Invoke(this, $"Skript {fileName} existiert bereits in {filePath}.");
-                    }
+                }
+                else
+                {
+                    ConsoleMessageOccurred?.Invoke(this, $"Script {fileName} already exists in {filePath}.");
                 }
             }
         }
         public ChatHistoryCollection()
         {
-            string baseDataDir = AppDataPath.GetBaseDataDirectory();
-            ConsoleMessageOccurred?.Invoke(this, $"Basisdatenverzeichnis: {baseDataDir}");
-            ExtractEmbeddedScripts(baseDataDir);
+            var baseDataDir = AppDataPath.GetBaseDataDirectory();
+            ConsoleMessageOccurred?.Invoke(this, $"This is AppDataPath.GetBaseDataDirectory(): {baseDataDir}");
+            //ExtractEmbeddedScripts(baseDataDir);
 
-            // Pfad zum chat_histories-Verzeichnis
-            string chatHistoriesDir = Path.Combine(baseDataDir, "chat_histories");
+            var chatHistoriesDir = Path.Combine(baseDataDir, "chat_histories");
 
-            // Überprüfen und Erstellen des chat_histories-Verzeichnisses
             if (!Directory.Exists(chatHistoriesDir))
             {
                 Directory.CreateDirectory(chatHistoriesDir);
-                ConsoleMessageOccurred?.Invoke(this, $"Erstelle Verzeichnis: {chatHistoriesDir}");
+                ConsoleMessageOccurred?.Invoke(this, $"Create Directory: {chatHistoriesDir}");
             }
             else
             {
-                ConsoleMessageOccurred?.Invoke(this, $"Verzeichnis existiert bereits: {chatHistoriesDir}");
+                ConsoleMessageOccurred?.Invoke(this, $"Directory already exists: {chatHistoriesDir}");
             }
 
-            // Lade die Dateien aus dem chat_histories-Verzeichnis
             LoadFiles(chatHistoriesDir);
         }
 
@@ -141,77 +133,80 @@ namespace LLMR.Model.ChatHistoryManager
             }
             else
             {
-                throw new IOException($"Folder '{folderName}' already exists.");
+                throw new IOException("<CHC> Directory '{folderName}' already exists.");
             }
         }
 
         public void RemoveItem(object? item)
         {
-            string baseDirectory = Path.Combine(AppDataPath.GetBaseDataDirectory(), "chat_histories");
+            var baseDirectory = Path.Combine(AppDataPath.GetBaseDataDirectory(), "chat_histories");
 
-            if (item is ChatHistoryCategory category)
+            switch (item)
             {
-                // Cannot remove root categories
-                if (category.ParentCategory == null)
-                {
-                    throw new InvalidOperationException("Cannot remove the root category.");
-                }
-
-                if (Directory.Exists(category.FullPath))
-                {
+                case ChatHistoryCategory category when category.ParentCategory == null:
+                    throw new InvalidOperationException("<CHC> Cannot remove the root category.");
+                case ChatHistoryCategory category when !Directory.Exists(category.FullPath):
+                    return;
+                case ChatHistoryCategory category:
                     Directory.Delete(category.FullPath, true);
                     LoadFiles(baseDirectory);
-                }
-            }
-            else if (item is ChatHistoryFile file)
-            {
-                if (File.Exists(file.FullPath))
+                    break;
+                case ChatHistoryFile file:
                 {
-                    File.Delete(file.FullPath);
-                    LoadFiles(baseDirectory);
+                    if (File.Exists(file.FullPath))
+                    {
+                        File.Delete(file.FullPath);
+                        LoadFiles(baseDirectory);
+                    }
+
+                    break;
                 }
             }
         }
 
         public void RenameItem(object? item, string newName)
         {
-            string baseDirectory = Path.Combine(AppDataPath.GetBaseDataDirectory(), "chat_histories");
+            var baseDirectory = Path.Combine(AppDataPath.GetBaseDataDirectory(), "chat_histories");
 
-            if (item is ChatHistoryCategory category)
+            switch (item)
             {
-                if (category.ParentCategory == null)
+                case ChatHistoryCategory category when category.ParentCategory == null:
+                    throw new InvalidOperationException("<CHC> Cannot rename the root category.");
+                case ChatHistoryCategory category:
                 {
-                    throw new InvalidOperationException("Cannot rename the root category.");
-                }
+                    var newDirectoryPath = Path.Combine(Path.GetDirectoryName(category.FullPath) ?? baseDirectory, newName);
 
-                var newDirectoryPath = Path.Combine(Path.GetDirectoryName(category.FullPath) ?? baseDirectory, newName);
+                    if (!Directory.Exists(newDirectoryPath))
+                    {
+                        Directory.Move(category.FullPath, newDirectoryPath);
+                        category.Name = newName;
+                        category.FullPath = newDirectoryPath;
+                        LoadFiles(baseDirectory);
+                    }
+                    else
+                    {
+                        throw new IOException("<CHC> Folder '{newName}' already exists.");
+                    }
 
-                if (!Directory.Exists(newDirectoryPath))
-                {
-                    Directory.Move(category.FullPath, newDirectoryPath);
-                    category.Name = newName;
-                    category.FullPath = newDirectoryPath;
-                    LoadFiles(baseDirectory);
+                    break;
                 }
-                else
+                case ChatHistoryFile file:
                 {
-                    throw new IOException($"Folder '{newName}' already exists.");
-                }
-            }
-            else if (item is ChatHistoryFile file)
-            {
-                var newFilePath = Path.Combine(Path.GetDirectoryName(file.FullPath) ?? baseDirectory, newName);
+                    var newFilePath = Path.Combine(Path.GetDirectoryName(file.FullPath) ?? baseDirectory, newName);
 
-                if (!File.Exists(newFilePath))
-                {
-                    File.Move(file.FullPath, newFilePath);
-                    file.Filename = newName;
-                    file.FullPath = newFilePath;
-                    LoadFiles(baseDirectory);
-                }
-                else
-                {
-                    throw new IOException($"File '{newName}' already exists.");
+                    if (!File.Exists(newFilePath))
+                    {
+                        File.Move(file.FullPath, newFilePath);
+                        file.Filename = newName;
+                        file.FullPath = newFilePath;
+                        LoadFiles(baseDirectory);
+                    }
+                    else
+                    {
+                        throw new IOException("<CHC> File '{newName}' already exists.");
+                    }
+
+                    break;
                 }
             }
         }
@@ -220,9 +215,9 @@ namespace LLMR.Model.ChatHistoryManager
         {
             if (!Directory.Exists(directoryPath))
             {
-                // Falls das Verzeichnis nicht existiert, erstelle es
+                // create if not present
                 Directory.CreateDirectory(directoryPath);
-                ConsoleMessageOccurred?.Invoke(this, $"Erstelle Verzeichnis: {directoryPath}");
+                ConsoleMessageOccurred?.Invoke(this, $"Create folder: {directoryPath}");
             }
   
             Categories.Clear();
@@ -270,7 +265,7 @@ namespace LLMR.Model.ChatHistoryManager
                     dynamic jsonData = JsonConvert.DeserializeObject(fileContent);
 
                     string downloadedOnStr = jsonData.settings.downloaded_on;
-                    DateTime downloadedOn = DateTime.ParseExact(downloadedOnStr, "MMMM dd, yyyy 'at' HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+                    var downloadedOn = DateTime.ParseExact(downloadedOnStr, "MMMM dd, yyyy 'at' HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
 
                     var chatHistoryFile = new ChatHistoryFile
                     {
@@ -310,7 +305,7 @@ namespace LLMR.Model.ChatHistoryManager
 
                 if (parametersData == null)
                 {
-                    // JSON-Format Kompatibilität für ältere Versionen
+                    // Compatibility for older versions:
                     parametersData = new JObject();
                     foreach (var prop in jsonData.settings)
                     {
@@ -389,7 +384,7 @@ namespace LLMR.Model.ChatHistoryManager
                     {
                         Conversation.Add(new ConversationEntry
                         {
-                            Label = null,  // kein benutzerdefiniertes Label in regulären Konversationen
+                            Label = null,  
                             User = entry.user,
                             Assistant = entry.assistant
                         });
@@ -397,28 +392,26 @@ namespace LLMR.Model.ChatHistoryManager
                 }
                 else if (jsonData.responses != null)
                 {
-                    // Multicaller-Format:
+                    // Multicaller style:
                     string userPrompt = jsonData.settings.prompt;
                     int totalResponses = jsonData.responses.Count;
 
-                    // Benutzer-Prompt einmal hinzufügen
                     Conversation.Add(new ConversationEntry
                     {
                         Label = "User (Prompt):",
                         User = userPrompt,
-                        Assistant = null  // keine Assistentenantwort in MC
+                        Assistant = null  // no ASsistant in MC (ToDo: besserer Output (Anzeige und PDF)
                     });
 
-                    // Alle Assistentenantworten hinzufügen
-                    for (int i = 0; i < totalResponses; i++)
+                    for (var i = 0; i < totalResponses; i++)
                     {
                         var entry = jsonData.responses[i];
-                        string assistantResponse = entry.assistant != null ? entry.assistant.ToString() : $"Error: {entry.error}";
+                        string assistantResponse = entry.assistant != null ? entry.assistant.ToString() : $"<CHC> Error: {entry.error}";
 
                         Conversation.Add(new ConversationEntry
                         {
                             Label = $"Assistant {i + 1}/{totalResponses}:",
-                            User = null,  // keine unnötige Wiederholung der Benutzernachricht für Assistentenantworten
+                            User = null,  
                             Assistant = assistantResponse
                         });
                     }
@@ -430,7 +423,6 @@ namespace LLMR.Model.ChatHistoryManager
             }
             catch (Exception ex)
             {
-                // Inhalt zurücksetzen, um das Anzeigen des vorherigen Inhalts in der UI zu vermeiden
                 Settings = null;
                 Conversation.Clear();
                 SelectedFile = null;
