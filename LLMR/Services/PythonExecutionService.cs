@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Python.Runtime;
 using System.IO;
 using System.Diagnostics;
-using System.Reflection;
+using System.Runtime.InteropServices;
 using LLMR.Helpers;
 
 namespace LLMR.Services;
@@ -40,7 +40,7 @@ public class PythonExecutionService : IDisposable
     public static PythonExecutionService GetInstance(string pythonPath)
     {
         if (string.IsNullOrEmpty(pythonPath))
-            throw new ArgumentNullException(nameof(pythonPath), "Python path cannot be null or empty.");
+            throw new ArgumentNullException(nameof(pythonPath), "<PES.cs error> Python path cannot be null or empty.");
 
         lock (Lock)
         {
@@ -58,51 +58,43 @@ public class PythonExecutionService : IDisposable
         }
     }
 
-    private void ExtractEmbeddedScripts(string targetDirectory)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        var resourceNames = assembly.GetManifestResourceNames();
-
-        foreach (var resourceName in resourceNames)
-        {
-            if (!resourceName.EndsWith(".py")) continue;
-            var fileName = Path.GetFileName(resourceName);
-            var filePath = Path.Combine(targetDirectory, fileName);
-
-            ConsoleMessageOccurred?.Invoke(this, $"Extracting script: {fileName} to {filePath}");
-
-            if (!File.Exists(filePath))
-            {
-                using var stream = assembly.GetManifestResourceStream(resourceName);
-                if (stream == null)
-                {
-                    ConsoleMessageOccurred?.Invoke(this, $"Resource stream for {resourceName} is null.");
-                    continue;
-                }
-
-                using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-                stream.CopyTo(fileStream);
-                ConsoleMessageOccurred?.Invoke(this, $"Script {fileName} extracted successfully.");
-            }
-            else
-            {
-                ConsoleMessageOccurred?.Invoke(this, $"Script {fileName} already exists at {filePath}.");
-            }
-        }
-    }
 
     private void PythonThreadStart()
     {
         try
         {
             var baseDataDir = AppDataPath.GetBaseDataDirectory();
-            ConsoleMessageOccurred?.Invoke(this, $"Base data directory: {baseDataDir}");
+            ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> Base data directory: {baseDataDir}");
             //ExtractEmbeddedScripts(baseDataDir);
 
             if (!Directory.Exists(_pythonPath))
                 throw new DirectoryNotFoundException($"<PES.cs error> Invalid Python path: {_pythonPath}");
 
-            var pythonExecutable = Path.Combine(_pythonPath, "bin", "python3.12");
+            string pythonExecutable;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                //pythonExecutable = File.Exists(_pythonPath) ? _pythonPath : Path.Combine(_pythonPath, "envs", "myenv", "python.exe");
+                if (File.Exists(_pythonPath))
+                {
+                    // if _pythonPath is already pointing to python.exe
+                    pythonExecutable = _pythonPath;
+                }
+                else if (Directory.Exists(_pythonPath))
+                {
+                    // if _pythonPath points to the env directory 
+                    pythonExecutable = Path.Combine(_pythonPath, "python.exe");
+                }
+                else
+                {
+                    throw new DirectoryNotFoundException($"<PES.cs error> Invalid Python path: {_pythonPath}");
+                }
+            }
+            else
+            {
+                pythonExecutable = Path.Combine(_pythonPath, "envs", "myenv", "bin", "python3.12");
+            }
+
             ConsoleMessageOccurred?.Invoke(this, $"Python Executable Path: {pythonExecutable}");
 
             if (!File.Exists(pythonExecutable))
@@ -114,36 +106,69 @@ public class PythonExecutionService : IDisposable
             ConsoleMessageOccurred?.Invoke(this, $"Python DLL Path: {pythonDllPath}");
 
             if (!File.Exists(pythonDllPath))
-                throw new FileNotFoundException($"<PES.cs error> Python dynamic library not found at {pythonDllPath}");
+                throw new FileNotFoundException($"<PES.cs error> Python dynamic library not found at '{pythonDllPath}'.");
 
             Runtime.PythonDLL = pythonDllPath;
+            Environment.SetEnvironmentVariable("PATH", $"{Path.GetDirectoryName(pythonDllPath)};{Environment.GetEnvironmentVariable("PATH")}");
             PythonEngine.Initialize();
             ConsoleMessageOccurred?.Invoke(this, "PythonEngine initialized successfully.");
             _isPythonInitialized = true;
             _initTcs.TrySetResult(true);
 
             using (Py.GIL())
-            {
-                var baseDir = AppContext.BaseDirectory;
-                dynamic sys = Py.Import("sys");
-                var pythonV = "3.12"; // adjust to correct mac PATH (name of version folder) 
+{
 
-                // PATH handling happening here:
-                var scriptsPath = Path.Combine(_pythonPath, "lib", $"python{pythonV}");
-                var sitePackagesPath = Path.Combine(scriptsPath, "site-packages");
+    var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+    
+    ConsoleMessageOccurred?.Invoke(this, $"AppDomain Base Directory: {AppDomain.CurrentDomain.BaseDirectory}");
+    ConsoleMessageOccurred?.Invoke(this, $"Current Directory: {Directory.GetCurrentDirectory()}");
+    ConsoleMessageOccurred?.Invoke(this, $"Temp Path: {Path.GetTempPath()}");
+    ConsoleMessageOccurred?.Invoke(this, $"Assembly Location: {System.Reflection.Assembly.GetExecutingAssembly().Location}");
 
-                // PATH handling happening here:
-                var scriptsDir = Path.Combine(baseDir, "Scripts");
-                
-                ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {scriptsPath}");
-                sys.path.append(scriptsPath);
+    ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> AppDataPath.GetBaseDataDirectory() is {AppDataPath.GetBaseDataDirectory()}");
+    dynamic sys = Py.Import("sys");
+    var pythonV = "3.12"; // adjust to correct mac PATH (name of version folder)
 
-                ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {sitePackagesPath}");
-                sys.path.append(sitePackagesPath);
-                ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {scriptsDir}");
-                sys.path.append(scriptsDir);
+    // path handling here:
+    var pythonDir = _pythonPath;
+    if (pythonDir == null)
+        throw new InvalidOperationException("<PES.cs error> Unable to determine Python executable directory.");
 
-                const string redirectScript = @"
+    var scriptsPath = Path.Combine(pythonDir, "Lib", $"python{pythonV}");
+    var sitePackagesPath = Path.Combine(pythonDir, "Lib", "site-packages");
+    
+    if (Directory.Exists(scriptsPath))
+    {
+        ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {scriptsPath}");
+        sys.path.append(scriptsPath);
+    }
+    else
+    {
+        ConsoleMessageOccurred?.Invoke(this, $"Warning: scriptsPath does not exist: {scriptsPath}");
+    }
+
+    if (Directory.Exists(sitePackagesPath))
+    {
+        ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {sitePackagesPath}");
+        sys.path.append(sitePackagesPath);
+    }
+    else
+    {
+        ConsoleMessageOccurred?.Invoke(this, $"Warning: sitePackagesPath does not exist: {sitePackagesPath}");
+    }
+
+    var scriptsDir = Path.Combine(baseDir, "Scripts");
+    if (Directory.Exists(scriptsDir))
+    {
+        ConsoleMessageOccurred?.Invoke(this, $"Appending to sys.path: {scriptsDir}");
+        sys.path.append(scriptsDir);
+    }
+    else
+    {
+        ConsoleMessageOccurred?.Invoke(this, $"Warning: scriptsDir does not exist: {scriptsDir}");
+    }
+
+    const string redirectScript = @"
 import sys
 import clr
 clr.AddReference('LLMR')
@@ -166,14 +191,14 @@ class StdErrRedirector:
 sys.stdout = StdOutRedirector()
 sys.stderr = StdErrRedirector()
 ";
-                PythonEngine.Exec(redirectScript);
-            }
-
+    PythonEngine.Exec(redirectScript);
+}
+            
             VerifyRequiredPackages();
 
             while (!_isDisposed)
             {
-                Func<Task>? taskFunc = _taskQueue.Take();
+                var taskFunc = _taskQueue.Take();
                 taskFunc?.Invoke().Wait();
             }
         }
@@ -193,9 +218,10 @@ sys.stderr = StdErrRedirector()
             {
                 try
                 {
-                    ConsoleMessageOccurred?.Invoke(this, "TRYING TO SHUTDOWN PYTHONENGINE IN PES.CS.");
+                    ConsoleMessageOccurred?.Invoke(this, "<PES.cs> PythonEngine was already initialized.");
+                    ConsoleMessageOccurred?.Invoke(this, "<PES.cs> PythonEngine.Shutdown() called --> BinaryFormatter exceptions expected!");
                     PythonEngine.Shutdown();
-                    ConsoleMessageOccurred?.Invoke(this, "PythonEngine shutdown (almost) successful.");
+                    ConsoleMessageOccurred?.Invoke(this, "<PES.cs> Application must be restarted. PythonEngine was already initialized.");
                 }
                 catch (Exception ex)
                 {
@@ -245,7 +271,6 @@ sys.stderr = StdErrRedirector()
     {
         using (Py.GIL())
         {
-            dynamic importlibMetadata = Py.Import("importlib.metadata");
             string[] requiredPackages = { "requests", "openai", "gradio" };
             string[] requiredVersions = { "2.31", "1.54", "5.1" };
 
@@ -255,8 +280,9 @@ sys.stderr = StdErrRedirector()
                 var requiredVersion = requiredVersions[i];
                 try
                 {
-                    string installedVersion = importlibMetadata.version(package);
-                    ConsoleMessageOccurred?.Invoke(this, $"Checking package '{package}'. Installed version: {installedVersion}, Required version: {requiredVersion}");
+                    dynamic pkg = Py.Import(package);
+                    string installedVersion = pkg.__version__;
+                    ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> Checking package '{package}'. Installed version: {installedVersion}, Required version: {requiredVersion}");
 
                     if (!installedVersion.StartsWith(requiredVersion))
                         throw new InvalidOperationException($"<PES.cs error> Package '{package}' version {installedVersion} does not match required version prefix {requiredVersion}.");
@@ -268,6 +294,7 @@ sys.stderr = StdErrRedirector()
             }
         }
     }
+
 
     private (string Version, string PythonDllPath) GetPythonVersionAndDllPath(string pythonExecutable)
     {
@@ -288,34 +315,69 @@ sys.stderr = StdErrRedirector()
         if (lines.Length < 4)
             throw new InvalidOperationException("<PES.cs error> Unable to get Python version and library info.");
 
+        for(var i = 0; i < lines.Length; i++)
+        {
+            ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> lines[{i}]: {lines[i]}");
+        }
+
         var versionInfo = lines[0].Trim('(', ')').Split(',');
         var major = versionInfo[0].Trim();
-        var minor = versionInfo[1].Trim();
+        var minor = versionInfo[1].Trim().TrimEnd(')');
         var version = $"{major}.{minor}";
 
-        var libDir = lines[1].Trim();
-        var pythonDllName = $"libpython{version}.dylib";
-        var pythonDllPath = Path.Combine(libDir, pythonDllName);
+        ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> versionInfo: {string.Join(", ", versionInfo)}");
+        ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> major: {major}");
+        ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> minor: {minor}");
+        ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> version: {version}");
 
-        ConsoleMessageOccurred?.Invoke(this, $"LIBDIR: {libDir}");
-        ConsoleMessageOccurred?.Invoke(this, $"Python DLL Name: {pythonDllName}");
-        ConsoleMessageOccurred?.Invoke(this, $"Python DLL Path: {pythonDllPath}");
+        string pythonDllPath, libDir, pythonDllName;
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            libDir = lines[1].Trim();
+            if (libDir == "None")
+            {
+                libDir = Path.GetDirectoryName(pythonExecutable) ?? throw new InvalidOperationException("<PES.cs error> Unable to determine Python executable directory.");
+            }
+            var instsOname = lines[3].Trim();
+            if (!string.IsNullOrEmpty(instsOname) && instsOname != "None")
+            {
+                pythonDllName = instsOname.TrimEnd(')');
+            }
+            else
+            {
+                pythonDllName = $"python{major}{minor}.dll";
+            }
+            pythonDllPath = Path.Combine(libDir, pythonDllName);
+        }
+        else
+        {
+            libDir = lines[1].Trim();
+            pythonDllName = $"libpython{version}.dylib";
+            pythonDllPath = Path.Combine(libDir, pythonDllName);
+        }
+
+        ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> LIBDIR (!-- PATH --!): {libDir} (!-- PATH --!)");
+        ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> Python DLL Name (!-- PATH --!): {pythonDllName} (!-- PATH --!)");
+        ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> Python DLL Path (!-- PATH --!): {pythonDllPath} (!-- PATH --!)");
 
         if (!File.Exists(pythonDllPath))
             throw new FileNotFoundException($"<PES.cs error> Python dynamic library not found at '{pythonDllPath}'.");
 
         return (version, pythonDllPath);
     }
-
+    
+    // ReSharper disable once UnusedMember.Global
     public static void PythonStdout(string message)
     {
         _instance?.ConsoleMessageOccurred?.Invoke(_instance, $"<PES stdout> {message}");
     }
-
+    // ReSharper disable once UnusedMember.Global
     public static void PythonStderr(string message)
     {
         _instance?.ExceptionOccurred?.Invoke(_instance, $"<PES stderr> {message}");
     }
+    
 
     public void Dispose()
     {
