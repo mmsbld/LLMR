@@ -122,7 +122,9 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
 
             // PATH handling happening here!
             var scriptPath = Path.Combine(AppContext.BaseDirectory, "Scripts", "openAI_v2_gradioServer.py");
+            OnConsoleMessageOccured($"<OAI_v2 APIH> scriptPath is set to: {scriptPath}");
             scriptPath = scriptPath.Replace("\\", "/"); //  correct path format (win/mac/... !)
+            OnConsoleMessageOccured($"<OAI_v2 APIH> scriptPath was reformatted into: {scriptPath}");
 
             argumentsBuilder.Append($"-u \"{scriptPath}\" --start-gradio");
             argumentsBuilder.Append($" --api_key \"{apiKey}\"");
@@ -150,12 +152,14 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                pythonExecutable = Path.Combine(PythonPath, "bin", "python3");
+                pythonExecutable = Path.Combine(Path.GetDirectoryName(PythonPath), "bin", "python3.12");
             }
             else 
             {
                 throw new Exception("<APIH oAIv2> Calling from not implemented RuntimeInformation.OSPlatform.");
             }
+            
+            OnConsoleMessageOccured($"<OAI_v2 APIH> pythonExecutable is set to: {pythonExecutable}");
 
             var startInfo = new ProcessStartInfo
             {
@@ -226,8 +230,9 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
                     return (_localUrl, _publicUrl);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnErrorMessageOccured(ex.Message);
                 return ("<internal error APIH 245>", "<internal error APIH 245>");
             }
         });

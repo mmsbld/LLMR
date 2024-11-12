@@ -936,7 +936,7 @@
         }
       }
     },
-    "net9.0/win-x64": {
+    "net9.0/osx-arm64": {
       "Avalonia/11.2.0": {
         "type": "package",
         "dependencies": {
@@ -1020,10 +1020,7 @@
         }
       },
       "Avalonia.Angle.Windows.Natives/2.1.22045.20230930": {
-        "type": "package",
-        "native": {
-          "runtimes/win-x64/native/av_libglesv2.dll": {}
-        }
+        "type": "package"
       },
       "Avalonia.BuildServices/0.0.29": {
         "type": "package",
@@ -1098,6 +1095,9 @@
           "lib/net8.0/Avalonia.Native.dll": {
             "related": ".xml"
           }
+        },
+        "native": {
+          "runtimes/osx/native/libAvaloniaNative.dylib": {}
         }
       },
       "Avalonia.ReactiveUI/11.2.0": {
@@ -1272,6 +1272,9 @@
         },
         "runtime": {
           "lib/net6.0/_._": {}
+        },
+        "native": {
+          "runtimes/osx/native/libHarfBuzzSharp.dylib": {}
         }
       },
       "HarfBuzzSharp.NativeAssets.WebAssembly/7.3.0.3-preview.2.2": {
@@ -1294,9 +1297,6 @@
         },
         "runtime": {
           "lib/net6.0/_._": {}
-        },
-        "native": {
-          "runtimes/win-x64/native/libHarfBuzzSharp.dll": {}
         }
       },
       "MessageBox.Avalonia/3.2.0": {
@@ -1443,7 +1443,7 @@
           }
         },
         "native": {
-          "runtimes/win-x64/native/QuestPdfSkia.dll": {}
+          "runtimes/osx-arm64/native/libQuestPdfSkia.dylib": {}
         },
         "build": {
           "buildTransitive/QuestPDF.targets": {}
@@ -1524,6 +1524,31 @@
           "lib/netstandard1.3/System.Threading.Tasks.dll": {}
         }
       },
+      "runtime.native.System/4.3.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "1.1.0",
+          "Microsoft.NETCore.Targets": "1.1.0"
+        },
+        "compile": {
+          "lib/netstandard1.0/_._": {}
+        },
+        "runtime": {
+          "lib/netstandard1.0/_._": {}
+        }
+      },
+      "runtime.unix.System.Private.Uri/4.3.0": {
+        "type": "package",
+        "dependencies": {
+          "runtime.native.System": "4.3.0"
+        },
+        "compile": {
+          "ref/netstandard/_._": {}
+        },
+        "runtime": {
+          "runtimes/unix/lib/netstandard1.0/System.Private.Uri.dll": {}
+        }
+      },
       "SkiaSharp/2.88.8": {
         "type": "package",
         "dependencies": {
@@ -1560,6 +1585,9 @@
         },
         "runtime": {
           "lib/net6.0/_._": {}
+        },
+        "native": {
+          "runtimes/osx/native/libSkiaSharp.dylib": {}
         }
       },
       "SkiaSharp.NativeAssets.WebAssembly/2.88.8": {
@@ -1582,9 +1610,6 @@
         },
         "runtime": {
           "lib/net6.0/_._": {}
-        },
-        "native": {
-          "runtimes/win-x64/native/libSkiaSharp.dll": {}
         }
       },
       "Splat/15.1.1": {
@@ -1649,7 +1674,8 @@
         "type": "package",
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0"
+          "Microsoft.NETCore.Targets": "1.1.0",
+          "runtime.unix.System.Private.Uri": "4.3.0"
         },
         "compile": {
           "ref/netstandard/_._": {}
@@ -2973,6 +2999,35 @@
         "runtimes/aot/lib/netcore50/_._"
       ]
     },
+    "runtime.native.System/4.3.0": {
+      "sha512": "c/qWt2LieNZIj1jGnVNsE2Kl23Ya2aSTBuXMD6V7k9KWr6l16Tqdwq+hJScEpWER9753NWC8h96PaVNY5Ld7Jw==",
+      "type": "package",
+      "path": "runtime.native.system/4.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/netstandard1.0/_._",
+        "runtime.native.system.4.3.0.nupkg.sha512",
+        "runtime.native.system.nuspec"
+      ]
+    },
+    "runtime.unix.System.Private.Uri/4.3.0": {
+      "sha512": "ooWzobr5RAq34r9uan1r/WPXJYG1XWy9KanrxNvEnBzbFdQbMG7Y3bVi4QxR7xZMNLOxLLTAyXvnSkfj5boZSg==",
+      "type": "package",
+      "path": "runtime.unix.system.private.uri/4.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "ref/netstandard/_._",
+        "runtime.unix.system.private.uri.4.3.0.nupkg.sha512",
+        "runtime.unix.system.private.uri.nuspec",
+        "runtimes/unix/lib/netstandard1.0/System.Private.Uri.dll"
+      ]
+    },
     "SkiaSharp/2.88.8": {
       "sha512": "bRkp3uKp5ZI8gXYQT57uKwil1uobb2p8c69n7v5evlB/2JNcMAXVcw9DZAP5Ig3WSvgzGm2YSn27UVeOi05NlA==",
       "type": "package",
@@ -4111,7 +4166,7 @@
         "warn": true,
         "downloadDependencies": [
           {
-            "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+            "name": "Microsoft.AspNetCore.App.Runtime.osx-arm64",
             "version": "[9.0.0-rc.2.24474.3, 9.0.0-rc.2.24474.3]"
           },
           {
@@ -4119,11 +4174,7 @@
             "version": "[9.0.0-rc.2.24473.5, 9.0.0-rc.2.24473.5]"
           },
           {
-            "name": "Microsoft.NETCore.App.Host.win-x64",
-            "version": "[9.0.0-rc.2.24473.5, 9.0.0-rc.2.24473.5]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Runtime.win-x64",
+            "name": "Microsoft.NETCore.App.Runtime.osx-arm64",
             "version": "[9.0.0-rc.2.24473.5, 9.0.0-rc.2.24473.5]"
           }
         ],
@@ -4136,7 +4187,7 @@
       }
     },
     "runtimes": {
-      "win-x64": {
+      "osx-arm64": {
         "#import": []
       }
     }
@@ -4149,7 +4200,7 @@
       "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte hoch Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-5f2m-466j-3848.",
       "libraryId": "System.Private.Uri",
       "targetGraphs": [
-        "net9.0/win-x64"
+        "net9.0/osx-arm64"
       ]
     },
     {
@@ -4159,7 +4210,7 @@
       "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte moderat Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-x5qj-9vmx-7g6g.",
       "libraryId": "System.Private.Uri",
       "targetGraphs": [
-        "net9.0/win-x64"
+        "net9.0/osx-arm64"
       ]
     },
     {
@@ -4169,7 +4220,7 @@
       "message": "Das Paket \"System.Private.Uri\" 4.3.0 weist eine bekannte hoch Schweregrad-Sicherheitsanfälligkeit auf, https://github.com/advisories/GHSA-xhfc-gr8f-ffwc.",
       "libraryId": "System.Private.Uri",
       "targetGraphs": [
-        "net9.0/win-x64"
+        "net9.0/osx-arm64"
       ]
     },
     {
@@ -4180,7 +4231,7 @@
       "libraryId": "System.Text.Json",
       "targetGraphs": [
         "net9.0",
-        "net9.0/win-x64"
+        "net9.0/osx-arm64"
       ]
     }
   ]

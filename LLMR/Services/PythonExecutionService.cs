@@ -92,7 +92,7 @@ public class PythonExecutionService : IDisposable
             }
             else
             {
-                pythonExecutable = Path.Combine(_pythonPath, "envs", "myenv", "bin", "python3.12");
+                pythonExecutable = Path.Combine(Path.GetDirectoryName(_pythonPath), "bin", "python3.12");
             }
 
             ConsoleMessageOccurred?.Invoke(this, $"Python Executable Path: {pythonExecutable}");
@@ -118,14 +118,16 @@ public class PythonExecutionService : IDisposable
             using (Py.GIL())
 {
 
+    // path handling here:
     var baseDir = AppDomain.CurrentDomain.BaseDirectory;
     
     ConsoleMessageOccurred?.Invoke(this, $"AppDomain Base Directory: {AppDomain.CurrentDomain.BaseDirectory}");
     ConsoleMessageOccurred?.Invoke(this, $"Current Directory: {Directory.GetCurrentDirectory()}");
     ConsoleMessageOccurred?.Invoke(this, $"Temp Path: {Path.GetTempPath()}");
     ConsoleMessageOccurred?.Invoke(this, $"Assembly Location: {System.Reflection.Assembly.GetExecutingAssembly().Location}");
+    ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> Path.GetDirectoryName(_pythonPath) is: {Path.GetDirectoryName(_pythonPath)}");
 
-    ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> AppDataPath.GetBaseDataDirectory() is {AppDataPath.GetBaseDataDirectory()}");
+    ConsoleMessageOccurred?.Invoke(this, $"<PES.cs> AppDataPath.GetBaseDataDirectory() is: {AppDataPath.GetBaseDataDirectory()}");
     dynamic sys = Py.Import("sys");
     var pythonV = "3.12"; // adjust to correct mac PATH (name of version folder)
 
@@ -134,8 +136,18 @@ public class PythonExecutionService : IDisposable
     if (pythonDir == null)
         throw new InvalidOperationException("<PES.cs error> Unable to determine Python executable directory.");
 
-    var scriptsPath = Path.Combine(pythonDir, "Lib", $"python{pythonV}");
-    var sitePackagesPath = Path.Combine(pythonDir, "Lib", "site-packages");
+    string scriptsPath, sitePackagesPath;
+
+    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+    {
+        scriptsPath = Path.Combine(pythonDir, "Lib", $"python{pythonV}");
+        sitePackagesPath = Path.Combine(pythonDir, "Lib", "site-packages");
+    }
+    else
+    {
+        scriptsPath = Path.Combine(pythonDir, $"python{pythonV}");
+        sitePackagesPath = Path.Combine(pythonDir, "site-packages");
+    }
     
     if (Directory.Exists(scriptsPath))
     {
