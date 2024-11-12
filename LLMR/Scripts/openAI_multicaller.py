@@ -3,10 +3,10 @@ import json
 import os
 import uuid
 import datetime
-from openai import OpenAI
+import openai
 
 def run_multicaller(api_key, model, prompt, n, system_message, temperature, max_tokens, top_p, frequency_penalty, presence_penalty):
-    client = OpenAI(api_key=api_key)
+    client = openai.OpenAI(api_key=api_key)
 
     messages = [
         {"role": "system", "content": system_message},

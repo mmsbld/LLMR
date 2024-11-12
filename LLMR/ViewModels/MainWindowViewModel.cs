@@ -499,19 +499,19 @@ namespace LLMR.ViewModels
             {
                 case "OpenAI":
                     CurrentModelSettingsModule = new OpenAI_v2_ModelSettings();
-                    apiHandler = new OpenAI_v2_APIHandler(_pythonService, PythonPath);
+                    apiHandler = new OpenAI_v2_APIHandler(_pythonService);
                     _apiService = new APIService(apiHandler);
                     ViewManager.GradioMode = true;
                     break;
                 case "Hugging Face Serverless Inference":
                     CurrentModelSettingsModule = new HFServerlessInferenceModelSettings();
-                    apiHandler = new HFServerlessInference_APIHandler(_pythonService, PythonPath);
+                    apiHandler = new HFServerlessInference_APIHandler(_pythonService);
                     _apiService = new APIService(apiHandler);
                     ViewManager.GradioMode = true;
                     break;
                 case "OpenAI Multicaller":
                     CurrentModelSettingsModule = new OpenAI_Multicaller_ModelSettings();
-                    apiHandler = new OpenAI_Multicaller_APIHandler(_pythonService, PythonPath);
+                    apiHandler = new OpenAI_Multicaller_APIHandler(_pythonService);
                     _apiService = new OpenAI_Multicaller_APIService(apiHandler);
                     ViewManager.MulticallerMode = true;
                     break;

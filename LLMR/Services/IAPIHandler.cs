@@ -9,8 +9,6 @@ public interface IAPIHandler
 {
     public event EventHandler<string> ConsoleMessageOccured;
     public event EventHandler<string> ErrorMessageOccured;
-    
-    public string? PythonPath { get; }
 
     public Task<bool> ValidateApiKeyAsync(string apiKey);
     public Task<List<string>> GetAvailableModelsAsync(string apiKey);

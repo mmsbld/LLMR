@@ -18,10 +18,11 @@ namespace LLMR.Services.OpenAI_Multicaller;
     {
         private readonly PythonExecutionService? _pythonService;
         
-        public OpenAI_Multicaller_APIHandler(PythonExecutionService? pythonService, string? pythonPath)
+        public OpenAI_Multicaller_APIHandler(PythonExecutionService? pythonService)
         {
             _pythonService = pythonService;
-            PythonPath = pythonPath ?? throw new ArgumentNullException(nameof(pythonPath));
+            PythonPath = pythonService.GetPythonPath() ??
+                         throw new ArgumentNullException(nameof(pythonService.GetPythonPath));
         }
 
         public event EventHandler<string> ConsoleMessageOccured;
@@ -120,7 +121,9 @@ namespace LLMR.Services.OpenAI_Multicaller;
 
                 // PATH handling happening here!
                 var scriptPath = Path.Combine(AppContext.BaseDirectory, "Scripts", "openAI_multicaller.py");
-                scriptPath = scriptPath.Replace("\\", "/"); // correct path format accross the os'es
+                OnConsoleMessageOccured($"<OAI_MC APIH> scriptPath is set to: {scriptPath}");
+                scriptPath = scriptPath.Replace("\\", "/"); // correct path format across the os'es
+                OnConsoleMessageOccured($"<OAI_MC APIH> scriptPath was reformatted into: {scriptPath}");
                 argumentsBuilder.Append($"-u \"{scriptPath}\"");
                 argumentsBuilder.Append($" --prompt \"{prompt}\"");
                 argumentsBuilder.Append($" --n {n}");
@@ -144,12 +147,15 @@ namespace LLMR.Services.OpenAI_Multicaller;
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    pythonExecutable = Path.Combine(PythonPath, "bin", "python3");
+                    pythonExecutable = Path.Combine(Path.GetDirectoryName(PythonPath), "bin", "python3.12");
                 }
                 else 
                 {
-                    throw new NotImplementedException("<OAI Multicaller APIHandler:> calling from not implemented RuntimeInformation.OSPlatform.");
+                    throw new NotImplementedException("<OAI_MC APIH> calling from not implemented RuntimeInformation.OSPlatform.");
                 }
+                
+                OnConsoleMessageOccured($"<OAI_MC APIH> pythonExecutable is set to: {pythonExecutable}");
+
 
                 var startInfo = new ProcessStartInfo
                 {
@@ -207,6 +213,7 @@ namespace LLMR.Services.OpenAI_Multicaller;
                 }
                 catch (Exception ex)
                 {
+                    OnErrorMessageOccured(ex.Message);
                     return $"Error while running multicaller script: {ex.Message}";
                 }
             });

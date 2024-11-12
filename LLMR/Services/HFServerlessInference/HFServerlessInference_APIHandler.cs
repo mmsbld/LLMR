@@ -14,32 +14,23 @@ using Python.Runtime;
 
 namespace LLMR.Services.HFServerlessInference;
 
-public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
+public sealed class HFServerlessInference_APIHandler(PythonExecutionService? pythonService) : IAPIHandler, IDisposable
 {
-    private readonly PythonExecutionService? _pythonService;
     private Process _gradioProcess;
 
-    private string _localUrl;
-    private string _publicUrl;
+    private string _localUrl = "<internal APIH: empty string>";
+    private string _publicUrl = "<internal APIH: empty string>";
 
-    private TaskCompletionSource<(string LocalUrl, string PublicUrl)> _gradioUrlsTcs = new TaskCompletionSource<(string, string)>();
-
-    public HFServerlessInference_APIHandler(PythonExecutionService? pythonService, string? pythonPath)
-    {
-        _pythonService = pythonService;
-        PythonPath = pythonPath ?? throw new ArgumentNullException(nameof(pythonPath));
-        _localUrl = "<internal APIH: empty string>";
-        _publicUrl = "<internal APIH: empty string>";
-    }
+    private TaskCompletionSource<(string LocalUrl, string PublicUrl)> _gradioUrlsTcs = new();
 
     public event EventHandler<string> ConsoleMessageOccured;
     public event EventHandler<string> ErrorMessageOccured;
 
-    public string? PythonPath { get; }
+    public string? PythonPath { get; } = pythonService.GetPythonPath() ?? throw new ArgumentNullException(nameof(pythonService.GetPythonPath));
 
     public Task<bool> ValidateApiKeyAsync(string apiToken)
     {
-        return _pythonService.ExecuteAsync<bool>(() =>
+        return pythonService.ExecuteAsync<bool>(() =>
         {
             dynamic sys = Py.Import("sys");
             sys.path.append("Scripts");
@@ -55,7 +46,7 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
 
     public Task<List<string>> GetAvailableModelsAsync(string apiToken)
     {
-        return _pythonService.ExecuteAsync<List<string>>(() =>
+        return pythonService.ExecuteAsync<List<string>>(() =>
         {
             dynamic sys = Py.Import("sys");
             sys.path.append("Scripts");
@@ -64,7 +55,7 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
 
             var result = apiModule.get_available_models(apiToken);
 
-            List<string> models = new List<string>();
+            List<string> models = new();
             foreach (var model in result)
             {
                 models.Add((string)model);
@@ -120,7 +111,9 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
 
             // PATH handling happening here!
             var scriptPath = Path.Combine(AppContext.BaseDirectory, "Scripts", "hfServerlessInference_gradioServer.py");
+            OnConsoleMessageOccured($"<APIH HFSI> scriptPath is set to: {scriptPath}");
             scriptPath = scriptPath.Replace("\\", "/"); // correct path format (win/max/...)
+            OnConsoleMessageOccured($"<APIH HFSI> scriptPath was reformatted into: {scriptPath}");
             argumentsBuilder.Append($"-u \"{scriptPath}\" --start-gradio");
             argumentsBuilder.Append($" --api_token \"{apiToken}\"");
             argumentsBuilder.Append($" --model_id \"{settings.SelectedModel}\"");
@@ -153,6 +146,9 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
             }
 
             var arguments = argumentsBuilder.ToString();
+            
+            if (PythonPath is null)
+                throw new NullReferenceException("<APIH HFSI> PythonPath is null.");
 
             string pythonExecutable;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -161,12 +157,13 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                pythonExecutable = Path.Combine(PythonPath, "bin", "python3");
+                pythonExecutable = Path.Combine(Path.GetDirectoryName(PythonPath), "bin", "python3.12");
             }
             else 
             {
-                throw new Exception("<OAI HFServerlessInference APIHandler:> calling from not implemented RuntimeInformation.OSPlatform.");
+                throw new Exception("<APIH HFSI> calling from not implemented RuntimeInformation.OSPlatform.");
             }
+            OnConsoleMessageOccured($"<APIH HFSI> pythonExecutable is set to: {pythonExecutable}");
 
             var startInfo = new ProcessStartInfo
             {
@@ -231,8 +228,9 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
                     return (_localUrl, _publicUrl);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnErrorMessageOccured(ex.Message);
                 return ("<internal error APIH 245>", "<internal error APIH 245>");
             }
         });
@@ -244,7 +242,7 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
         {
             if (_gradioProcess == null || _gradioProcess.HasExited)
             {
-                return "Gradio interface not running.";
+                return "<APIH HFSI> Gradio interface not running.";
             }
 
             try
@@ -252,30 +250,32 @@ public class HFServerlessInference_APIHandler : IAPIHandler, IDisposable
                 _gradioProcess.Kill();
                 _gradioProcess.WaitForExit();
                 _gradioProcess = null;
-                return "Gradio interface stopped.";
+                return "<APIH HFSI> Gradio interface stopped.";
             }
             catch (Exception ex)
             {
-                return $"Error while stopping: {ex.Message}";
+                return $"<APIH HFSI> Error while stopping: {ex.Message}";
             }
         });
     }
 
-    protected virtual void OnConsoleMessageOccured(string message)
+    private void OnConsoleMessageOccured(string message)
     {
         ConsoleMessageOccured?.Invoke(this, message);
     }
 
-    protected virtual void OnErrorMessageOccured(string message)
+    private void OnErrorMessageOccured(string message)
     {
         ErrorMessageOccured?.Invoke(this, message);
     }
 
     public void Dispose()
     {
-        _pythonService.Dispose();
+        if (pythonService == null)
+            throw new NullReferenceException("pythonService is null.");
+        pythonService.Dispose();
 
-        if (_gradioProcess != null && !_gradioProcess.HasExited)
+        if (_gradioProcess is { HasExited: false })
         {
             _gradioProcess.Kill();
         }

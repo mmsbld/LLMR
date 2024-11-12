@@ -15,7 +15,7 @@ using Python.Runtime;
 
 namespace LLMR.Services.OpenAI_v2;
 
-public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, string? pythonPath)
+public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService)
     : IAPIHandler, IDisposable
 {
     private Process? _gradioProcess;
@@ -28,7 +28,7 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService, 
     public event EventHandler<string>? ConsoleMessageOccured;
     public event EventHandler<string>? ErrorMessageOccured;
 
-    public string? PythonPath { get; } = pythonPath ?? throw new ArgumentNullException(nameof(pythonPath));
+    private string? PythonPath { get; } = pythonService.GetPythonPath() ?? throw new ArgumentNullException(nameof(pythonService.GetPythonPath));
 
     public Task<bool> ValidateApiKeyAsync(string apiKey)
     {

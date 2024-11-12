@@ -36,6 +36,8 @@ public class PythonExecutionService : IDisposable
         _pythonThread = new Thread(PythonThreadStart) { IsBackground = true };
         _pythonThread.Start();
     }
+    
+    public string GetPythonPath() => _pythonPath;
 
     public static PythonExecutionService GetInstance(string pythonPath)
     {
