@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using LLMR.Model.ModelSettingModulesManager;
+using LLMR.Model.ModelSettingModulesManager.ModelSettingsModules;
 
 namespace LLMR.Services;
 
@@ -57,6 +58,17 @@ public sealed class APIService:IAPIService
         if (_apiHandler == null)
             throw new NullReferenceException(nameof(_apiHandler));
         return await _apiHandler.StopGradioInterfaceAsync();
+    }
+    
+    public async Task<string> RunMulticallerAsync(string apiKey, IModelSettings? settings)
+    {
+        if (settings is not OpenAI_Multicaller_ModelSettings)
+        {
+            throw new ArgumentException("Settings must be of type OpenAI_Multicaller_ModelSettings!");
+        }
+        if (_apiHandler == null)
+            throw new NullReferenceException(nameof(_apiHandler));
+        return await _apiHandler.RunMulticallerAsync(apiKey, settings);
     }
 
     private void OnConsoleMessageOccured(string message)

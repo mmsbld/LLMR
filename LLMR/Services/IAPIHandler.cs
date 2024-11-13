@@ -17,6 +17,7 @@ public interface IAPIHandler
         IModelSettings? settings);
 
     public Task<string> StopGradioInterfaceAsync();
+    public Task<string> RunMulticallerAsync(string apiKey, IModelSettings? settings);
 
     public void Dispose();
 }

@@ -512,7 +512,7 @@ namespace LLMR.ViewModels
                 case "OpenAI Multicaller":
                     CurrentModelSettingsModule = new OpenAI_Multicaller_ModelSettings();
                     apiHandler = new OpenAI_Multicaller_APIHandler(_pythonService);
-                    _apiService = new OpenAI_Multicaller_APIService(apiHandler);
+                    _apiService = new APIService(apiHandler);
                     ViewManager.MulticallerMode = true;
                     break;
             }
@@ -697,10 +697,10 @@ namespace LLMR.ViewModels
                 if (_apiService == null)
                     throw new NullReferenceException("API Service is null.");
 
-                if (_apiService.GetType() != typeof(OpenAI_Multicaller_APIService))
-                    throw new NotSupportedException("<MWVM> API Service type is not supported.");
-
-                var apiService = (OpenAI_Multicaller_APIService)_apiService;
+                // if (_apiService.GetType() != typeof(OpenAI_Multicaller_APIService))
+                //     throw new NotSupportedException("<MWVM> API Service type is not supported.");
+                //
+                // var apiService = (OpenAI_Multicaller_APIService)_apiService;
 
                 ConsoleMessageManager.LogInfo("Multicaller started.");
                 IsServerRunning = true;
@@ -714,7 +714,7 @@ namespace LLMR.ViewModels
                 ViewManager.IsLinkGenerationEnabled = false;
                 ViewManager.IsDataCollectionEnabled = true;
 
-                var endMessage = await apiService.RunMulticallerAsync(ApiKey, CurrentModelSettingsModule);
+                var endMessage = await _apiService.RunMulticallerAsync(ApiKey, CurrentModelSettingsModule);
                 ConsoleMessageManager.LogInfo($"Multicaller ended with message: {endMessage}.");
                 //ToDo: (Moe) Couldn't this lead to issues? Consider the setter logic for "IsServerRunning"!
                 IsServerRunning = false;

@@ -91,7 +91,7 @@ namespace LLMR.Services.OpenAI_Multicaller;
 
                 var n = settings.Parameters
                     .OfType<IntParameter>()
-                    .FirstOrDefault(p => p.Name == "n")?.ValueTyped ?? 5;
+                    .FirstOrDefault(p => p.Name == "n")?.ValueTyped ?? 2;
 
                 var systemMessage = settings.Parameters
                     .OfType<StringParameter>()
@@ -125,6 +125,7 @@ namespace LLMR.Services.OpenAI_Multicaller;
                 scriptPath = scriptPath.Replace("\\", "/"); // correct path format across the os'es
                 OnConsoleMessageOccured($"<OAI_MC APIH> scriptPath was reformatted into: {scriptPath}");
                 argumentsBuilder.Append($"-u \"{scriptPath}\"");
+                argumentsBuilder.Append($" --api_key \"{apiKey}\"");
                 argumentsBuilder.Append($" --prompt \"{prompt}\"");
                 argumentsBuilder.Append($" --n {n}");
                 argumentsBuilder.Append($" --system_message \"{systemMessage}\"");

@@ -261,6 +261,11 @@ public sealed class OpenAI_v2_APIHandler(PythonExecutionService? pythonService)
         });
     }
 
+    public Task<string> RunMulticallerAsync(string apiKey, IModelSettings? settings)
+    {
+        throw new NotImplementedException();
+    }
+
     private void OnConsoleMessageOccured(string message)
     {
         ConsoleMessageOccured?.Invoke(this, message);

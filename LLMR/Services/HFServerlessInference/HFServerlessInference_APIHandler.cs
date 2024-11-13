@@ -259,6 +259,11 @@ public sealed class HFServerlessInference_APIHandler(PythonExecutionService? pyt
         });
     }
 
+    public Task<string> RunMulticallerAsync(string apiKey, IModelSettings? settings)
+    {
+        throw new NotImplementedException("<APIH HFSI> Multicaller is not available in the module for Hugging Face's Serverless Inference platform.");
+    }
+
     private void OnConsoleMessageOccured(string message)
     {
         ConsoleMessageOccured?.Invoke(this, message);

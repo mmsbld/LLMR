@@ -14,4 +14,6 @@ public interface IAPIService : IDisposable
     Task<List<string>> GetAvailableModelsAsync(string apiKey);
     Task<(string LocalUrl, string PublicUrl)> StartGradioInterfaceAsync(string apiKey, IModelSettings? settings);
     Task<string> StopGradioInterfaceAsync();
+    Task<string> RunMulticallerAsync(string apiKey, IModelSettings? settings);
+
 }
