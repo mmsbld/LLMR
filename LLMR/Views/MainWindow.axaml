@@ -352,7 +352,7 @@
                             <Grid Grid.Column="0">
                                 <Grid>
                                     <Image Width="200" Source="{DynamicResource LogoImageSource}" HorizontalAlignment="Left" />
-                                    <TextBlock Text="0.4.3 (pre-alpha)"
+                                    <TextBlock Text="0.4.4 (alpha)"
                                                FontFamily="Consolas, Courier New, monospace"
                                                FontWeight="Bold"
                                                FontSize="11"
