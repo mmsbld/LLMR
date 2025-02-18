@@ -107,7 +107,7 @@ public class PythonEnvironmentManager : ReactiveObject
             if (!lines[0].StartsWith("3.12"))
                 return false;
 
-            return lines[1].StartsWith("1.54") && lines[2].StartsWith("5.1");
+            return lines[1].StartsWith("1.63") && lines[2].StartsWith("5.16");
         }
         catch
         {
