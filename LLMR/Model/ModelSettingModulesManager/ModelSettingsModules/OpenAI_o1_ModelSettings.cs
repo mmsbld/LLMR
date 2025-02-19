@@ -48,6 +48,11 @@ public class OpenAI_o1_ModelSettings : ReactiveObject, IModelSettings
         AvailableModels = new ObservableCollection<string>();
         Parameters = new ObservableCollection<ModelParameter>
         {
+            new BoolParameter
+            {
+                Name = "Scorn RE parameter",
+                ValueTyped = true
+            },
             new StringParameter
             {
                 Name = "Reasoning Effort",

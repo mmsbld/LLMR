@@ -27,6 +27,7 @@ using LLMR.Model;
 using LLMR.Model.ChatHistoryManager;
 using LLMR.Model.ModelSettingModulesManager;
 using LLMR.Model.ModelSettingModulesManager.ModelSettingsModules;
+using LLMR.Services.OpenAI_o1;
 using Unit = System.Reactive.Unit;
 
 namespace LLMR.ViewModels
@@ -213,7 +214,7 @@ namespace LLMR.ViewModels
             _dialogService = new DialogService();
             _pythonEnvironmentInitializer = new PythonEnvironmentInitializer();
 
-            AvailableModuleTypes = ["OpenAI", "Hugging Face Serverless Inference", "OpenAI Multicaller"];
+            AvailableModuleTypes = ["OpenAI", "OpenAI o1-line", "Hugging Face Serverless Inference", "OpenAI Multicaller"];
             SelectedModelType = "OpenAI"; // Default selection
 
             ViewManager = new MainWindowViewManager();
@@ -500,6 +501,12 @@ namespace LLMR.ViewModels
                 case "OpenAI":
                     CurrentModelSettingsModule = new OpenAI_v2_ModelSettings();
                     apiHandler = new OpenAI_v2_APIHandler(_pythonService);
+                    _apiService = new APIService(apiHandler);
+                    ViewManager.GradioMode = true;
+                    break;
+                case "OpenAI o1-line":
+                    CurrentModelSettingsModule = new OpenAI_o1_ModelSettings();
+                    apiHandler = new OpenAI_o1_APIHandler(_pythonService);
                     _apiService = new APIService(apiHandler);
                     ViewManager.GradioMode = true;
                     break;

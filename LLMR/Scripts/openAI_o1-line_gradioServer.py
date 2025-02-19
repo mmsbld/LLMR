@@ -31,9 +31,10 @@ def run_gradio(api_key, model, reasoning_effort, max_completion_tokens):
             parameters = {
                 "model": model,
                 "messages": messages,
-                "reasoning_effort": reasoning_effort,
                 "stream": True
             }
+            if reasoning_effort is not None:
+                parameters["reasoning_effort"] = reasoning_effort
 
             if max_completion_tokens is not None:
                 parameters["max_completion_tokens"] = max_completion_tokens
@@ -138,7 +139,7 @@ if __name__ == "__main__":
     parser.add_argument('--start-gradio', action='store_true', help='Start Gradio Interface')
     parser.add_argument('--api_key', type=str, help='OpenAI API Key')
     parser.add_argument('--model', type=str, default='o1', help='Model name for o1-line usage')
-    parser.add_argument('--reasoning_effort', type=str, default='medium', choices=['low', 'medium', 'high'], help='Reasoning effort (low, medium, or high)')
+    parser.add_argument('--reasoning_effort', type=str, choices=['low', 'medium', 'high'], help='Reasoning effort (low, medium, or high)')    
     parser.add_argument('--max_completion_tokens', type=int, help='Max completion tokens (optional)')
 
     args = parser.parse_args()
@@ -146,8 +147,7 @@ if __name__ == "__main__":
     if args.start_gradio:
         if not all([
             args.api_key,
-            args.model,
-            args.reasoning_effort is not None
+            args.model is not None
         ]):
             print("<oAI_o1_gS.py internal> Missing parameters for Gradio interface")
             sys.exit(1)
