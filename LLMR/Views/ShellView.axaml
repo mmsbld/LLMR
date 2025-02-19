@@ -1,0 +1,120 @@
+<Window
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="clr-namespace:LLMR.Views"
+  xmlns:vm="clr-namespace:LLMR.ViewModels"
+  xmlns:model="clr-namespace:LLMR.Model"
+  x:Class="LLMR.Views.ShellView"
+  x:DataType="vm:ShellViewModel"
+  Title="LLM Runner - Modern Shell"
+  Width="1200"
+  Height="800"
+  MinWidth="900">
+  
+  <!-- Resource MergedDictionaries -->
+  <Window.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://LLMR/Styles/Theme.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Window.Resources>
+  
+  <!-- Main Layout -->
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    
+    <!-- Top Bar -->
+    <Border Grid.Row="0" Background="{StaticResource MenuBackgroundBrush}" Height="60">
+      <DockPanel LastChildFill="True">
+        <!-- Logo on the Left -->
+        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+          <Image Source="avares://LLMR/Assets/logo.png" Height="40" Stretch="Uniform"/>
+        </StackPanel>
+        <!-- Optional Menu -->
+        <Menu DockPanel.Dock="Left" Margin="20,0">
+          <MenuItem Header="File">
+            <MenuItem Header="Exit"/>
+          </MenuItem>
+          <MenuItem Header="Settings">
+            <MenuItem Header="Preferences"/>
+          </MenuItem>
+          <MenuItem Header="Help">
+            <MenuItem Header="About"/>
+          </MenuItem>
+        </Menu>
+        <!-- Server Status on the Right -->
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
+          <TextBlock Text="Server Status: " FontWeight="Bold" Margin="0,0,5,0"/>
+          <TextBlock Text="{Binding ServerStatus}" Foreground="{Binding ServerStatusColor}" FontWeight="Bold"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+    
+    <!-- Main Content Area -->
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="250"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      
+      <!-- Side Navigation -->
+      <Border Grid.Column="0" Background="{StaticResource MenuBackgroundBrush}">
+        <StackPanel Margin="10">
+          <Button Content="Home / Login" Command="{Binding Navigation.NavigateToLogin}" Margin="0,10,0,0"/>
+          <Button Content="Model Settings" Command="{Binding Navigation.NavigateToModelSettings}" Margin="0,10,0,0"/>
+          <Button Content="Multicaller" Command="{Binding Navigation.NavigateToMulticallerModelSettings}" Margin="0,10,0,0"/>
+          <Button Content="Link Generation" Command="{Binding Navigation.NavigateToLinkGeneration}" Margin="0,10,0,0"/>
+          <Button Content="Data Collection" Command="{Binding Navigation.NavigateToDataCollection}" Margin="0,10,0,0"/>
+        </StackPanel>
+      </Border>
+      
+      <!-- Content Area -->
+      <Grid Grid.Column="1" Margin="20">
+        <!-- Child views whose visibility is controlled by the Navigation properties -->
+        <local:LoginView IsVisible="{Binding Navigation.ShowLogin}" />
+        <local:ModuleSelectionView  IsVisible="{Binding Navigation.ShowModelSettings, Converter={StaticResource InverseBooleanConverter}}" Margin="0,10,0,0"/>
+        <local:ModelSettingsView IsVisible="{Binding Navigation.ShowModelSettings}" />
+        <local:ModelSettingsView IsVisible="{Binding Navigation.ShowMulticallerModelSettings}" Tag="Multicaller" />
+        <local:LinkGenerationView IsVisible="{Binding Navigation.ShowLinkGeneration}" />
+        <local:DataCollectionView IsVisible="{Binding Navigation.ShowDataCollection}" />
+      </Grid>
+    </Grid>
+    
+    <!-- Console at the Bottom -->
+    <Expander Grid.Row="2" Header="Console" IsExpanded="{Binding IsConsoleExpanded, Mode=TwoWay}">
+      <Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Command="{Binding CopyLastTenMessagesCommand}" Content="Copy Last 10" Margin="5"/>
+          <Button Command="{Binding CopyAllMessagesCommand}" Content="Copy All" Margin="5"/>
+          <Button Command="{Binding ToggleShowTimestampCommand}" Content="Toggle Timestamps" Margin="5"/>
+        </StackPanel>
+        <Border Margin="0,40,0,0" Padding="10" Background="White">
+          <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding ConsoleMessages}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="model:ConsoleMessage">
+                  <TextBlock TextWrapping="Wrap" FontSize="13" FontFamily="Consolas, Lucida Console">
+                    <Run Text="["/>
+                    <Run Text="{Binding Timestamp}" />
+                    <Run Text="] "/>
+                    <Run Text="{Binding Text}" />
+                  </TextBlock>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Border>
+      </Grid>
+    </Expander>
+    
+    <!-- Busy Overlay -->
+    <Border Grid.RowSpan="3" IsVisible="{Binding IsBusy}" Background="#80000000">
+      <TextBlock Text="Please wait..." Foreground="#FFFFFF" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Border>
+  </Grid>
+</Window>

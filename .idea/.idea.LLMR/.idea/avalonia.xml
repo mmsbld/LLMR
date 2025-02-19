@@ -4,8 +4,15 @@
     <option name="projectPerEditor">
       <map>
         <entry key="LLMR/App.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Styles/Theme.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Views/DataCollectionView.axaml" value="LLMR/LLMR.csproj" />
         <entry key="LLMR/Views/InputDialog.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Views/LinkGenerationView.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Views/LoginView.axaml" value="LLMR/LLMR.csproj" />
         <entry key="LLMR/Views/MainWindow.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Views/ModelSettingsView.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Views/ModuleSelectionView.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Views/ShellView.axaml" value="LLMR/LLMR.csproj" />
       </map>
     </option>
   </component>

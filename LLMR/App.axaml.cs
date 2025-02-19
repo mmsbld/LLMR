@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls;
@@ -23,11 +24,11 @@ public partial class App : Application
         InitializeDataDirectories();
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
+            desktop.MainWindow = new ShellView
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = new ShellViewModel(),
             };
-            TopLevel = TopLevel.GetTopLevel(desktop.MainWindow); //Note by Moe: still... not mvvm conform!
+            TopLevel = TopLevel.GetTopLevel(desktop.MainWindow) ?? throw new InvalidOperationException("<App.ax> TopLevel MainWindow of desktop is null."); //Note by Moe: still... not mvvm conform!
         }
 
         base.OnFrameworkInitializationCompleted();

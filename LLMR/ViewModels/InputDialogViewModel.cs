@@ -6,9 +6,9 @@ namespace LLMR.ViewModels;
 
 public class InputDialogViewModel : ReactiveObject
 {
-    private string _title;
-    private string _message;
-    private string _userInput;
+    private string _title = string.Empty;
+    private string _message = string.Empty;
+    private string _userInput = string.Empty;
 
     public string Title
     {

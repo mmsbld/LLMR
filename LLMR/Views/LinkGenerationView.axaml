@@ -1,0 +1,40 @@
+<!-- Views/LinkGenerationView.axaml -->
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:LLMR.ViewModels"
+    x:Class="LLMR.Views.LinkGenerationView"
+    x:DataType="vm:ShellViewModel"
+    Margin="10">
+
+    <ScrollViewer>
+        <StackPanel Spacing="10">
+
+            <TextBlock Text="Link Generation" FontSize="18" FontWeight="Bold"/>
+
+            <TextBlock Text="Local Link:" FontWeight="Bold"/>
+            <TextBox 
+                Text="{Binding CurrentModelSettingsModule.GeneratedLocalLink}"
+                IsReadOnly="True"/>
+
+            <TextBlock Text="Public Link:" FontWeight="Bold"/>
+            <TextBox 
+                Text="{Binding CurrentModelSettingsModule.GeneratedPublicLink}"
+                IsReadOnly="True"/>
+
+            <Image 
+                Source="{Binding GeneratedPublicLinkQRCode}"
+                Width="200" Height="200"/>
+
+            <Button
+                Content="Stop Server"
+                Command="{Binding StopGradioServerCommand}"
+                Margin="0,20,0,0"/>
+
+            <Button
+                Content="Back to Model Settings"
+                Command="{Binding BackToModelSettingsCommand}"
+                Margin="0,5,0,0"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

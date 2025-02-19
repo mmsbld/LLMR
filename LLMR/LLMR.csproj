@@ -6,7 +6,7 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <MacOSBundleIcon>Assets/512_300dpi_full.icns</MacOSBundleIcon>
         <UseAppHost>true</UseAppHost>
-        <Version>0.4.4</Version>
+        <Version>0.5.0</Version>
         <Authors>Moritz Seibold</Authors>
         <PublishSingleFile>true</PublishSingleFile>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>

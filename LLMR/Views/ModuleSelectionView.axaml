@@ -1,0 +1,34 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i="https://github.com/projektanker/icons.avalonia"
+    x:Class="LLMR.Views.ModuleSelectionView"
+    x:Name="Root">
+    <ScrollViewer Margin="10">
+        <StackPanel Spacing="10">
+            <TextBlock Text="Select a Module" FontSize="18" FontWeight="Bold" />
+            <ItemsControl ItemsSource="{Binding AvailableModuleTypes}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Background="Transparent" BorderThickness="0"
+                                Command="{Binding SelectModuleCommand, ElementName=Root}"
+                                CommandParameter="{Binding}">
+                            <Border Background="White" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                                <StackPanel Spacing="5">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <i:Icon Value="fa-solid fa-robot" Width="24" Height="24" />
+                                        <TextBlock Text="{Binding}" FontWeight="Bold" FontSize="14" />
+                                    </StackPanel>
+                                    <TextBlock Text="Short description about this module..."
+                                               FontStyle="Italic" Opacity="0.8" />
+                                </StackPanel>
+                            </Border>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button Content="Confirm Module Selection"
+                    Command="{Binding SelectModuleCommand, ElementName=Root}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

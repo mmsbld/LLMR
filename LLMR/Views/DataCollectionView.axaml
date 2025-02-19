@@ -1,0 +1,65 @@
+<!-- Views/DataCollectionView.axaml -->
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:LLMR.ViewModels"
+    x:Class="LLMR.Views.DataCollectionView"
+    x:DataType="vm:ShellViewModel"
+    Margin="10">
+
+  <Grid ColumnDefinitions="2*,5,3*" RowDefinitions="Auto,*">
+    <!-- Add/Remove Folders -->
+    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+      <Button 
+          Content="Add Folder" 
+          Command="{Binding AddFolderCommand}"/>
+      <Button 
+          Content="Remove" 
+          Command="{Binding RemoveItemCommand}"/>
+    </StackPanel>
+
+    <!-- TreeView of chat histories -->
+    <TreeView
+        Grid.Row="1" Grid.Column="0"
+        ItemsSource="{Binding ChatHistoryCollection.Categories}"
+        SelectedItem="{Binding ChatHistoryCollection.SelectedFile}"
+        Margin="5">
+      <!-- If you have special data templates, define them here or in your global resources -->
+    </TreeView>
+
+    <!-- GridSplitter -->
+    <GridSplitter 
+        Grid.Row="0" Grid.RowSpan="2"
+        Grid.Column="1"
+        Width="5"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Stretch"/>
+
+    <!-- Selected file details / conversation preview -->
+    <ScrollViewer Grid.RowSpan="2" Grid.Row="0" Grid.Column="2">
+      <StackPanel Margin="10">
+
+        <!-- Possibly show selected file name, parameters, conversation, etc. -->
+        <TextBlock 
+            Text="Selected File Details" 
+            FontSize="16" 
+            FontWeight="Bold"/>
+
+        <!-- For example, you can replicate your old layout here 
+             showing ChatHistoryCollection data. -->
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Buttons to download as PDF, etc. (bottom left) -->
+    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
+      <Button 
+          Content="Download All" 
+          Command="{Binding DownloadAllFilesCommand}"
+          Margin="5"/>
+      <Button 
+          Content="Download Selected As PDF" 
+          Command="{Binding DownloadSelectedAsPdfCommand}"
+          Margin="5"/>
+    </StackPanel>
+  </Grid>
+</UserControl>

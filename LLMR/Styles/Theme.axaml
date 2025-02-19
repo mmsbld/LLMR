@@ -1,0 +1,44 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.MergedDictionaries>
+    <!-- Use Fluent theme since Avalonia.Themes.Default is not available -->
+    <ResourceInclude Source="avares://Avalonia.Themes.Fluent/Accents/BaseLight.xaml" />
+  </ResourceDictionary.MergedDictionaries>
+
+  <!-- BRAND COLORS -->
+  <Color x:Key="BrandPrimaryColor">#008CFF</Color>
+  <Color x:Key="BrandSecondaryColor">#00BFA5</Color>
+  <Color x:Key="BrandAccentColor">#FF5722</Color>
+  <Color x:Key="BrandTextColor">#212121</Color>
+  <Color x:Key="BrandBackgroundColor">#FAFAFA</Color>
+  <Color x:Key="BrandMenuBackgroundColor">#ECECEC</Color>
+
+  <!-- Brushes -->
+  <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource BrandPrimaryColor}" />
+  <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource BrandSecondaryColor}" />
+  <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource BrandAccentColor}" />
+  <SolidColorBrush x:Key="TextBrush" Color="{StaticResource BrandTextColor}" />
+  <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BrandBackgroundColor}" />
+  <SolidColorBrush x:Key="MenuBackgroundBrush" Color="{StaticResource BrandMenuBackgroundColor}" />
+
+  <!-- Additional Brushes -->
+  <Color x:Key="DangerColor">#E57373</Color>
+  <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}" />
+  <Color x:Key="SuccessColor">#4CAF50</Color>
+  <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" />
+
+  <!-- Wrap implicit styles inside a <Styles> element -->
+  <Styles>
+    <Style Selector="Button">
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+      <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+      <Setter Property="Margin" Value="4" />
+      <Setter Property="Padding" Value="10,5" />
+      <Setter Property="CornerRadius" Value="4" />
+    </Style>
+    <Style Selector="Button:hover">
+      <Setter Property="Background" Value="{StaticResource SecondaryBrush}" />
+    </Style>
+  </Styles>
+</ResourceDictionary>

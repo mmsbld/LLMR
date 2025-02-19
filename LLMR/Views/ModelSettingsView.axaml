@@ -1,0 +1,38 @@
+<!-- Views/ModelSettingsView.axaml -->
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:LLMR.ViewModels"
+    x:Class="LLMR.Views.ModelSettingsView"
+    x:DataType="vm:ShellViewModel">
+
+    <ScrollViewer Margin="10">
+        <StackPanel Spacing="10">
+
+            <TextBlock Text="Model Settings" FontSize="18" FontWeight="Bold"/>
+
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock Text="Selected Model:" FontWeight="Bold"/>
+                <ComboBox 
+                    ItemsSource="{Binding CurrentModelSettingsModule.AvailableModels}"
+                    SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}"
+                    Width="300"/>
+            </StackPanel>
+
+            <!-- Display any parameters -->
+            <ItemsControl ItemsSource="{Binding CurrentModelSettingsModule.Parameters}">
+                <!-- 
+           You can keep your existing data templates for 
+           IntParameter, DoubleParameter, etc. 
+           or do a simplified approach here.
+        -->
+            </ItemsControl>
+
+            <!-- Button to generate link -->
+            <Button
+                Content="Generate Link"
+                Command="{Binding GenerateLinkCommand}"
+                Margin="0,20,0,0"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
