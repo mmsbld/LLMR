@@ -286,7 +286,7 @@ sys.stderr = StdErrRedirector()
         using (Py.GIL())
         {
             string[] requiredPackages = { "requests", "openai", "gradio" };
-            string[] requiredVersions = { "2.31", "1.54", "5.1" };
+            string[] requiredVersions = { "2.31", "1.63.2", "5.16.1" };
 
             for (var i = 0; i < requiredPackages.Length; i++)
             {

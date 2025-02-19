@@ -74,7 +74,7 @@ conda install -y pip || {
     >&2 echo "<ip_mac.sh> Failed to install pip."
     exit 1
 }
-"$PYTHON_INSTALL_DIR/envs/myenv/bin/pip" install requests==2.31 openai==1.54 gradio==5.1.0 || {
+"$PYTHON_INSTALL_DIR/envs/myenv/bin/pip" install requests==2.31 openai==1.63.2 gradio==5.16.1 || {
     >&2 echo "<ip_mac.sh> Failed to install required Python packages."
     exit 1
 }
