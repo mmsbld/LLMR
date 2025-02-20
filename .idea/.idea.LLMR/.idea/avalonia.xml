@@ -6,6 +6,11 @@
         <entry key="LLMR/App.axaml" value="LLMR/LLMR.csproj" />
         <entry key="LLMR/Views/InputDialog.axaml" value="LLMR/LLMR.csproj" />
         <entry key="LLMR/Views/MainWindow.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Views/Tabs/DataCollectionTab.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Views/Tabs/LinkGenerationTab.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Views/Tabs/LoginTab.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Views/Tabs/ModelSettingsTab.axaml" value="LLMR/LLMR.csproj" />
+        <entry key="LLMR/Views/Tabs/MulticallerTab.axaml" value="LLMR/LLMR.csproj" />
       </map>
     </option>
   </component>

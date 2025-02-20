@@ -1,0 +1,130 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
+             xmlns:vm="clr-namespace:LLMR.ViewModels"
+             x:Class="LLMR.Views.Tabs.DataCollectionTab"
+             x:DataType="vm:MainWindowViewModel">
+    <Grid ColumnDefinitions="2*,5,3*" RowDefinitions="Auto,*,Auto">
+        <!-- Add/Remove Buttons -->
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
+            <Button Command="{Binding AddFolderCommand}" Width="30" Height="30" Classes="secondary">
+                <i:Icon Value="fa-solid fa-plus" Width="16" Height="16" />
+                <ToolTip.Tip>
+                    <ToolTip Content="Add Folder" />
+                </ToolTip.Tip>
+            </Button>
+            <Button Command="{Binding RemoveItemCommand}" Width="30" Height="30" Classes="danger">
+                <i:Icon Value="fa-solid fa-minus" Width="16" Height="16" />
+                <ToolTip.Tip>
+                    <ToolTip Content="Remove Item" />
+                </ToolTip.Tip>
+            </Button>
+        </StackPanel>
+        <!-- List of filenames -->
+        <TreeView x:Name="ChatHistoryTreeView"
+                  Grid.Row="1" Grid.Column="0"
+                  ItemsSource="{Binding ChatHistoryCollection.Categories}"
+                  SelectedItem="{Binding ChatHistoryCollection.SelectedFile}"
+                  BorderThickness="1"
+                  BorderBrush="{DynamicResource BorderBrush}"
+                  CornerRadius="4">
+            <TreeView.ContextMenu>
+                <ContextMenu DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
+                             x:DataType="vm:MainWindowViewModel">
+                    <MenuItem Header="Add Folder" Command="{Binding AddFolderCommand}" />
+                    <MenuItem Header="Remove" Command="{Binding RemoveItemCommand}" />
+                    <MenuItem Header="Rename" Command="{Binding RenameItemCommand}" />
+                </ContextMenu>
+            </TreeView.ContextMenu>
+        </TreeView>
+        <!-- GridSplitter -->
+        <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Width="5"
+                      Background="{DynamicResource BorderBrush}"
+                      HorizontalAlignment="Center" VerticalAlignment="Stretch" />
+        <!-- Selected File -->
+        <ScrollViewer Grid.Row="0" Grid.Column="2" Grid.RowSpan="3">
+            <StackPanel Margin="10">
+                <!-- Settings Section -->
+                <StackPanel Margin="0,0,0,20">
+                    <TextBox
+                        Text="{Binding ChatHistoryCollection.Settings.SelectedModel, Mode=OneWay, StringFormat=Model: {0}}"
+                        FontSize="13" IsReadOnly="True" BorderThickness="0" Background="Transparent" />
+                    <TextBox Text="{Binding ChatHistoryCollection.ApiKey, Mode=OneWay, StringFormat=API Key: {0}}"
+                             FontSize="13" IsReadOnly="True" BorderThickness="0" Background="Transparent"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             ScrollViewer.VerticalScrollBarVisibility="Disabled" />
+                    <TextBox
+                        Text="{Binding ChatHistoryCollection.DownloadedOn, Mode=OneWay, StringFormat=Downloaded On: {0}}"
+                        FontSize="13" IsReadOnly="True" BorderThickness="0" Background="Transparent" />
+                </StackPanel>
+                <!-- Parameters -->
+                <ItemsControl ItemsSource="{Binding ChatHistoryCollection.Settings.Parameters}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="0,5">
+                                <TextBox Text="{Binding Name, Mode=OneWay}" Width="150" IsReadOnly="True"
+                                         BorderThickness="0" Background="Transparent" />
+                                <TextBox Text="{Binding Value, Mode=OneWay}" Width="200" IsReadOnly="True"
+                                         BorderThickness="0" Background="Transparent" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <!-- Conversation -->
+                <TextBlock Text="Conversation" FontWeight="Bold" FontSize="15" Margin="0,0,0,10" />
+                <ItemsControl ItemsSource="{Binding ChatHistoryCollection.Conversation}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,5,0,5">
+                                <TextBlock Text="{Binding Label}" FontWeight="Bold"
+                                           IsVisible="{Binding Label, Converter={StaticResource NullToBoolConverter}}" />
+                                <StackPanel Margin="0,5,0,0"
+                                            IsVisible="{Binding User, Converter={StaticResource NullToBoolConverter}}">
+                                    <TextBlock Text="User:" FontWeight="Bold" />
+                                    <SelectableTextBlock Text="{Binding User}" TextWrapping="Wrap" FontSize="13"
+                                                         Margin="0,2,0,0" />
+                                </StackPanel>
+                                <StackPanel Margin="0,5,0,0"
+                                            IsVisible="{Binding Assistant, Converter={StaticResource NullToBoolConverter}}">
+                                    <TextBlock Text="Assistant:" FontWeight="Bold" />
+                                    <SelectableTextBlock Text="{Binding Assistant}" TextWrapping="Wrap" FontSize="13"
+                                                         Margin="0,2,0,0" />
+                                </StackPanel>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+        <!-- Download Buttons -->
+        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Command="{Binding DownloadAllFilesCommand}"
+                    HorizontalAlignment="Center"
+                    MinHeight="30"
+                    MinWidth="100"
+                    Classes="secondary">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <i:Icon Value="fa fa-download" Width="18" Height="18" Margin="0" />
+                    <TextBlock Text="All" VerticalAlignment="Center" />
+                </StackPanel>
+                <ToolTip.Tip>
+                    <ToolTip Content="Download all JSON files." />
+                </ToolTip.Tip>
+            </Button>
+            <Button Command="{Binding DownloadSelectedAsPdfCommand}"
+                    HorizontalAlignment="Center"
+                    MinHeight="30"
+                    MinWidth="100"
+                    Classes="secondary">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <i:Icon Value="fa fa-download" Width="18" Height="18" Margin="0" />
+                    <TextBlock Text="Selected" VerticalAlignment="Center" />
+                </StackPanel>
+                <ToolTip.Tip>
+                    <ToolTip Content="Download selected JSON file." />
+                </ToolTip.Tip>
+            </Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

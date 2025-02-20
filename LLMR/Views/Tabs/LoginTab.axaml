@@ -1,0 +1,161 @@
+<!-- <UserControl xmlns="https://github.com/avaloniaui" -->
+<!--              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" -->
+<!--              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" -->
+<!--              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" -->
+<!--              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" -->
+<!--              x:Class="LLMR.Views.Tabs.LoginTab"> -->
+<!--     Welcome to Avalonia! -->
+<!-- </UserControl> -->
+
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
+             xmlns:vm="clr-namespace:LLMR.ViewModels"
+             x:Class="LLMR.Views.Tabs.LoginTab"
+             x:DataType="vm:MainWindowViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="20">
+      <!-- Logo & Credits -->
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+          <Grid>
+            <Image Width="200" Source="{DynamicResource LogoImageSource}" HorizontalAlignment="Left"/>
+            <TextBlock Text="0.4.4 (alpha)"
+                       FontFamily="Consolas, Courier New, monospace"
+                       FontWeight="Bold"
+                       FontSize="11"
+                       Foreground="{DynamicResource TextForegroundBrush}"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom"
+                       Margin="0,-12,0,0"
+                       FontStyle="Italic"/>
+          </Grid>
+        </Grid>
+        <StackPanel Grid.Column="1" Margin="0" VerticalAlignment="Top" HorizontalAlignment="Right">
+          <TextBlock Text="LLM Runner - Research Helper"
+                     FontFamily="Consolas, Courier New, monospace"
+                     FontWeight="Bold"
+                     FontSize="9"
+                     HorizontalAlignment="Right"/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0">
+            <i:Icon Value="fa-brands fa-github" Width="18" Height="18" Margin="0,0,5,0"/>
+            <TextBlock Text="LLM Runner"
+                       FontFamily="Consolas, Courier New, monospace"
+                       FontWeight="Bold"
+                       FontSize="9"
+                       Foreground="Blue"
+                       TextDecorations="Underline"
+                       Cursor="Hand"
+                       PointerPressed="OnLinkClicked"/>
+          </StackPanel>
+          <TextBlock Text="private pre-alpha version!"
+                     FontFamily="Consolas, Courier New, monospace"
+                     FontWeight="Bold"
+                     FontSize="9"
+                     HorizontalAlignment="Right"/>
+          <TextBlock Text="(C) 2024"
+                     FontFamily="Consolas, Courier New, monospace"
+                     FontWeight="Bold"
+                     FontSize="9"
+                     HorizontalAlignment="Right"/>
+        </StackPanel>
+      </Grid>
+
+      <!-- Python Path -->
+      <TextBlock Text="Python Path:" Classes="bold" Margin="0,20,0,8"/>
+      <TextBox Text="{Binding PythonPath}"
+               IsEnabled="{Binding IsPythonPathLocked, Converter={StaticResource InverseBooleanConverter}}"
+               Margin="0,0,0,16"/>
+
+      <!-- Module Selection -->
+      <TextBlock Text="Select Module:" Classes="bold" Margin="0,0,0,8"/>
+      <ComboBox ItemsSource="{Binding AvailableModuleTypes}"
+                IsEnabled="{Binding IsPythonPathLocked, Converter={StaticResource InverseBooleanConverter}}"
+                SelectedItem="{Binding SelectedModelType}"
+                Margin="0,0,0,16"/>
+
+      <!-- API Key Management -->
+      <TextBlock Text="Your API key / token:" Classes="bold" Margin="0,0,0,8"/>
+      <StackPanel Orientation="Horizontal">
+        <ComboBox ItemsSource="{Binding SavedApiKeys}"
+                  SelectedItem="{Binding SelectedApiKey}"
+                  MinHeight="30"
+                  MinWidth="200"
+                  Margin="5">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Name}"/>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button Command="{Binding AddNewApiKeyCommand}"
+                HorizontalAlignment="Center"
+                MinHeight="30"
+                MinWidth="100"
+                Classes="secondary"
+                Margin="5">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <i:Icon Value="fa-solid fa-user-plus" Width="18" Height="18" Margin="0"/>
+            <TextBlock Text="Add" VerticalAlignment="Center"/>
+          </StackPanel>
+          <ToolTip.Tip>
+            <ToolTip Content="Add a new API key."/>
+          </ToolTip.Tip>
+        </Button>
+        <Button Command="{Binding RemoveApiKeyCommand}"
+                IsVisible="{Binding IsApiKeySelected}"
+                HorizontalAlignment="Center"
+                MinHeight="30"
+                MinWidth="100"
+                Classes="danger"
+                Margin="5">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <i:Icon Value="fa-solid fa-user-minus" Width="18" Height="18" Margin="0"/>
+            <TextBlock Text="Remove" VerticalAlignment="Center"/>
+          </StackPanel>
+          <ToolTip.Tip>
+            <ToolTip Content="Remove the selected API key."/>
+          </ToolTip.Tip>
+        </Button>
+      </StackPanel>
+
+      <!-- Action Buttons -->
+      <StackPanel Orientation="Horizontal">
+        <Button Command="{Binding EnsurePythonEnvironmentCommand}"
+                HorizontalAlignment="Center"
+                MinWidth="150"
+                MinHeight="40"
+                Width="200"
+                Classes="confirm"
+                Margin="5">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <i:Icon Value="fa-solid fa-check" Width="18" Height="18" Margin="0,0,8,0"/>
+            <TextBlock Text="Ensure Python" VerticalAlignment="Center"/>
+          </StackPanel>
+          <ToolTip.Tip>
+            <ToolTip Content="Ensure that python and all necessary packages will be placed in a folder where LLMRunner can access it."/>
+          </ToolTip.Tip>
+        </Button>
+        <Button Command="{Binding ConfirmLoginCommand}"
+                HorizontalAlignment="Center"
+                MinWidth="150"
+                MinHeight="40"
+                Width="200"
+                Classes="confirm"
+                Margin="5">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <i:Icon Value="fa-solid fa-check" Width="18" Height="18" Margin="0,0,8,0"/>
+            <TextBlock Text="Confirm" VerticalAlignment="Center"/>
+          </StackPanel>
+          <ToolTip.Tip>
+            <ToolTip Content="Continue with the selected module and API key."/>
+          </ToolTip.Tip>
+        </Button>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
