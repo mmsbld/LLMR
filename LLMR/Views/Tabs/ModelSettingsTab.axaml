@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:i="https://github.com/projektanker/icons.avalonia"
              xmlns:vm="clr-namespace:LLMR.ViewModels"
+             xmlns:modelParameters="clr-namespace:LLMR.Model.ModelSettingModulesManager.ModelParameters"
              x:Class="LLMR.Views.Tabs.ModelSettingsTab"
              x:DataType="vm:MainWindowViewModel">
     <ScrollViewer>
@@ -13,7 +14,7 @@
                           SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}"
                           Margin="0,0,0,12"/>
             </Grid>
-            <ItemsControl ItemsSource="{Binding CurrentModelSettingsModule.Parameters}"/>
+            <ItemsControl ItemsSource="{Binding CurrentModelSettingsModule.Parameters}" />
             <Button Command="{Binding GenerateLinkCommand}"
                     HorizontalAlignment="Center"
                     MinWidth="180"

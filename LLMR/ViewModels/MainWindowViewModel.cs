@@ -83,7 +83,7 @@ namespace LLMR.ViewModels
 
         // commands for switching tabs (as user controls) and opening windows
         public ReactiveCommand<Unit, Unit> SwitchToMainTabCommand { get; }
-        public ReactiveCommand<Unit, Unit> SwitchToDataCollectionCommand { get; }
+        public ReactiveCommand<Unit, Unit> SwitchToSecondaryTabCommand { get; }
         public ReactiveCommand<Unit, Unit> OpenAboutCommand { get; }
         public ReactiveCommand<Unit, Unit> OpenSettingsCommand { get; }
 
@@ -308,23 +308,12 @@ namespace LLMR.ViewModels
             // New commands for view switching: (ToDo: Model / Multicaller / Link Gen / ...
             SwitchToMainTabCommand = ReactiveCommand.Create(() =>
             {
-                IsLoginVisible = true;
-                IsModelSettingsVisible = false;
-                IsMulticallerTabVisible = false;
-                IsLinkGenerationVisible = false;
-                IsDataCollectionVisible = false;
-                CurrentNonDataCollectionTab = "Login";
+                ViewManager.SwitchToPrimaryTab();
             });
 
-            SwitchToDataCollectionCommand = ReactiveCommand.Create(() =>
+            SwitchToSecondaryTabCommand = ReactiveCommand.Create(() =>
             {
-                LoadChatHistories();
-                IsLoginVisible = false;
-                IsModelSettingsVisible = false;
-                IsMulticallerTabVisible = false;
-                IsLinkGenerationVisible = false;
-                IsDataCollectionVisible = true;
-                int lala = 42;
+                ViewManager.SwitchToSecondaryTab();
                 
             });
 
@@ -785,9 +774,6 @@ namespace LLMR.ViewModels
                 IsServerRunning = true;
 
                 ViewManager.SwitchToLinkGeneration();
-                ViewManager.IsModelSettingsEnabled = false;
-                ViewManager.IsLinkGenerationEnabled = true;
-                ViewManager.IsDataCollectionEnabled = true;
             }
             catch (Exception e)
             {
@@ -823,13 +809,6 @@ namespace LLMR.ViewModels
                 ServerStatus = "Multicaller running";
                 ServerStatusColor = Brushes.LimeGreen;
 
-                ViewManager.SwitchToDataCollection();
-                ViewManager.IsLoginEnabled = false;
-                ViewManager.IsModelSettingsEnabled = false;
-                ViewManager.IsMulticallerModelSettingsEnabled = false;
-                ViewManager.IsLinkGenerationEnabled = false;
-                ViewManager.IsDataCollectionEnabled = true;
-
                 var endMessage = await _apiService.RunMulticallerAsync(ApiKey, CurrentModelSettingsModule);
                 ConsoleMessageManager.LogInfo($"Multicaller ended with message: {endMessage}.");
                 //ToDo: (Moe) Couldn't this lead to issues? Consider the setter logic for "IsServerRunning"!
@@ -838,11 +817,8 @@ namespace LLMR.ViewModels
                 ServerStatusColor = Brushes.Red;
                 LoadChatHistories();
 
-                ViewManager.IsLoginEnabled = false;
-                ViewManager.IsModelSettingsEnabled = false;
-                ViewManager.IsMulticallerModelSettingsEnabled = true;
-                ViewManager.IsLinkGenerationEnabled = false;
-                ViewManager.IsDataCollectionEnabled = true;
+                ViewManager.SwitchToDataCollection();
+                
             }
             catch (Exception e)
             {

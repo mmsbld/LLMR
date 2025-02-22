@@ -42,11 +42,11 @@
       </Grid.RowDefinitions>
       <!-- Main view content bound via CurrentMainView -->
       <Grid>
-        <tabs:LoginTab IsVisible="{Binding IsLoginVisible}"/>
-        <tabs:ModelSettingsTab IsVisible="{Binding IsModelSettingsVisible}"/>
-        <tabs:MulticallerTab IsVisible="{Binding IsMulticallerTabVisible}"/>
-        <tabs:LinkGenerationTab IsVisible="{Binding IsLinkGenerationVisible}"/>
-        <tabs:DataCollectionTab IsVisible="{Binding IsDataCollectionVisible}"/>
+        <tabs:LoginTab IsVisible="{Binding ViewManager.IsLoginEnabled}"/>
+        <tabs:ModelSettingsTab IsVisible="{Binding ViewManager.IsModelSettingsEnabled}"/>
+        <tabs:MulticallerTab IsVisible="{Binding ViewManager.IsMulticallerModelSettingsEnabled}"/>
+        <tabs:LinkGenerationTab IsVisible="{Binding ViewManager.IsLinkGenerationEnabled}"/>
+        <tabs:DataCollectionTab IsVisible="{Binding ViewManager.IsDataCollectionEnabled}"/>
       </Grid>
       <!-- Console Area -->
       <Expander Grid.Row="1" Header="Console" IsExpanded="{Binding IsConsoleExpanded, Mode=TwoWay}" HorizontalAlignment="Stretch">
