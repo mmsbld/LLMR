@@ -6,6 +6,7 @@
         xmlns:helpers="clr-namespace:LLMR.Helpers"
         xmlns:system="clr-namespace:System;assembly=System.Runtime"
         xmlns:model="clr-namespace:LLMR.Model"
+        xmlns:tabs="clr-namespace:LLMR.Views.Tabs"
         x:Class="LLMR.Views.MainWindow"
         x:Name="RootWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -13,7 +14,7 @@
         MinWidth="900">
   <Window.Resources>
     <ResourceDictionary>
-      <!-- Note: Do not include StyleInclude here if it is already added in App.axaml -->
+      <!-- Note: No "StyleInclude" here, as it is already added in App.axaml -->
       <helpers:NullToBoolConverter x:Key="NullToBoolConverter"/>
       <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
       <helpers:BooleanToBoldFontWeightConverter x:Key="BooleanToBoldFontWeightConverter"/>
@@ -40,7 +41,13 @@
         <RowDefinition Height="Auto"/> <!-- Console area -->
       </Grid.RowDefinitions>
       <!-- Main view content bound via CurrentMainView -->
-      <ContentControl Grid.Row="0" Content="{Binding CurrentMainView}"/>
+      <Grid>
+        <tabs:LoginTab IsVisible="{Binding IsLoginVisible}"/>
+        <tabs:ModelSettingsTab IsVisible="{Binding IsModelSettingsVisible}"/>
+        <tabs:MulticallerTab IsVisible="{Binding IsMulticallerTabVisible}"/>
+        <tabs:LinkGenerationTab IsVisible="{Binding IsLinkGenerationVisible}"/>
+        <tabs:DataCollectionTab IsVisible="{Binding IsDataCollectionVisible}"/>
+      </Grid>
       <!-- Console Area -->
       <Expander Grid.Row="1" Header="Console" IsExpanded="{Binding IsConsoleExpanded, Mode=TwoWay}" HorizontalAlignment="Stretch">
         <Grid HorizontalAlignment="Stretch">

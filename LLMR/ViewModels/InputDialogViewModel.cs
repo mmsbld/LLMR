@@ -4,7 +4,7 @@ using ReactiveUI;
 
 namespace LLMR.ViewModels;
 
-public class InputDialogViewModel : ReactiveObject
+public class InputDialogViewModel : ViewModelBase
 {
     private string _title;
     private string _message;

@@ -36,16 +36,44 @@ namespace LLMR.ViewModels
     public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         #region NEW CODE UI-REVAMP
-        
-        // NEW: holds the current main view (i.e. the content on the right)
-        private object _currentMainView;
-        public object CurrentMainView
+
+        // Instead of exposing a view instance, we expose booleans controlling which tab is visible.
+        private bool _isLoginVisible;
+        public bool IsLoginVisible
         {
-            get => _currentMainView;
-            set => this.RaiseAndSetIfChanged(ref _currentMainView, value);
+            get => _isLoginVisible;
+            set => this.RaiseAndSetIfChanged(ref _isLoginVisible, value);
         }
 
-        // NEW: returns the name of the current "main" tab (non-data collection)
+        private bool _isModelSettingsVisible;
+        public bool IsModelSettingsVisible
+        {
+            get => _isModelSettingsVisible;
+            set => this.RaiseAndSetIfChanged(ref _isModelSettingsVisible, value);
+        }
+
+        private bool _isMulticallerTabVisible;
+        public bool IsMulticallerTabVisible
+        {
+            get => _isMulticallerTabVisible;
+            set => this.RaiseAndSetIfChanged(ref _isMulticallerTabVisible, value);
+        }
+
+        private bool _isLinkGenerationVisible;
+        public bool IsLinkGenerationVisible
+        {
+            get => _isLinkGenerationVisible;
+            set => this.RaiseAndSetIfChanged(ref _isLinkGenerationVisible, value);
+        }
+
+        private bool _isDataCollectionVisible;
+        public bool IsDataCollectionVisible
+        {
+            get => _isDataCollectionVisible;
+            set => this.RaiseAndSetIfChanged(ref _isDataCollectionVisible, value);
+        }
+
+        // name of current non-data-collection tab (needed as btn label for tab switching)
         private string _currentNonDataCollectionTab;
         public string CurrentNonDataCollectionTab
         {
@@ -53,7 +81,7 @@ namespace LLMR.ViewModels
             set => this.RaiseAndSetIfChanged(ref _currentNonDataCollectionTab, value);
         }
 
-        // NEW: Commands for switching views and opening windows
+        // commands for switching tabs (as user controls) and opening windows
         public ReactiveCommand<Unit, Unit> SwitchToMainTabCommand { get; }
         public ReactiveCommand<Unit, Unit> SwitchToDataCollectionCommand { get; }
         public ReactiveCommand<Unit, Unit> OpenAboutCommand { get; }
@@ -242,7 +270,7 @@ namespace LLMR.ViewModels
             _pythonEnvironmentInitializer = new PythonEnvironmentInitializer();
 
             AvailableModuleTypes = ["OpenAI", "OpenAI o1-line", "Hugging Face Serverless Inference", "OpenAI Multicaller"];
-            SelectedModelType = "OpenAI"; // Default selection
+            SelectedModelType = "OpenAI"; // default selection
 
             ViewManager = new MainWindowViewManager();
 
@@ -269,22 +297,35 @@ namespace LLMR.ViewModels
             //ToDo: Make sure that we are allowed to use this license type! (+move to xml typed settings?)
             QuestPDF.Settings.License = LicenseType.Community;
 
-            #region NEWCODE UI-REVAMP
-            
-            CurrentMainView = new LLMR.Views.Tabs.LoginTab();
+            // INIT VISIBILITY: start with Login
+            IsLoginVisible = true;
+            IsModelSettingsVisible = false;
+            IsMulticallerTabVisible = false;
+            IsLinkGenerationVisible = false;
+            IsDataCollectionVisible = false;
             CurrentNonDataCollectionTab = "Login";
-            
+
+            // New commands for view switching: (ToDo: Model / Multicaller / Link Gen / ...
             SwitchToMainTabCommand = ReactiveCommand.Create(() =>
             {
-                CurrentMainView = new LLMR.Views.Tabs.LoginTab();
+                IsLoginVisible = true;
+                IsModelSettingsVisible = false;
+                IsMulticallerTabVisible = false;
+                IsLinkGenerationVisible = false;
+                IsDataCollectionVisible = false;
                 CurrentNonDataCollectionTab = "Login";
             });
 
             SwitchToDataCollectionCommand = ReactiveCommand.Create(() =>
             {
-                // Switch to the Data Collection view
-                CurrentMainView = new LLMR.Views.Tabs.DataCollectionTab();
                 LoadChatHistories();
+                IsLoginVisible = false;
+                IsModelSettingsVisible = false;
+                IsMulticallerTabVisible = false;
+                IsLinkGenerationVisible = false;
+                IsDataCollectionVisible = true;
+                int lala = 42;
+                
             });
 
             OpenAboutCommand = ReactiveCommand.Create(() =>
@@ -316,8 +357,7 @@ namespace LLMR.ViewModels
             ConsoleMessageManager.PrintNetworkWarning();
             ConsoleMessageManager.PrintWelcomeMessage();
         }
-
-        #endregion
+        
 
         #region Methods
 
@@ -650,13 +690,13 @@ namespace LLMR.ViewModels
                     if (CurrentModelSettingsModule.GetType() != typeof(OpenAI_Multicaller_ModelSettings)) 
                     {
                         ViewManager.SwitchToModelSettings();
-                        CurrentMainView = new LLMR.Views.Tabs.ModelSettingsTab();
+                        //CurrentMainView = new LLMR.Views.Tabs.ModelSettingsTab();
                         CurrentNonDataCollectionTab = "Model Settings";
                     }
                     else
                     {
                         ViewManager.SwitchToMulticallerModelSettings();
-                        CurrentMainView = new LLMR.Views.Tabs.MulticallerTab();
+                        //CurrentMainView = new LLMR.Views.Tabs.MulticallerTab();
                         CurrentNonDataCollectionTab = "Multicaller Settings";
                     }
                     var models = await _apiService.GetAvailableModelsAsync(ApiKey);

@@ -1,10 +1,43 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:modelParameters="clr-namespace:LLMR.Model.ModelSettingModulesManager.ModelParameters"
+             xmlns:chatHistoryManager="clr-namespace:LLMR.Model.ChatHistoryManager"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:i="https://github.com/projektanker/icons.avalonia"
              xmlns:vm="clr-namespace:LLMR.ViewModels"
              x:Class="LLMR.Views.Tabs.DataCollectionTab"
              x:DataType="vm:MainWindowViewModel">
+    
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="{x:Type modelParameters:IntParameter}">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <!-- Int parameter fields -->
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type modelParameters:DoubleParameter}">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <!-- Double parameter fields -->
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type modelParameters:StringParameter}">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <!-- String parameter fields -->
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type modelParameters:BoolParameter}">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <!-- Bool parameter fields -->
+            </StackPanel>
+        </DataTemplate>
+        <TreeDataTemplate DataType="{x:Type chatHistoryManager:ChatHistoryCategory}"
+                          ItemsSource="{Binding Items}">
+            <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+        </TreeDataTemplate>
+        <DataTemplate DataType="{x:Type chatHistoryManager:ChatHistoryFile}">
+            <TextBlock Text="{Binding Filename}" />
+        </DataTemplate>
+    </UserControl.DataTemplates>
+    
     <Grid ColumnDefinitions="2*,5,3*" RowDefinitions="Auto,*,Auto">
         <!-- Add/Remove Buttons -->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
