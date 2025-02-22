@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LLMR.ViewModels"
+             x:Class="LLMR.Views.MenuLeft"
+             x:DataType="vm:MainWindowViewModel">
+    <Border Background="White" Padding="10">
+        <StackPanel Width="230">
+            <!-- Top: Squared logo -->
+            <Image Source="avares://LLMR/Assets/logo/logo_quadratic.png"
+                   Width="80" Height="80" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+            <!-- Navigation Buttons -->
+            <StackPanel Spacing="10">
+                <Button Content="{Binding CurrentNonDataCollectionTab}" 
+                        Command="{Binding SwitchToMainTabCommand}"
+                        Classes="confirm"/>
+                <Button Content="Data Collection" 
+                        Command="{Binding SwitchToDataCollectionCommand}"
+                        Classes="secondary"/>
+            </StackPanel>
+            <!-- Server Status and controls -->
+            <StackPanel Margin="0,20,0,0" Spacing="5">
+                <TextBlock Text="Server Status:" FontWeight="Bold"/>
+                <TextBlock Text="{Binding ServerStatus}" Foreground="{Binding ServerStatusColor}"/>
+                <Button Content="Stop Server" Command="{Binding StopGradioServerCommand}" Classes="danger"/>
+                <Button Content="Restart" Command="{Binding BackToModelSettingsCommand}" Classes="secondary"/>
+            </StackPanel>
+            <!-- About and Settings Buttons -->
+            <StackPanel Margin="0,20,0,0" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                <Button Command="{Binding OpenAboutCommand}" ToolTip.Tip="About">
+                    <TextBlock Text="?" FontSize="20" FontWeight="Bold" />
+                </Button>
+                <Button Command="{Binding OpenSettingsCommand}" ToolTip.Tip="Settings">
+                    <TextBlock Text="⚙" FontSize="20"/>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -3,22 +3,20 @@
              x:Class="LLMR.App"
              xmlns:local="using:LLMR"
              xmlns:helpers="clr-namespace:LLMR.Helpers"
-             RequestedThemeVariant="Default"> <!-- Suggestion by Moe: set to Light only! -->
-    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-
+             RequestedThemeVariant="Default">
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
-             
+
     <Application.Resources>
         <ResourceDictionary>
-            <!-- my resources -->
             <helpers:NullToBoolConverter x:Key="NullToBoolConverter"/>
             <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
         </ResourceDictionary>
     </Application.Resources>
-  
+
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://LLMR/Styles.axaml"/>
     </Application.Styles>
 </Application>

@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="LLMR.Views.AboutWindow"
+        Title="About LLM Runner" Width="400" Height="300"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="20" Spacing="10">
+        <!-- Full logo -->
+        <Image Source="avares://LLMR/Assets/logo/logo_full.png" Width="200" HorizontalAlignment="Center"/>
+        <!-- App name -->
+        <TextBlock Text="LLM Runner" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <!-- Version -->
+        <TextBlock Text="Version: 0.6 (alpha)" HorizontalAlignment="Center"/>
+        <!-- GitHub link (ToDo: missing icon!) -->
+        <TextBlock Text="GitHub: https://github.com/mmsbld/LLMR"  
+                   Foreground="Blue" 
+                   TextDecorations="Underline" 
+                   HorizontalAlignment="Center"/>
+        <!-- Close button -->
+        <Button Content="Close" Width="80" HorizontalAlignment="Center" Click="CloseButton_Click"/>
+    </StackPanel>
+</Window>

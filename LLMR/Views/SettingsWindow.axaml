@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:LLMR.ViewModels"
+        x:Class="LLMR.Views.SettingsWindow"
+        x:DataType="vm:SettingsViewModel"
+        Title="Settings" Width="500" Height="200"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="20" Spacing="10">
+        <TextBlock Text="Settings" Classes="header" HorizontalAlignment="Center"/>
+        <CheckBox IsChecked="{Binding ShowCompatibleLLMsOnly}" Content="Show compatible LLMs only"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="5">
+            <TextBlock Text="Path to JSON files:" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding JsonFilesPath}" Width="300"/>
+            <Button Content="Browse" Width="80"/>
+        </StackPanel>
+        <Button Content="Close" Width="80" HorizontalAlignment="Center" Click="CloseButton_Click"/>
+    </StackPanel>
+</Window>

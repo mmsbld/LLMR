@@ -1,463 +1,127 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:LLMR.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="https://github.com/projektanker/icons.avalonia"
+        xmlns:local="using:LLMR.Views"
         xmlns:helpers="clr-namespace:LLMR.Helpers"
-        xmlns:tabs="using:LLMR.Views.Tabs"
-        xmlns:modelParameters="clr-namespace:LLMR.Model.ModelSettingModulesManager.ModelParameters"
-        xmlns:chatHistoryManager="clr-namespace:LLMR.Model.ChatHistoryManager"
         xmlns:system="clr-namespace:System;assembly=System.Runtime"
         xmlns:model="clr-namespace:LLMR.Model"
-        mc:Ignorable="d"
-        x:Name="RootWindow"
         x:Class="LLMR.Views.MainWindow"
+        x:Name="RootWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/512_300dpi.png"
-        Title="LLMR"
-        Width="1200" Height="800"
-        MinWidth="900"
-        FontFamily="Segoe UI, Arial, sans-serif"
-        Background="{DynamicResource WindowBackgroundBrush}">
-
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Light">
-                    <!-- Light Theme Brushes -->
-                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#F5F5F5" />
-                    <SolidColorBrush x:Key="TextForegroundBrush" Color="#444444" />
-                    <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#E0E0E0" />
-                    <SolidColorBrush x:Key="ButtonForegroundBrush" Color="#000000" />
-                    <SolidColorBrush x:Key="ButtonBorderBrush" Color="#BDBDBD" />
-                    <SolidColorBrush x:Key="DangerButtonBackgroundBrush" Color="#E57373" />
-                    <SolidColorBrush x:Key="DangerButtonForegroundBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="ConfirmButtonBackgroundBrush" Color="#205322" />
-                    <SolidColorBrush x:Key="ConfirmButtonForegroundBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="BorderBrush" Color="#BDBDBD" />
-                    <SolidColorBrush x:Key="ConsoleBackgroundBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="ConsoleTextBrush" Color="#000000" />
-                    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="#888888" />
-                    <SolidColorBrush x:Key="TimestampForegroundBrush" Color="#1F5222" />
-                    <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="#F0F0F0" />
-                    <Bitmap x:Key="LogoImageSource">avares://LLMR/Assets/logo_wide.png</Bitmap>
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="Dark">
-                    <!-- Dark Theme Brushes -->
-                    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#1E1E1E" />
-                    <SolidColorBrush x:Key="TextForegroundBrush" Color="#CCCCCC" />
-                    <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#3A3A3A" />
-                    <SolidColorBrush x:Key="ButtonForegroundBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="ButtonBorderBrush" Color="#555555" />
-                    <SolidColorBrush x:Key="DangerButtonBackgroundBrush" Color="#D32F2F" />
-                    <SolidColorBrush x:Key="DangerButtonForegroundBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="ConfirmButtonBackgroundBrush" Color="#388E3C" />
-                    <SolidColorBrush x:Key="ConfirmButtonForegroundBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="BorderBrush" Color="#555555" />
-                    <SolidColorBrush x:Key="ConsoleBackgroundBrush" Color="#2D2D2D" />
-                    <SolidColorBrush x:Key="ConsoleTextBrush" Color="#FFFFFF" />
-                    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="#AAAAAA" />
-                    <SolidColorBrush x:Key="TimestampForegroundBrush" Color="#80C080" />
-                    <SolidColorBrush x:Key="ToolbarBackgroundBrush" Color="#2D2D2D" />
-                    <Bitmap x:Key="LogoImageSource">avares://LLMR/Assets/logo_wide_DARK.png</Bitmap>
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
-
-            <!-- Existing Resources -->
-            <helpers:PercentageConverter x:Key="PercentageConverter" />
-            <helpers:NullToBoolConverter x:Key="NullToBoolConverter" />
-            <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter" />
-            <helpers:BooleanToBoldFontWeightConverter x:Key="BooleanToBoldFontWeightConverter" />
-            <!-- <helpers:TypedBindingConverter x:Key="TypedBindingConverter" /> -->
-            <!-- <helpers:TimestampConverter x:Key="TimestampConverter" /> -->
-            <!-- <helpers:BindingProxy x:Key="Proxy" Data="{Binding}" /> -->
-            <!-- <helpers:ShowTimestampTextConverter x:Key="ShowTimestampTextConverter" /> -->
-            <!-- <helpers:ShowTimestampTextMultiConverter x:Key="ShowTimestampTextMultiConverter" /> -->
-            <helpers:BoolToTextConverter x:Key="BoolToTextConverter" />
-            <helpers:BindingProxy x:Key="MainViewModelProxy"
-                                  x:TypeArguments="vm:MainWindowViewModel"
-                                  Data="{Binding}" />
-        </ResourceDictionary>
-    </Window.Resources>
-
-    <Window.Styles>
-        <!-- General Styles -->
-        <Style Selector="TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource TextForegroundBrush}" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontWeight" Value="Normal" />
-        </Style>
-        <Style Selector="TextBlock.bold">
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
-
-        <!-- Button Styles -->
-        <Style Selector="Button.primary">
-            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundBrush}" />
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Height" Value="34" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-        </Style>
-        <Style Selector="Button.secondary">
-            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundBrush}" />
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Height" Value="34" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-        </Style>
-        <Style Selector="Button.danger">
-            <Setter Property="Background" Value="{DynamicResource DangerButtonBackgroundBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource DangerButtonForegroundBrush}" />
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Height" Value="34" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
-
-        <!-- Confirm Button -->
-        <Style Selector="Button.confirm">
-            <Setter Property="Background" Value="{DynamicResource ConfirmButtonBackgroundBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource ConfirmButtonForegroundBrush}" />
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Height" Value="34" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Template">
-                <ControlTemplate>
-                    <Border Background="{TemplateBinding Background}"
-                            CornerRadius="{TemplateBinding CornerRadius}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                        <ContentPresenter Content="{TemplateBinding Content}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          Margin="{TemplateBinding Padding}" />
-                    </Border>
-                </ControlTemplate>
-            </Setter>
-        </Style>
-
-        <!-- Hover and Pressed States -->
-        <Style Selector="Button.confirm:pointerover">
-            <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundBrush}" />
-            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" />
-        </Style>
-        <Style Selector="Button.confirm:pressed">
-            <Setter Property="Foreground" Value="{DynamicResource ButtonForegroundBrush}" />
-            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" />
-        </Style>
-
-        <!-- Margin for All Buttons -->
-        <Style Selector="Button">
-            <Setter Property="Margin" Value="5" />
-        </Style>
-
-        <!-- Input Controls -->
-        <Style Selector="TextBox">
-            <Setter Property="Background" Value="{DynamicResource ConsoleBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Height" Value="34" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-        </Style>
-        <Style Selector="NumericUpDown">
-            <Setter Property="Background" Value="{DynamicResource ConsoleBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Height" Value="34" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-        </Style>
-        <Style Selector="ComboBox">
-            <Setter Property="Background" Value="{DynamicResource ConsoleBackgroundBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Height" Value="34" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-        </Style>
-
-        <!-- Console Styles -->
-        <Style Selector="Border.console-border">
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
-            <Setter Property="CornerRadius" Value="4" />
-            <Setter Property="Background" Value="{DynamicResource ConsoleBackgroundBrush}" />
-            <Setter Property="Padding" Value="12" />
-        </Style>
-        <Style Selector="ScrollViewer.console-scroll">
-            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
-        </Style>
-
-        <!-- TabControl Styles -->
-        <Style Selector="TabControl">
-            <Setter Property="TabStripPlacement" Value="Left" />
-            <Setter Property="Margin" Value="0" />
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
-        <Style Selector="TabItem">
-            <Setter Property="Margin" Value="2" />
-            <Setter Property="Padding" Value="10" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#3883FF" />
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="FontWeight" Value="Normal" />
-        </Style>
-        <Style Selector="TabItem:enabled">
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-        <Style Selector="TabItem TextBlock">
-            <Setter Property="FontWeight" Value="Normal" />
-        </Style>
-        <Style Selector="TabItem:enabled TextBlock">
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-    </Window.Styles>
-
-
-    <Window.DataTemplates>
-        <!-- IntParameter -->
-        <DataTemplate DataType="{x:Type modelParameters:IntParameter}">
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBlock Text="{Binding Name}" Width="150" />
-                <NumericUpDown FormatString="N0"
-                               ParsingNumberStyle="Integer"
-                               Minimum="{Binding Min}"
-                               Maximum="{Binding Max}"
-                               Value="{Binding Value, Mode=TwoWay}"
-                               Width="200" />
-            </StackPanel>
-        </DataTemplate>
-
-        <!-- DoubleParameter -->
-        <DataTemplate DataType="{x:Type modelParameters:DoubleParameter}">
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBlock Text="{Binding Name}" Width="150" />
-                <NumericUpDown Minimum="{Binding Min}"
-                               Maximum="{Binding Max}"
-                               Increment="{Binding Increment}"
-                               Value="{Binding Value, Mode=TwoWay}"
-                               Width="200" />
-            </StackPanel>
-        </DataTemplate>
-
-        <!-- StringParameter -->
-        <DataTemplate DataType="{x:Type modelParameters:StringParameter}">
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBlock Text="{Binding Name}" Width="150" />
-                <TextBox Text="{Binding Value, Mode=TwoWay}" Width="200" />
-            </StackPanel>
-        </DataTemplate>
-
-        <!-- BoolParameter -->
-        <DataTemplate DataType="{x:Type modelParameters:BoolParameter}">
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBlock Text="{Binding Name}" Width="150" />
-                <CheckBox IsChecked="{Binding Value, Mode=TwoWay}" />
-            </StackPanel>
-        </DataTemplate>
-
-        <!-- ChatHistoryCategory -->
-        <TreeDataTemplate DataType="{x:Type chatHistoryManager:ChatHistoryCategory}" ItemsSource="{Binding Items}">
-            <TextBlock Text="{Binding Name}" FontWeight="Bold" />
-        </TreeDataTemplate>
-
-        <!-- ChatHistoryFile -->
-        <DataTemplate DataType="{x:Type chatHistoryManager:ChatHistoryFile}">
-            <TextBlock Text="{Binding Filename}" />
-        </DataTemplate>
-    </Window.DataTemplates>
-
-      <!-- Main Layout -->
+        Title="LLMR" Width="1200" Height="800"
+        MinWidth="900">
+  <Window.Resources>
+    <ResourceDictionary>
+      <!-- Note: Do not include StyleInclude here if it is already added in App.axaml -->
+      <helpers:NullToBoolConverter x:Key="NullToBoolConverter"/>
+      <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+      <helpers:BooleanToBoldFontWeightConverter x:Key="BooleanToBoldFontWeightConverter"/>
+      <helpers:BoolToTextConverter x:Key="BoolToTextConverter" />
+      <helpers:PercentageConverter x:Key="PercentageConverter"></helpers:PercentageConverter>
+      <!-- Strongly-typed BindingProxy -->
+      <helpers:BindingProxy x:Key="MainViewModelProxy"
+                            x:TypeArguments="vm:MainWindowViewModel"
+                            Data="{Binding}" />
+    </ResourceDictionary>
+  </Window.Resources>
+  <!-- Root Grid -->
   <Grid x:Name="MainWindowGrid">
-    <Grid.RowDefinitions>
-      <RowDefinition Height="50"/> <!-- Toolbar -->
-      <RowDefinition Height="*"/>  <!-- Content -->
-      <RowDefinition Height="Auto"/> <!-- Console -->
-    </Grid.RowDefinitions>
-
-    <!-- Toolbar (unchanged) -->
-    <DockPanel Grid.Row="0" Background="{DynamicResource ToolbarBackgroundBrush}" LastChildFill="False" MinHeight="50" MaxHeight="50">
-      <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Center">
-        <TextBlock Text="Server Status: " FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
-        <TextBlock Text="{Binding ServerStatus}" FontSize="12" FontWeight="Bold" Foreground="{Binding ServerStatusColor}" VerticalAlignment="Center"/>
-      </StackPanel>
-      <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
-        <Button Command="{Binding StopGradioServerCommand}"
-                IsVisible="{Binding IsServerRunning}"
-                Classes="danger"
-                MinHeight="30"
-                MinWidth="100">
-          <StackPanel Orientation="Horizontal">
-            <i:Icon Value="fa-solid fa-stop" Width="18" Height="18" Margin="0"/>
-            <TextBlock Text="Stop Server" VerticalAlignment="Center"/>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="250"/>  <!-- Left menu -->
+      <ColumnDefinition Width="*"/>    <!-- Right content -->
+    </Grid.ColumnDefinitions>
+    <!-- Left Navigation Menu -->
+    <local:MenuLeft Grid.Column="0"/>
+    <!-- Right Content Area -->
+    <Grid Grid.Column="1">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>    <!-- Main view area -->
+        <RowDefinition Height="Auto"/> <!-- Console area -->
+      </Grid.RowDefinitions>
+      <!-- Main view content bound via CurrentMainView -->
+      <ContentControl Grid.Row="0" Content="{Binding CurrentMainView}"/>
+      <!-- Console Area -->
+      <Expander Grid.Row="1" Header="Console" IsExpanded="{Binding IsConsoleExpanded, Mode=TwoWay}" HorizontalAlignment="Stretch">
+        <Grid HorizontalAlignment="Stretch">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <!-- Console toolbar -->
+          <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
+            <Button Command="{Binding CopyLastTenMessagesCommand}" Width="40" Height="40" Classes="secondary">
+              <i:Icon Value="fa-solid fa-copy" Width="20" Height="20" Foreground="#1F5222"/>
+              <ToolTip.Tip>
+                <ToolTip Content="Copy last ten console messages"/>
+              </ToolTip.Tip>
+            </Button>
+            <Button Command="{Binding CopyAllMessagesCommand}" Width="40" Height="40" Classes="secondary">
+              <i:Icon Value="fa-solid fa-clipboard" Width="20" Height="20" Foreground="#1F5222"/>
+              <ToolTip.Tip>
+                <ToolTip Content="Copy all console messages"/>
+              </ToolTip.Tip>
+            </Button>
+            <Button Command="{Binding ToggleShowTimestampCommand}" Width="40" Height="40" Classes="secondary">
+              <i:Icon Value="fa-solid fa-clock" Width="20" Height="20" Foreground="#1F5222"/>
+              <ToolTip.Tip>
+                <ToolTip Content="Hide/Show Timestamp for console messages"/>
+              </ToolTip.Tip>
+            </Button>
           </StackPanel>
-          <ToolTip.Tip>
-            <ToolTip Content="Stop the running server"/>
-          </ToolTip.Tip>
-        </Button>
-        <Button Command="{Binding BackToModelSettingsCommand}"
-                IsVisible="{Binding IsServerRunning}"
-                Classes="secondary"
-                MinHeight="30"
-                MinWidth="100">
-          <StackPanel Orientation="Horizontal">
-            <i:Icon Value="fa-solid fa-arrow-rotate-left" Width="18" Height="18" Margin="0"/>
-            <TextBlock Text="Restart" VerticalAlignment="Center"/>
-          </StackPanel>
-          <ToolTip.Tip>
-            <ToolTip Content="Restart the server with different settings"/>
-          </ToolTip.Tip>
-        </Button>
-      </StackPanel>
-    </DockPanel>
-
-    <!-- Main content: TabControl now hosts the new tab UserControls -->
-    <TabControl Grid.Row="1"
-                SelectedIndex="{Binding ViewManager.SelectedTabIndex}"
-                Margin="20"
-                TabStripPlacement="Top">
-      <!-- Tab 0: Login -->
-      <TabItem IsEnabled="{Binding ViewManager.IsLoginEnabled}">
-        <TabItem.Header>
-          <StackPanel Orientation="Horizontal">
-            <i:Icon Value="fa-solid fa-sign-in-alt" Width="16" Height="16" Margin="0,0,5,0"/>
-            <TextBlock Text="Login"/>
-          </StackPanel>
-        </TabItem.Header>
-        <tabs:LoginTab/>
-      </TabItem>
-      <!-- Tab 1: Model Settings -->
-      <TabItem IsVisible="{Binding ViewManager.GradioMode}"
-               IsEnabled="{Binding ViewManager.IsModelSettingsEnabled}">
-        <TabItem.Header>
-          <StackPanel Orientation="Horizontal">
-            <i:Icon Value="fa-solid fa-cogs" Width="16" Height="16" Margin="0,0,5,0"/>
-            <TextBlock Text="Model Settings"/>
-          </StackPanel>
-        </TabItem.Header>
-        <tabs:ModelSettingsTab/>
-      </TabItem>
-      <!-- Tab 2: Multicaller Model Settings -->
-      <TabItem IsVisible="{Binding ViewManager.MulticallerMode}"
-               IsEnabled="{Binding ViewManager.IsMulticallerModelSettingsEnabled}">
-        <TabItem.Header>
-          <StackPanel Orientation="Horizontal">
-            <i:Icon Value="fa-solid fa-project-diagram" Width="16" Height="16" Margin="0,0,5,0"/>
-            <TextBlock Text="Multicaller Settings"/>
-          </StackPanel>
-        </TabItem.Header>
-        <tabs:MulticallerTab/>
-      </TabItem>
-      <!-- Tab 3: Link Generation -->
-      <TabItem IsVisible="{Binding ViewManager.GradioMode}"
-               IsEnabled="{Binding ViewManager.IsLinkGenerationEnabled}">
-        <TabItem.Header>
-          <StackPanel Orientation="Horizontal">
-            <i:Icon Value="fa-solid fa-link" Width="16" Height="16" Margin="0,0,5,0"/>
-            <TextBlock Text="Link Generation"/>
-          </StackPanel>
-        </TabItem.Header>
-        <tabs:LinkGenerationTab/>
-      </TabItem>
-      <!-- Tab 4: Data Collection -->
-      <TabItem IsEnabled="{Binding ViewManager.IsDataCollectionEnabled}">
-        <TabItem.Header>
-          <StackPanel Orientation="Horizontal">
-            <i:Icon Value="fa-solid fa-database" Width="16" Height="16" Margin="0,0,5,0"/>
-            <TextBlock Text="Data Collection"/>
-          </StackPanel>
-        </TabItem.Header>
-        <tabs:DataCollectionTab/>
-      </TabItem>
-    </TabControl>
-
-    <!-- Console (unchanged) -->
-    <Expander Grid.Row="2" Header="Console" IsExpanded="{Binding IsConsoleExpanded, Mode=TwoWay}" HorizontalAlignment="Stretch">
-      <Grid HorizontalAlignment="Stretch" RowDefinitions="Auto,*">
-        <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
-          <Button Command="{Binding CopyLastTenMessagesCommand}" Width="40" Height="40" Classes="secondary">
-            <i:Icon Value="fa-solid fa-copy" Width="20" Height="20" Foreground="#1F5222"/>
-            <ToolTip.Tip>
-              <ToolTip Content="Copy last ten console messages"/>
-            </ToolTip.Tip>
-          </Button>
-          <Button Command="{Binding CopyAllMessagesCommand}" Width="40" Height="40" Classes="secondary">
-            <i:Icon Value="fa-solid fa-clipboard" Width="20" Height="20" Foreground="#1F5222"/>
-            <ToolTip.Tip>
-              <ToolTip Content="Copy all console messages"/>
-            </ToolTip.Tip>
-          </Button>
-          <Button Command="{Binding ToggleShowTimestampCommand}" Width="40" Height="40" Classes="secondary">
-            <i:Icon Value="fa-solid fa-clock" Width="20" Height="20" Foreground="#1F5222"/>
-            <ToolTip.Tip>
-              <ToolTip Content="Hide/Show Timestamp for console messages"/>
-            </ToolTip.Tip>
-          </Button>
-        </StackPanel>
-        <Border Classes="console-border" Grid.Row="1" Background="{DynamicResource ConsoleBackgroundBrush}"
-                MaxHeight="{Binding #MainWindowGrid.Bounds.Height, Converter={StaticResource PercentageConverter}, ConverterParameter=0.3}">
-          <ScrollViewer x:Name="ConsoleScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <ItemsControl x:Name="ConsoleItemsControl" ItemsSource="{Binding ConsoleMessages}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="model:ConsoleMessage">
-                  <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource ConsoleTextBrush}" FontSize="13" FontFamily="Consolas, Lucida Console">
-                    <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
-                      <Run.Text>
-                        <MultiBinding Converter="{StaticResource BoolToTextConverter}">
-                          <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
-                          <Binding>
-                            <Binding.Source>
-                              <system:String>[</system:String>
-                            </Binding.Source>
-                          </Binding>
-                        </MultiBinding>
-                      </Run.Text>
-                    </Run>
-                    <Run Foreground="{DynamicResource TimestampForegroundBrush}">
-                      <Run.Text>
-                        <MultiBinding Converter="{StaticResource BoolToTextConverter}">
-                          <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
-                          <Binding Path="Timestamp"/>
-                        </MultiBinding>
-                      </Run.Text>
-                    </Run>
-                    <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
-                      <Run.Text>
-                        <MultiBinding Converter="{StaticResource BoolToTextConverter}">
-                          <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
-                          <Binding>
-                            <Binding.Source>
-                              <system:String>] </system:String>
-                            </Binding.Source>
-                          </Binding>
-                        </MultiBinding>
-                      </Run.Text>
-                    </Run>
-                    <Run Text="{Binding Text}" Foreground="{Binding Color}"
-                         FontWeight="{Binding IsBold, Converter={StaticResource BooleanToBoldFontWeightConverter}}"/>
-                  </TextBlock>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </ScrollViewer>
-        </Border>
-      </Grid>
-    </Expander>
-
-    <!-- Busy overlay -->
-    <Grid Grid.RowSpan="3" IsVisible="{Binding IsBusy}" Background="#80000000">
-      <TextBlock Text="Please wait..." Foreground="#FFFFFF" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <!-- Console messages -->
+          <Border Grid.Row="1" Classes="console-border" Background="{DynamicResource ConsoleBackgroundBrush}"
+                  MaxHeight="{Binding ElementName=MainWindowGrid, Path=Bounds.Height, Converter={StaticResource PercentageConverter}, ConverterParameter=0.3}">
+            <ScrollViewer x:Name="ConsoleScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <ItemsControl x:Name="ConsoleItemsControl" ItemsSource="{Binding ConsoleMessages}">
+                <!-- We remove x:DataType here to force dynamic resolution so that our BindingProxy works -->
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource ConsoleTextBrush}" FontSize="13" FontFamily="Consolas, Lucida Console">
+                      <!-- Timestamp portion -->
+                      <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
+                        <Run.Text>
+                          <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                            <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
+                            <Binding>
+                              <Binding.Source>
+                                <system:String>[</system:String>
+                              </Binding.Source>
+                            </Binding>
+                          </MultiBinding>
+                        </Run.Text>
+                      </Run>
+                      <Run Foreground="{DynamicResource TimestampForegroundBrush}">
+                        <Run.Text>
+                          <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                            <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
+                            <Binding Path="Timestamp"/>
+                          </MultiBinding>
+                        </Run.Text>
+                      </Run>
+                      <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
+                        <Run.Text>
+                          <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                            <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
+                            <Binding>
+                              <Binding.Source>
+                                <system:String>] </system:String>
+                              </Binding.Source>
+                            </Binding>
+                          </MultiBinding>
+                        </Run.Text>
+                      </Run>
+                      <!-- Message Text -->
+                      <Run Text="{Binding Text}" Foreground="{Binding Color}"
+                           FontWeight="{Binding IsBold, Converter={StaticResource BooleanToBoldFontWeightConverter}}"/>
+                    </TextBlock>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </Border>
+        </Grid>
+      </Expander>
     </Grid>
   </Grid>
 </Window>

@@ -28,12 +28,39 @@ using LLMR.Model.ChatHistoryManager;
 using LLMR.Model.ModelSettingModulesManager;
 using LLMR.Model.ModelSettingModulesManager.ModelSettingsModules;
 using LLMR.Services.OpenAI_o1;
+using LLMR.Views;
 using Unit = System.Reactive.Unit;
 
 namespace LLMR.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase, IDisposable
     {
+        #region NEW CODE UI-REVAMP
+        
+        // NEW: holds the current main view (i.e. the content on the right)
+        private object _currentMainView;
+        public object CurrentMainView
+        {
+            get => _currentMainView;
+            set => this.RaiseAndSetIfChanged(ref _currentMainView, value);
+        }
+
+        // NEW: returns the name of the current "main" tab (non-data collection)
+        private string _currentNonDataCollectionTab;
+        public string CurrentNonDataCollectionTab
+        {
+            get => _currentNonDataCollectionTab;
+            set => this.RaiseAndSetIfChanged(ref _currentNonDataCollectionTab, value);
+        }
+
+        // NEW: Commands for switching views and opening windows
+        public ReactiveCommand<Unit, Unit> SwitchToMainTabCommand { get; }
+        public ReactiveCommand<Unit, Unit> SwitchToDataCollectionCommand { get; }
+        public ReactiveCommand<Unit, Unit> OpenAboutCommand { get; }
+        public ReactiveCommand<Unit, Unit> OpenSettingsCommand { get; }
+
+        #endregion
+        
         #region Fields
 
         private string? _serverStatus;
@@ -241,6 +268,41 @@ namespace LLMR.ViewModels
 
             //ToDo: Make sure that we are allowed to use this license type! (+move to xml typed settings?)
             QuestPDF.Settings.License = LicenseType.Community;
+
+            #region NEWCODE UI-REVAMP
+            
+            CurrentMainView = new LLMR.Views.Tabs.LoginTab();
+            CurrentNonDataCollectionTab = "Login";
+            
+            SwitchToMainTabCommand = ReactiveCommand.Create(() =>
+            {
+                CurrentMainView = new LLMR.Views.Tabs.LoginTab();
+                CurrentNonDataCollectionTab = "Login";
+            });
+
+            SwitchToDataCollectionCommand = ReactiveCommand.Create(() =>
+            {
+                // Switch to the Data Collection view
+                CurrentMainView = new LLMR.Views.Tabs.DataCollectionTab();
+                LoadChatHistories();
+            });
+
+            OpenAboutCommand = ReactiveCommand.Create(() =>
+            {
+                // Create and open the About window
+                var aboutWindow = new AboutWindow();
+                // Optionally, set the owner to your main window if you have access to it:
+                aboutWindow.ShowDialog(App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop ? desktop.MainWindow : null);
+            });
+
+            OpenSettingsCommand = ReactiveCommand.Create(() =>
+            {
+                // Create and open the Settings window
+                var settingsWindow = new SettingsWindow();
+                settingsWindow.ShowDialog(App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop ? desktop.MainWindow : null);
+            });
+
+            #endregion
 
             ViewManager.SwitchToLogin();
 
@@ -585,11 +647,18 @@ namespace LLMR.ViewModels
                     if (CurrentModelSettingsModule == null)
                         throw new NullReferenceException("CurrentModelSettingsModule is null.");
 
-                    if (CurrentModelSettingsModule.GetType() != typeof(OpenAI_Multicaller_ModelSettings))
+                    if (CurrentModelSettingsModule.GetType() != typeof(OpenAI_Multicaller_ModelSettings)) 
+                    {
                         ViewManager.SwitchToModelSettings();
+                        CurrentMainView = new LLMR.Views.Tabs.ModelSettingsTab();
+                        CurrentNonDataCollectionTab = "Model Settings";
+                    }
                     else
+                    {
                         ViewManager.SwitchToMulticallerModelSettings();
-
+                        CurrentMainView = new LLMR.Views.Tabs.MulticallerTab();
+                        CurrentNonDataCollectionTab = "Multicaller Settings";
+                    }
                     var models = await _apiService.GetAvailableModelsAsync(ApiKey);
 
                     CurrentModelSettingsModule.AvailableModels.Clear();
