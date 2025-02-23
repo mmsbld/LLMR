@@ -3,21 +3,65 @@
              x:Class="LLMR.App"
              xmlns:local="using:LLMR"
              xmlns:helpers="clr-namespace:LLMR.Helpers"
-             RequestedThemeVariant="Default"> <!-- Suggestion by Moe: set to Light only! -->
-    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             xmlns:modelParameters="clr-namespace:LLMR.Model.ModelSettingModulesManager.ModelParameters"
+             xmlns:chatHistoryManager="clr-namespace:LLMR.Model.ChatHistoryManager"
+             RequestedThemeVariant="Default">
+  <Application.DataTemplates>
+    <DataTemplate DataType="modelParameters:IntParameter">
+      <StackPanel Orientation="Horizontal" Margin="0,5">
+        <TextBlock Text="{Binding Name}" Width="150" />
+        <NumericUpDown FormatString="N0"
+                       ParsingNumberStyle="Integer"
+                       Minimum="{Binding Min}"
+                       Maximum="{Binding Max}"
+                       Value="{Binding Value, Mode=TwoWay}"
+                       Width="200" />
+      </StackPanel>
+    </DataTemplate>
 
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
-             
-    <Application.Resources>
-        <ResourceDictionary>
-            <!-- my resources -->
-            <helpers:NullToBoolConverter x:Key="NullToBoolConverter"/>
-        </ResourceDictionary>
-    </Application.Resources>
-  
-    <Application.Styles>
-        <FluentTheme />
-    </Application.Styles>
+    <DataTemplate DataType="modelParameters:DoubleParameter">
+      <StackPanel Orientation="Horizontal" Margin="0,5">
+        <TextBlock Text="{Binding Name}" Width="150" />
+        <NumericUpDown Minimum="{Binding Min}"
+                       Maximum="{Binding Max}"
+                       Increment="{Binding Increment}"
+                       Value="{Binding Value, Mode=TwoWay}"
+                       Width="200" />
+      </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="modelParameters:StringParameter">
+      <StackPanel Orientation="Horizontal" Margin="0,5">
+        <TextBlock Text="{Binding Name}" Width="150" />
+        <TextBox Text="{Binding Value, Mode=TwoWay}" Width="200" />
+      </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="modelParameters:BoolParameter">
+      <StackPanel Orientation="Horizontal" Margin="0,5">
+        <TextBlock Text="{Binding Name}" Width="150" />
+        <CheckBox IsChecked="{Binding Value, Mode=TwoWay}" />
+      </StackPanel>
+    </DataTemplate>
+
+    <TreeDataTemplate DataType="chatHistoryManager:ChatHistoryCategory" ItemsSource="{Binding Items}">
+      <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+    </TreeDataTemplate>
+
+    <DataTemplate DataType="chatHistoryManager:ChatHistoryFile">
+      <TextBlock Text="{Binding Filename}" />
+    </DataTemplate>
+  </Application.DataTemplates>
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <helpers:NullToBoolConverter x:Key="NullToBoolConverter"/>
+      <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme/>
+    <StyleInclude Source="avares://LLMR/Styles.axaml"/>
+  </Application.Styles>
 </Application>

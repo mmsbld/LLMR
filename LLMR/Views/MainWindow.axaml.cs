@@ -46,8 +46,7 @@ public partial class MainWindow : Window
     {
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            ConsoleScrollViewer.ScrollToEnd();
-        }, Avalonia.Threading.DispatcherPriority.Loaded); // change priority after loaded
+            _scrollViewer.ScrollToEnd();
+        }, DispatcherPriority.Loaded);
     }
-
 }

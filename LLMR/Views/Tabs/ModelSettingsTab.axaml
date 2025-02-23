@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
+             xmlns:vm="clr-namespace:LLMR.ViewModels"
+             xmlns:modelParameters="clr-namespace:LLMR.Model.ModelSettingModulesManager.ModelParameters"
+             x:Class="LLMR.Views.Tabs.ModelSettingsTab"
+             x:DataType="vm:MainWindowViewModel">
+    <ScrollViewer>
+        <StackPanel Margin="20">
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
+                <TextBlock Text="Model:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox Grid.Row="0" Grid.Column="1"
+                          ItemsSource="{Binding CurrentModelSettingsModule.AvailableModels}"
+                          SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}"
+                          Margin="0,0,0,12"/>
+            </Grid>
+            <ItemsControl ItemsSource="{Binding CurrentModelSettingsModule.Parameters}" />
+            <Button Command="{Binding GenerateLinkCommand}"
+                    HorizontalAlignment="Center"
+                    MinWidth="180"
+                    MinHeight="40"
+                    Width="220"
+                    Classes="primary"
+                    Margin="5">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <i:Icon Value="fa-solid fa-link" Width="18" Height="18" Margin="0,0,8,0"/>
+                    <TextBlock Text="Generate Link" VerticalAlignment="Center"/>
+                </StackPanel>
+                <ToolTip.Tip>
+                    <ToolTip Content="Generate link to access the interface running on your server"/>
+                </ToolTip.Tip>
+            </Button>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

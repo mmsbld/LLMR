@@ -1,0 +1,73 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="LLMR.Views.AboutWindow"
+        xmlns:i="https://github.com/projektanker/icons.avalonia"
+        Title="About LLM Runner" Width="400" Height="300"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="20" Spacing="10">
+        <!-- Full logo -->
+        <Image Source="avares://LLMR/Assets/logo/logo_full.png" Width="200" HorizontalAlignment="Center"/>
+        
+        <!-- Logo & Credits -->
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+          <Grid>
+            <Image Width="200" Source="{DynamicResource LogoImageSource}" HorizontalAlignment="Left"/>
+            <TextBlock Text="0.6 (alpha)"
+                       FontFamily="Consolas, Courier New, monospace"
+                       FontWeight="Bold"
+                       FontSize="11"
+                       Foreground="{DynamicResource TextForegroundBrush}"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom"
+                       Margin="0,-12,0,0"
+                       FontStyle="Italic"/>
+          </Grid>
+        </Grid>
+        <StackPanel Grid.Column="1" Margin="0" VerticalAlignment="Top" HorizontalAlignment="Right">
+          <TextBlock Text="LLM Runner - Research Helper"
+                     FontFamily="Consolas, Courier New, monospace"
+                     FontWeight="Bold"
+                     FontSize="9"
+                     HorizontalAlignment="Right"/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0">
+            <i:Icon Value="fa-brands fa-github" Width="18" Height="18" Margin="0,0,5,0"/>
+            <TextBlock Text="LLM Runner"
+                       FontFamily="Consolas, Courier New, monospace"
+                       FontWeight="Bold"
+                       FontSize="9"
+                       Foreground="Blue"
+                       TextDecorations="Underline"
+                       Cursor="Hand"
+                       PointerPressed="OnLinkClicked"/>
+          </StackPanel>
+          <TextBlock Text="private pre-alpha version!"
+                     FontFamily="Consolas, Courier New, monospace"
+                     FontWeight="Bold"
+                     FontSize="9"
+                     HorizontalAlignment="Right"/>
+          <TextBlock Text="(C) 2024"
+                     FontFamily="Consolas, Courier New, monospace"
+                     FontWeight="Bold"
+                     FontSize="9"
+                     HorizontalAlignment="Right"/>
+        </StackPanel>
+      </Grid>
+        
+        <!-- App name -->
+        <TextBlock Text="LLM Runner" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <!-- Version -->
+        <TextBlock Text="Version: 0.6 (alpha)" HorizontalAlignment="Center"/>
+        <!-- GitHub link (ToDo: missing icon!) -->
+        <TextBlock Text="GitHub: https://github.com/mmsbld/LLMR"  
+                   Foreground="Blue" 
+                   TextDecorations="Underline" 
+                   HorizontalAlignment="Center"/>
+        <!-- Close button -->
+        <Button Content="Close" Width="80" HorizontalAlignment="Center" Click="CloseButton_Click"/>
+    </StackPanel>
+</Window>

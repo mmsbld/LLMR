@@ -1,0 +1,16 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:LLMR.ViewModels"
+             x:Class="LLMR.Views.Tabs.LinkGenerationTab"
+             x:DataType="vm:MainWindowViewModel">
+    <StackPanel Margin="20">
+        <TextBlock Text="Generated Links:" Classes="bold" Margin="0,0,0,8"/>
+        <StackPanel Orientation="Vertical" Margin="0,0,0,16">
+            <TextBlock Text="Local link:"/>
+            <TextBox Text="{Binding CurrentModelSettingsModule.GeneratedLocalLink}" IsReadOnly="True" Margin="0,4,0,12"/>
+            <TextBlock Text="Public link:"/>
+            <TextBox Text="{Binding CurrentModelSettingsModule.GeneratedPublicLink}" IsReadOnly="True" Margin="0,4,0,12"/>
+            <Image Source="{Binding GeneratedPublicLinkQRCode}" Width="200" Height="200" Margin="0,8,0,0"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

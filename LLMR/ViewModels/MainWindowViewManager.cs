@@ -1,12 +1,21 @@
+using System;
+using System.Collections.Generic;
 using ReactiveUI;
 
 namespace LLMR.ViewModels;
 
 public class MainWindowViewManager : ReactiveObject
 {
-    #region Fields
-
-    private int _selectedTabIndex;
+    private Dictionary<string, string> _tabNames = new()
+    {
+        {"Login", "Module Selection"},
+        {"Model Settings", "Model Settings"},
+        {"Multicaller Model Settings", "Multicaller Model Settings"},
+        {"Link Generation", "Public model access"},
+        {"Data Collection", "File Explorer"}
+    }; 
+    private string _nameOfCurrentPrimaryTab;
+    private string _nameOfCurrentSecondaryTab;
     private bool _isLoginEnabled;
     private bool _isModelSettingsEnabled;
     private bool _isMulticallerModelSettingsEnabled;
@@ -15,16 +24,16 @@ public class MainWindowViewManager : ReactiveObject
     private bool _multicallerMode;
     private bool _gradioMode;
 
-    #endregion
-
-    #region Properties
-
-    public int SelectedTabIndex
+    public string NameOfCurrentPrimaryTab
     {
-        get => _selectedTabIndex;
-        set => this.RaiseAndSetIfChanged(ref _selectedTabIndex, value);
+        get => _nameOfCurrentPrimaryTab;
+        set => this.RaiseAndSetIfChanged(ref _nameOfCurrentPrimaryTab, value);
     }
-
+    public string NameOfCurrentSecondaryTab
+    {
+        get => _nameOfCurrentSecondaryTab;
+        set => this.RaiseAndSetIfChanged(ref _nameOfCurrentSecondaryTab, value);
+    }
     public bool IsLoginEnabled
     {
         get => _isLoginEnabled;
@@ -67,77 +76,105 @@ public class MainWindowViewManager : ReactiveObject
 
     public bool GradioMode
     {
-        get => _multicallerMode;
+        get => _gradioMode;
         set
         {
             _multicallerMode = !value;
             this.RaiseAndSetIfChanged(ref _multicallerMode, value);
         }
     }
-
-    #endregion
-
-    #region Constructor
-
+    
     public MainWindowViewManager()
     {
-        // initially true to show tabs (not enabled anyhow):
+        _nameOfCurrentSecondaryTab = _tabNames["Data Collection"];
+        _nameOfCurrentPrimaryTab = _tabNames["Login"];
+        // initially true to show tabs (not enabled anyhow)?:
         MulticallerMode = true;
         GradioMode = true;
         SwitchToLogin();
     }
-
-    #endregion
-
-    #region Methods
-
+    
     public void SwitchToLogin()
     {
-        SelectedTabIndex = 0;
+        NameOfCurrentPrimaryTab = _tabNames["Login"];
         IsLoginEnabled = true;
         IsModelSettingsEnabled = false;
         IsMulticallerModelSettingsEnabled = false;
         IsLinkGenerationEnabled = false;
-        IsDataCollectionEnabled = true;
+        IsDataCollectionEnabled = false;
     }
 
     public void SwitchToModelSettings()
     {
-        SelectedTabIndex = 1;
+        NameOfCurrentPrimaryTab = _tabNames["Model Settings"];
         IsLoginEnabled = false;
         IsModelSettingsEnabled = true;
         IsMulticallerModelSettingsEnabled = false;
         IsLinkGenerationEnabled = false;
-        IsDataCollectionEnabled = true;
+        IsDataCollectionEnabled = false;
     }
 
     public void SwitchToMulticallerModelSettings()
     {
-        SelectedTabIndex = 2;
+        NameOfCurrentPrimaryTab = _tabNames["Multicaller Model Settings"];
         IsLoginEnabled = false;
         IsModelSettingsEnabled = false;
         IsMulticallerModelSettingsEnabled = true;
         IsLinkGenerationEnabled = false;
-        IsDataCollectionEnabled = true;
+        IsDataCollectionEnabled = false;
     }
 
     public void SwitchToLinkGeneration()
     {
-        SelectedTabIndex = 3;
+        NameOfCurrentPrimaryTab = _tabNames["Link Generation"];
         IsLoginEnabled = false;
-        IsModelSettingsEnabled = true; 
+        IsModelSettingsEnabled = false; 
         IsMulticallerModelSettingsEnabled = false;
         IsLinkGenerationEnabled = true;
-        IsDataCollectionEnabled = true; 
+        IsDataCollectionEnabled = false; 
     }
 
 
     public void SwitchToDataCollection()
     {
-        SelectedTabIndex = 4;
+        IsLoginEnabled = false;
+        IsModelSettingsEnabled = false; 
+        IsMulticallerModelSettingsEnabled = false;
+        IsLinkGenerationEnabled = false;
         IsDataCollectionEnabled = true;
     }
 
+    public void SwitchToSecondaryTab()
+    {
+        if (_nameOfCurrentSecondaryTab != _tabNames["Data Collection"])
+        {
+            throw new ArgumentException("<MWVManager.cs> The argument of the secondary tab is not valid.");
+        }
+        SwitchToDataCollection();
+    }
 
-    #endregion
+    public void SwitchToPrimaryTab()
+    {
+        if (NameOfCurrentPrimaryTab == _tabNames["Login"])
+        {
+            SwitchToLogin();
+        }
+        else if (NameOfCurrentPrimaryTab == _tabNames["Model Settings"])
+        {
+            SwitchToModelSettings();
+        }
+        else if (NameOfCurrentPrimaryTab == _tabNames["Multicaller Model Settings"])
+        {
+            SwitchToMulticallerModelSettings();
+        }
+        else if (NameOfCurrentPrimaryTab == _tabNames["Link Generation"])
+        {
+            SwitchToLinkGeneration();
+        }
+        else
+        {
+            throw new ArgumentException("<MWVManager.cs> The argument of the primary tab is not valid.");
+        }
+    }
+    
 }
