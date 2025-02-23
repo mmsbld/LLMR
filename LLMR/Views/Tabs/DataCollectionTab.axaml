@@ -1,8 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:modelParameters="clr-namespace:LLMR.Model.ModelSettingModulesManager.ModelParameters"
-             xmlns:chatHistoryManager="clr-namespace:LLMR.Model.ChatHistoryManager"
-             xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:i="https://github.com/projektanker/icons.avalonia"
              xmlns:vm="clr-namespace:LLMR.ViewModels"
              x:Class="LLMR.Views.Tabs.DataCollectionTab"
@@ -11,13 +8,13 @@
   <Grid ColumnDefinitions="2*,5,3*" RowDefinitions="Auto,*,Auto">
     <!-- Add/Remove Buttons -->
     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
-      <Button Command="{Binding AddFolderCommand}" Width="30" Height="30" Classes="secondary">
+      <Button Command="{Binding DataCollectionManager.AddFolderCommand}" Width="30" Height="30" Classes="secondary">
           <i:Icon Value="fa-solid fa-plus" Width="16" Height="16"/>
           <ToolTip.Tip>
               <ToolTip Content="Add Folder"/>
           </ToolTip.Tip>
       </Button>
-      <Button Command="{Binding RemoveItemCommand}" Width="30" Height="30" Classes="danger">
+      <Button Command="{Binding DataCollectionManager.RemoveItemCommand}" Width="30" Height="30" Classes="danger">
           <i:Icon Value="fa-solid fa-minus" Width="16" Height="16"/>
           <ToolTip.Tip>
               <ToolTip Content="Remove Item"/>
@@ -35,9 +32,9 @@
       <TreeView.ContextMenu>
         <ContextMenu DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
                      x:DataType="vm:MainWindowViewModel">
-          <MenuItem Header="Add Folder" Command="{Binding AddFolderCommand}"/>
-          <MenuItem Header="Remove" Command="{Binding RemoveItemCommand}"/>
-          <MenuItem Header="Rename" Command="{Binding RenameItemCommand}"/>
+          <MenuItem Header="Add Folder" Command="{Binding DataCollectionManager.AddFolderCommand}"/>
+          <MenuItem Header="Remove" Command="{Binding DataCollectionManager.RemoveItemCommand}"/>
+          <MenuItem Header="Rename" Command="{Binding DataCollectionManager.RenameItemCommand}"/>
         </ContextMenu>
       </TreeView.ContextMenu>
     </TreeView>
@@ -95,7 +92,7 @@
     </ScrollViewer>
     <!-- Download Buttons -->
     <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
-      <Button Command="{Binding DownloadAllFilesCommand}"
+      <Button Command="{Binding DataCollectionManager.DownloadAllFilesCommand}"
               HorizontalAlignment="Center"
               MinHeight="30"
               MinWidth="100"
@@ -108,7 +105,7 @@
           <ToolTip Content="Download all JSON files."/>
         </ToolTip.Tip>
       </Button>
-      <Button Command="{Binding DownloadSelectedAsPdfCommand}"
+      <Button Command="{Binding DataCollectionManager.DownloadSelectedAsPdfCommand}"
               HorizontalAlignment="Center"
               MinHeight="30"
               MinWidth="100"

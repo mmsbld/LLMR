@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media;
@@ -35,6 +34,13 @@ namespace LLMR.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase, IDisposable
     {
+        #region NEW CODE UI-REVAMP (p2: extract Data Collection ("File Explorer" part)
+        // lala
+        public DataCollectionManager DataCollectionManager { get; } // (and init in constructor)
+        
+        
+        #endregion
+        
         #region NEW CODE UI-REVAMP
 
         // Instead of exposing a view instance, we expose booleans controlling which tab is visible.
@@ -247,19 +253,18 @@ namespace LLMR.ViewModels
         public ReactiveCommand<Unit, Unit> GenerateLinkCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> RunMulticallerCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> StopGradioServerCommand { get; private set; }
-        public ReactiveCommand<Unit, Unit> DownloadAllFilesCommand { get; private set; }
-        public ReactiveCommand<Unit, Unit> DownloadSelectedAsPdfCommand { get; private set; }
+        // public ReactiveCommand<Unit, Unit> DownloadAllFilesCommand { get; private set; }
+        // public ReactiveCommand<Unit, Unit> DownloadSelectedAsPdfCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> BackToModelSettingsCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> CopyLastTenMessagesCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> CopyAllMessagesCommand { get; private set; }
         public ReactiveCommand<Unit, bool> ToggleShowTimestampCommand { get; private set; }
-        public ReactiveCommand<Unit, Unit> AddFolderCommand { get; private set; }
-        public ReactiveCommand<Unit, Unit> RemoveItemCommand { get; private set; }
-        public ReactiveCommand<Unit, Unit> RenameItemCommand { get; private set; }
+        // public ReactiveCommand<Unit, Unit> AddFolderCommand { get; private set; }
+        // public ReactiveCommand<Unit, Unit> RemoveItemCommand { get; private set; }
+        // public ReactiveCommand<Unit, Unit> RenameItemCommand { get; private set; }
 
         #endregion
-
-        #region Constructor
+        
 
         public MainWindowViewModel()
         {
@@ -267,6 +272,8 @@ namespace LLMR.ViewModels
 
             _apiKeyManager = new APIKeyManager();
             _dialogService = new DialogService();
+            DataCollectionManager = new DataCollectionManager(_dialogService); // here: init DataCollectionManager (new code UI-REVAMP p2)
+
             _pythonEnvironmentInitializer = new PythonEnvironmentInitializer();
 
             AvailableModuleTypes = ["OpenAI", "OpenAI o1-line", "Hugging Face Serverless Inference", "OpenAI Multicaller"];
@@ -281,7 +288,7 @@ namespace LLMR.ViewModels
             ChatHistoryCollection.ConsoleMessageOccurred += OnConsoleMessageOccurred;
             ChatHistoryCollection.ExceptionOccurred += OnExceptionOccurred;
             
-            LoadChatHistories();
+            DataCollectionManager.LoadChatHistories();
 
             _isApiKeySelected = this.WhenAnyValue(x => x.SelectedApiKey)
                 .Select(apiKey => apiKey != null)
@@ -331,8 +338,7 @@ namespace LLMR.ViewModels
                 var settingsWindow = new SettingsWindow();
                 settingsWindow.ShowDialog(App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop ? desktop.MainWindow : null);
             });
-
-            #endregion
+            
 
             ViewManager.SwitchToLogin();
 
@@ -361,15 +367,15 @@ namespace LLMR.ViewModels
             GenerateLinkCommand = ReactiveCommand.CreateFromTask(GenerateLinkAsync);
             RunMulticallerCommand = ReactiveCommand.CreateFromTask(RunMulticallerAsync);
             StopGradioServerCommand = ReactiveCommand.CreateFromTask(StopGradioServerAsync);
-            DownloadAllFilesCommand = ReactiveCommand.CreateFromTask(DownloadAllFilesAsync);
-            DownloadSelectedAsPdfCommand = ReactiveCommand.CreateFromTask(DownloadSelectedAsPdfAsync);
+            // DownloadAllFilesCommand = ReactiveCommand.CreateFromTask(DownloadAllFilesAsync);
+            // DownloadSelectedAsPdfCommand = ReactiveCommand.CreateFromTask(DownloadSelectedAsPdfAsync);
             BackToModelSettingsCommand = ReactiveCommand.CreateFromTask(BackToModelSettingsAsync);
             CopyLastTenMessagesCommand = ReactiveCommand.CreateFromTask(CopyLastTenMessagesAsync);
             CopyAllMessagesCommand = ReactiveCommand.CreateFromTask(CopyAllMessagesAsync);
             ToggleShowTimestampCommand = ReactiveCommand.Create(() => ShowTimestamp = !ShowTimestamp);
-            AddFolderCommand = ReactiveCommand.CreateFromTask(AddFolderAsync);
-            RemoveItemCommand = ReactiveCommand.Create(RemoveItem);
-            RenameItemCommand = ReactiveCommand.CreateFromTask(RenameItemAsync);
+            // AddFolderCommand = ReactiveCommand.CreateFromTask(AddFolderAsync);
+            // RemoveItemCommand = ReactiveCommand.Create(RemoveItem);
+            // RenameItemCommand = ReactiveCommand.CreateFromTask(RenameItemAsync);
         }
 
         private void SubscribeToConsoleMessageManager()
@@ -815,7 +821,7 @@ namespace LLMR.ViewModels
                 IsServerRunning = false;
                 ServerStatus = "Multicaller stopped";
                 ServerStatusColor = Brushes.Red;
-                LoadChatHistories();
+                DataCollectionManager.LoadChatHistories();
 
                 ViewManager.SwitchToDataCollection();
                 
@@ -850,7 +856,7 @@ namespace LLMR.ViewModels
                 var stopMessage = await _apiService.StopGradioInterfaceAsync();
                 ConsoleMessageManager.LogInfo($"Server stopped with message: {stopMessage}");
                 IsServerRunning = false;
-                LoadChatHistories();
+                DataCollectionManager.LoadChatHistories();
                 ViewManager.SwitchToDataCollection();
                 ViewManager.IsLinkGenerationEnabled = false;
             }
@@ -860,110 +866,110 @@ namespace LLMR.ViewModels
             }
         }
         
-        private void LoadChatHistories()
-        {
-            var directoryPath = PathManager.Combine(PathManager.GetBaseDirectory(), "Scripts", "chat_histories");
-            ChatHistoryCollection.LoadFiles(directoryPath);
-        }
+        // private void LoadChatHistories()
+        // {
+        //     var directoryPath = PathManager.Combine(PathManager.GetBaseDirectory(), "Scripts", "chat_histories");
+        //     ChatHistoryCollection.LoadFiles(directoryPath);
+        // }
 
-        private async Task<Unit> DownloadAllFilesAsync()
-        {
-            try
-            {
-                var topLevel = GetTopLevel();
-
-                var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
-                {
-                    Title = "Choose a folder to copy all chat histories to."
-                });
-
-                if (folders.Count > 0)
-                {
-                    var targetDirectory = folders[0].Path.LocalPath;
-                    var sourceDirectory = PathManager.Combine(PathManager.GetBaseDirectory(), "Scripts", "chat_histories");
-
-                    foreach (var file in System.IO.Directory.GetFiles(sourceDirectory, "*.json"))
-                    {
-                        var destFile = System.IO.Path.Combine(targetDirectory, System.IO.Path.GetFileName(file));
-                        File.Copy(file, destFile, true);
-                        ConsoleMessageManager.LogInfo($"Copied {file} to {destFile}.");
-                    }
-
-                    await _dialogService.ShowMessageAsync("Download successful", "All JSON-files were successfully downloaded.");
-                }
-                else
-                {
-                    ConsoleMessageManager.LogWarning("No directory selected.");
-                }
-            }
-            catch (Exception ex)
-            {
-                ConsoleMessageManager.LogError($"Error: {ex.Message}");
-                await _dialogService.ShowMessageAsync("Download was not successful", $"There was an error: {ex.Message}");
-            }
-
-            return Unit.Default;
-        }
-
-        private async Task<Unit> DownloadSelectedAsPdfAsync()
-        {
-            try
-            {
-                if (ChatHistoryCollection.SelectedFile == null || string.IsNullOrEmpty(ChatHistoryCollection.SelectedFile.Filename))
-                {
-                    await _dialogService.ShowMessageAsync("No file chosen", "Please select a chat history to download.");
-                    ConsoleMessageManager.LogWarning("No chat history selected.");
-                    return Unit.Default;
-                }
-
-                var topLevel = GetTopLevel();
-
-                var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-                {
-                    Title = "Export the chosen chat history as a PDF file.",
-                    FileTypeChoices = new List<FilePickerFileType>
-                    {
-                        new FilePickerFileType("PDF Files") { Patterns = ["*.pdf"] }
-                    },
-                    SuggestedFileName = $"{System.IO.Path.GetFileNameWithoutExtension(ChatHistoryCollection.SelectedFile.Filename)}.pdf"
-                });
-
-                if (file is not null)
-                {
-                    var pdfPath = file.Path.LocalPath;
-                    ConsoleMessageManager.LogInfo($"PDF is saved under {pdfPath}.");
-
-                    GeneratePdf(pdfPath);
-
-                    await _dialogService.ShowMessageAsync("Export successful", "The chosen chat history was successfully exported as PDF.");
-                }
-                else
-                {
-                    ConsoleMessageManager.LogWarning("No chat history selected.");
-                }
-            }
-            catch (Exception ex)
-            {
-                ConsoleMessageManager.LogError($"Error: {ex.Message}");
-                await _dialogService.ShowMessageAsync("Download not successful", $"There was an error: {ex.Message}");
-            }
-
-            return Unit.Default;
-        }
-
-        private void GeneratePdf(string pdfPath)
-        {
-            try
-            {
-                var pdf = new ChatHistoryDocument(ChatHistoryCollection);
-                pdf.GeneratePdf(pdfPath);
-                ConsoleMessageManager.LogInfo($"PDF generated at {pdfPath}.");
-            }
-            catch (Exception ex)
-            {
-                AddExceptionMessageToConsole(ex);
-            }
-        }
+        // private async Task<Unit> DownloadAllFilesAsync()
+        // {
+        //     try
+        //     {
+        //         var topLevel = GetTopLevel();
+        //
+        //         var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        //         {
+        //             Title = "Choose a folder to copy all chat histories to."
+        //         });
+        //
+        //         if (folders.Count > 0)
+        //         {
+        //             var targetDirectory = folders[0].Path.LocalPath;
+        //             var sourceDirectory = PathManager.Combine(PathManager.GetBaseDirectory(), "Scripts", "chat_histories");
+        //
+        //             foreach (var file in System.IO.Directory.GetFiles(sourceDirectory, "*.json"))
+        //             {
+        //                 var destFile = System.IO.Path.Combine(targetDirectory, System.IO.Path.GetFileName(file));
+        //                 File.Copy(file, destFile, true);
+        //                 ConsoleMessageManager.LogInfo($"Copied {file} to {destFile}.");
+        //             }
+        //
+        //             await _dialogService.ShowMessageAsync("Download successful", "All JSON-files were successfully downloaded.");
+        //         }
+        //         else
+        //         {
+        //             ConsoleMessageManager.LogWarning("No directory selected.");
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         ConsoleMessageManager.LogError($"Error: {ex.Message}");
+        //         await _dialogService.ShowMessageAsync("Download was not successful", $"There was an error: {ex.Message}");
+        //     }
+        //
+        //     return Unit.Default;
+        // }
+        //
+        // private async Task<Unit> DownloadSelectedAsPdfAsync()
+        // {
+        //     try
+        //     {
+        //         if (ChatHistoryCollection.SelectedFile == null || string.IsNullOrEmpty(ChatHistoryCollection.SelectedFile.Filename))
+        //         {
+        //             await _dialogService.ShowMessageAsync("No file chosen", "Please select a chat history to download.");
+        //             ConsoleMessageManager.LogWarning("No chat history selected.");
+        //             return Unit.Default;
+        //         }
+        //
+        //         var topLevel = GetTopLevel();
+        //
+        //         var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        //         {
+        //             Title = "Export the chosen chat history as a PDF file.",
+        //             FileTypeChoices = new List<FilePickerFileType>
+        //             {
+        //                 new FilePickerFileType("PDF Files") { Patterns = ["*.pdf"] }
+        //             },
+        //             SuggestedFileName = $"{System.IO.Path.GetFileNameWithoutExtension(ChatHistoryCollection.SelectedFile.Filename)}.pdf"
+        //         });
+        //
+        //         if (file is not null)
+        //         {
+        //             var pdfPath = file.Path.LocalPath;
+        //             ConsoleMessageManager.LogInfo($"PDF is saved under {pdfPath}.");
+        //
+        //             GeneratePdf(pdfPath);
+        //
+        //             await _dialogService.ShowMessageAsync("Export successful", "The chosen chat history was successfully exported as PDF.");
+        //         }
+        //         else
+        //         {
+        //             ConsoleMessageManager.LogWarning("No chat history selected.");
+        //         }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         ConsoleMessageManager.LogError($"Error: {ex.Message}");
+        //         await _dialogService.ShowMessageAsync("Download not successful", $"There was an error: {ex.Message}");
+        //     }
+        //
+        //     return Unit.Default;
+        // }
+        //
+        // private void GeneratePdf(string pdfPath)
+        // {
+        //     try
+        //     {
+        //         var pdf = new ChatHistoryDocument(ChatHistoryCollection);
+        //         pdf.GeneratePdf(pdfPath);
+        //         ConsoleMessageManager.LogInfo($"PDF generated at {pdfPath}.");
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         AddExceptionMessageToConsole(ex);
+        //     }
+        // }
 
         private async Task<Unit> CopyLastTenMessagesAsync()
         {
@@ -996,66 +1002,66 @@ namespace LLMR.ViewModels
             return Unit.Default;
         }
 
-        private void RemoveItem()
-        {
-            try
-            {
-                ChatHistoryCollection.RemoveItem(ChatHistoryCollection.SelectedFile);
-                ConsoleMessageManager.LogInfo("Item removed successfully.");
-            }
-            catch (Exception ex)
-            {
-                AddExceptionMessageToConsole(ex);
-            }
-        }
-
-        private async Task<Unit> AddFolderAsync()
-        {
-            var folderName = await _dialogService.PromptUserAsync("Enter the name of the new folder:");
-            if (string.IsNullOrWhiteSpace(folderName))
-            {
-                var consoleMessage = ConsoleMessageManager.CreateConsoleMessage("Folder creation canceled by the user.", MessageType.Info);
-                AddToConsole(consoleMessage);
-                return Unit.Default;
-            }
-
-            try
-            {
-                ChatHistoryCollection.AddFolder(folderName);
-                var consoleMessage = ConsoleMessageManager.CreateConsoleMessage($"Folder '{folderName}' added successfully.", MessageType.Info);
-                AddToConsole(consoleMessage);
-            }
-            catch (Exception ex)
-            {
-                AddExceptionMessageToConsole(ex);
-            }
-
-            return Unit.Default;
-        }
-
-        private async Task<Unit> RenameItemAsync()
-        {
-            var newName = await _dialogService.PromptUserAsync("Enter the new name:");
-            if (string.IsNullOrWhiteSpace(newName))
-            {
-                var consoleMessage = ConsoleMessageManager.CreateConsoleMessage("Rename operation canceled by the user.", MessageType.Info);
-                AddToConsole(consoleMessage);
-                return Unit.Default;
-            }
-
-            try
-            {
-                ChatHistoryCollection.RenameItem(ChatHistoryCollection.SelectedFile, newName);
-                var consoleMessage = ConsoleMessageManager.CreateConsoleMessage("Item renamed successfully.", MessageType.Info);
-                AddToConsole(consoleMessage);
-            }
-            catch (Exception ex)
-            {
-                AddExceptionMessageToConsole(ex);
-            }
-
-            return Unit.Default;
-        }
+        // private void RemoveItem()
+        // {
+        //     try
+        //     {
+        //         ChatHistoryCollection.RemoveItem(ChatHistoryCollection.SelectedFile);
+        //         ConsoleMessageManager.LogInfo("Item removed successfully.");
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         AddExceptionMessageToConsole(ex);
+        //     }
+        // }
+        //
+        // private async Task<Unit> AddFolderAsync()
+        // {
+        //     var folderName = await _dialogService.PromptUserAsync("Enter the name of the new folder:");
+        //     if (string.IsNullOrWhiteSpace(folderName))
+        //     {
+        //         var consoleMessage = ConsoleMessageManager.CreateConsoleMessage("Folder creation canceled by the user.", MessageType.Info);
+        //         AddToConsole(consoleMessage);
+        //         return Unit.Default;
+        //     }
+        //
+        //     try
+        //     {
+        //         ChatHistoryCollection.AddFolder(folderName);
+        //         var consoleMessage = ConsoleMessageManager.CreateConsoleMessage($"Folder '{folderName}' added successfully.", MessageType.Info);
+        //         AddToConsole(consoleMessage);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         AddExceptionMessageToConsole(ex);
+        //     }
+        //
+        //     return Unit.Default;
+        // }
+        //
+        // private async Task<Unit> RenameItemAsync()
+        // {
+        //     var newName = await _dialogService.PromptUserAsync("Enter the new name:");
+        //     if (string.IsNullOrWhiteSpace(newName))
+        //     {
+        //         var consoleMessage = ConsoleMessageManager.CreateConsoleMessage("Rename operation canceled by the user.", MessageType.Info);
+        //         AddToConsole(consoleMessage);
+        //         return Unit.Default;
+        //     }
+        //
+        //     try
+        //     {
+        //         ChatHistoryCollection.RenameItem(ChatHistoryCollection.SelectedFile, newName);
+        //         var consoleMessage = ConsoleMessageManager.CreateConsoleMessage("Item renamed successfully.", MessageType.Info);
+        //         AddToConsole(consoleMessage);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         AddExceptionMessageToConsole(ex);
+        //     }
+        //
+        //     return Unit.Default;
+        // }
 
         private void AddToConsole(ConsoleMessage message)
         {
