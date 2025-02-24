@@ -4,35 +4,76 @@
              x:Class="LLMR.Views.MenuLeft"
              x:DataType="vm:MainWindowViewModel">
     <Border Background="White" Padding="10">
-        <StackPanel Width="230">
-            <!-- Top: Squared logo -->
-            <Image Source="avares://LLMR/Assets/logo/logo_quadratic.png"
-                   Width="80" Height="80" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-            <!-- Navigation Buttons -->
-            <StackPanel Spacing="10">
-                <Button Content="{Binding ViewManager.NameOfCurrentPrimaryTab}" 
-                        Command="{Binding SwitchToMainTabCommand}"
-                        Classes="confirm"/>
-                <Button Content="{Binding ViewManager.NameOfCurrentSecondaryTab}" 
-                        Command="{Binding SwitchToSecondaryTabCommand}"
-                        Classes="secondary"/>
-            </StackPanel>
-            <!-- Server Status and controls -->
-            <StackPanel Margin="0,20,0,0" Spacing="5">
-                <TextBlock Text="Server Status:" FontWeight="Bold"/>
-                <TextBlock Text="{Binding ServerStatus}" Foreground="{Binding ServerStatusColor}"/>
-                <Button Content="Stop Server" Command="{Binding StopGradioServerCommand}" Classes="danger"/>
-                <Button Content="Restart" Command="{Binding BackToModelSettingsCommand}" Classes="secondary"/>
-            </StackPanel>
-            <!-- About and Settings Buttons -->
-            <StackPanel Margin="0,20,0,0" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                <Button Command="{Binding OpenAboutCommand}" ToolTip.Tip="About">
-                    <TextBlock Text="?" FontSize="20" FontWeight="Bold" />
+        <DockPanel Width="250"> <!-- Keep the left menu at ~250px -->
+            
+            <!-- TOP SECTION -->
+            <StackPanel DockPanel.Dock="Top" Spacing="20">
+                
+                <!-- Clickable Logo (scaled to fit) -->
+                <Button Command="{Binding OpenAboutCommand}"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalAlignment="Center">
+                    <Image Source="avares://LLMR/Assets/logo/logo_quadratic.png"
+                           Stretch="Uniform"
+                           MaxWidth="230"
+                           MaxHeight="200" />
                 </Button>
-                <Button Command="{Binding OpenSettingsCommand}" ToolTip.Tip="Settings">
-                    <TextBlock Text="⚙" FontSize="20"/>
-                </Button>
+
+                <!-- Navigation Buttons -->
+                <StackPanel Spacing="10">
+                    <Button Content="{Binding ViewManager.NameOfCurrentPrimaryTab}" 
+                            Command="{Binding SwitchToMainTabCommand}"
+                            Classes="confirm"/>
+                    <Button Content="{Binding ViewManager.NameOfCurrentSecondaryTab}" 
+                            Command="{Binding SwitchToSecondaryTabCommand}"
+                            Classes="secondary"/>
+                </StackPanel>
+
+                <!-- Server Status and controls (centered) -->
+                <StackPanel Margin="0,20,0,0"
+                            Spacing="5"
+                            HorizontalAlignment="Center">
+                    <TextBlock Text="Server Status:" 
+                               FontWeight="Bold" 
+                               HorizontalAlignment="Center"/>
+                    <!-- Soft separator -->
+                    <Separator Width="100" Margin="0,5"/>
+                    
+                    <TextBlock Text="{Binding ServerStatus}"
+                               Foreground="{Binding ServerStatusColor}"
+                               HorizontalAlignment="Center"/>
+                    <!-- Buttons -->
+                    <Button Content="Stop Server"
+                            Command="{Binding StopGradioServerCommand}"
+                            Classes="danger"/>
+                    <Button Content="Restart"
+                            Command="{Binding BackToModelSettingsCommand}"
+                            Classes="secondary"/>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+
+            <!-- BOTTOM SECTION -->
+            <StackPanel DockPanel.Dock="Bottom" Spacing="10" Margin="0,10,0,10">
+                <!-- About & Settings each ~ half width, icons centered -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="0">
+                    <Button Command="{Binding OpenAboutCommand}"
+                            ToolTip.Tip="About"
+                            Width="115">
+                        <TextBlock Text="?" FontSize="20" FontWeight="Bold" />
+                    </Button>
+                    <Button Command="{Binding OpenSettingsCommand}"
+                            ToolTip.Tip="Settings"
+                            Width="115">
+                        <TextBlock Text="⚙" FontSize="20"/>
+                    </Button>
+                </StackPanel>
+
+                <!-- Current Date/Time in local short format, centered at bottom -->
+                <TextBlock Text="{Binding CurrentDateTime, StringFormat={}{0:g}}"
+                           HorizontalAlignment="Center"
+                           Margin="0,10,0,0" />
+            </StackPanel>
+        </DockPanel>
     </Border>
 </UserControl>

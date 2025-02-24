@@ -61,6 +61,27 @@ public class DataCollectionManager
     {
         ConsoleMessageManager.LogError(message);
     }
+    
+    // // Corrected event handler signatures
+    // private void OnConsoleMessageOccurred(object? sender, string message)
+    // {
+    //     Dispatcher.UIThread.InvokeAsync(() =>
+    //     {
+    //         var consoleMessage = ConsoleMessageManager.CreateConsoleMessage(message, MessageType.Info);
+    //         ConsoleMessages.Add(consoleMessage);
+    //         SelectedConsoleIndex = ConsoleMessages.Count - 1;
+    //     });
+    // }
+    //
+    // private void OnExceptionOccurred(object? sender, string message)
+    // {
+    //     var consoleMessage = ConsoleMessageManager.CreateConsoleMessage(message, MessageType.Error);
+    //     Dispatcher.UIThread.InvokeAsync(() =>
+    //     {
+    //         ConsoleMessages.Add(consoleMessage);
+    //         SelectedConsoleIndex = ConsoleMessages.Count - 1;
+    //     });
+    // }
 
     public void LoadChatHistories()
     {

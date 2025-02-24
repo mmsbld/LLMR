@@ -1,28 +1,27 @@
 using ReactiveUI;
 
-namespace LLMR.ViewModels
+namespace LLMR.ViewModels;
+
+public class SettingsViewModel : ViewModelBase
 {
-    public class SettingsViewModel : ViewModelBase
+    private bool _showCompatibleLLMsOnly;
+    public bool ShowCompatibleLLMsOnly
     {
-        private bool _showCompatibleLLMsOnly;
-        public bool ShowCompatibleLLMsOnly
-        {
-            get => _showCompatibleLLMsOnly;
-            set => this.RaiseAndSetIfChanged(ref _showCompatibleLLMsOnly, value);
-        }
+        get => _showCompatibleLLMsOnly;
+        set => this.RaiseAndSetIfChanged(ref _showCompatibleLLMsOnly, value);
+    }
 
-        private string _jsonFilesPath = string.Empty;
-        public string JsonFilesPath
-        {
-            get => _jsonFilesPath;
-            set => this.RaiseAndSetIfChanged(ref _jsonFilesPath, value);
-        }
+    private string _jsonFilesPath = string.Empty;
+    public string JsonFilesPath
+    {
+        get => _jsonFilesPath;
+        set => this.RaiseAndSetIfChanged(ref _jsonFilesPath, value);
+    }
 
-        public SettingsViewModel()
-        {
-            // Initialize defaults or load from configuration
-            _showCompatibleLLMsOnly = true;
-            _jsonFilesPath = "default/path/to/json"; 
-        }
+    public SettingsViewModel()
+    {
+        // Initialize defaults or load from configuration
+        _showCompatibleLLMsOnly = true;
+        _jsonFilesPath = "default/path/to/json"; 
     }
 }
