@@ -1,40 +1,71 @@
-<!-- <UserControl xmlns="https://github.com/avaloniaui" -->
-<!--              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" -->
-<!--              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" -->
-<!--              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" -->
-<!--              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" -->
-<!--              x:Class="LLMR.Views.Tabs.LoginTab"> -->
-<!--     Welcome to Avalonia! -->
-<!-- </UserControl> -->
-
+<!-- LoginTab.axaml -->
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:i="https://github.com/projektanker/icons.avalonia"
              xmlns:vm="clr-namespace:LLMR.ViewModels"
              x:Class="LLMR.Views.Tabs.LoginTab"
              x:DataType="vm:MainWindowViewModel">
+  
   <ScrollViewer>
     <StackPanel Margin="20">
+
       <!-- Python Path -->
       <TextBlock Text="Python Path:" Classes="bold" Margin="0,20,0,8"/>
       <TextBox Text="{Binding PythonPath}"
                IsEnabled="{Binding IsPythonPathLocked, Converter={StaticResource InverseBooleanConverter}}"
                Margin="0,0,0,16"/>
 
-      <!-- Module Selection -->
+      <!-- "Select Module" label -->
       <TextBlock Text="Select Module:" Classes="bold" Margin="0,0,0,8"/>
-      <ComboBox ItemsSource="{Binding AvailableModuleTypes}"
-                IsEnabled="{Binding IsPythonPathLocked, Converter={StaticResource InverseBooleanConverter}}"
-                SelectedItem="{Binding SelectedModelType}"
-                Margin="0,0,0,16"/>
+      <Grid Margin="0,0,0,16">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="300"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- LEFT: ListBox of modules -->
+        <ListBox ItemsSource="{Binding AvailableModuleTypes}"
+                 SelectedItem="{Binding SelectedModelType}"
+                 SelectionMode="Single"
+                 IsEnabled="{Binding IsPythonPathLocked, Converter={StaticResource InverseBooleanConverter}}"
+                 Grid.Column="0">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <!-- Display each module’s icon + title in the list -->
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <Image Source="{Binding IconPath}"
+                       Width="32"
+                       Height="32"/>
+                <TextBlock Text="{Binding Title}"
+                           VerticalAlignment="Center"/>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- RIGHT: Selected module’s icon, title, description -->
+        <StackPanel Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Spacing="10">
+          <Image Source="{Binding SelectedModelType.Icon}"
+                 Width="80"
+                 Height="80"
+                 Stretch="Uniform"/>
+          <TextBlock Text="{Binding SelectedModelType.Title}"
+                     FontWeight="Bold"
+                     HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding SelectedModelType.Description}"
+                     TextWrapping="Wrap"
+                     Width="250"
+                     HorizontalAlignment="Center"/>
+        </StackPanel>
+      </Grid>
 
       <!-- API Key Management -->
       <TextBlock Text="Your API key / token:" Classes="bold" Margin="0,0,0,8"/>
       <StackPanel Orientation="Horizontal">
         <ComboBox ItemsSource="{Binding SavedApiKeys}"
                   SelectedItem="{Binding SelectedApiKey}"
-                  MinHeight="30"
-                  MinWidth="200"
                   Margin="5">
           <ComboBox.ItemTemplate>
             <DataTemplate>
@@ -42,30 +73,26 @@
             </DataTemplate>
           </ComboBox.ItemTemplate>
         </ComboBox>
+
         <Button Command="{Binding AddNewApiKeyCommand}"
-                HorizontalAlignment="Center"
-                MinHeight="30"
-                MinWidth="100"
                 Classes="secondary"
                 Margin="5">
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <i:Icon Value="fa-solid fa-user-plus" Width="18" Height="18" Margin="0"/>
-            <TextBlock Text="Add" VerticalAlignment="Center"/>
+            <!-- Example: using a font-awesome icon (or remove if using PNG) -->
+            <TextBlock Text="Add" VerticalAlignment="Center" Margin="5,0,0,0"/>
           </StackPanel>
           <ToolTip.Tip>
             <ToolTip Content="Add a new API key."/>
           </ToolTip.Tip>
         </Button>
+
         <Button Command="{Binding RemoveApiKeyCommand}"
                 IsVisible="{Binding IsApiKeySelected}"
-                HorizontalAlignment="Center"
-                MinHeight="30"
-                MinWidth="100"
                 Classes="danger"
                 Margin="5">
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <i:Icon Value="fa-solid fa-user-minus" Width="18" Height="18" Margin="0"/>
-            <TextBlock Text="Remove" VerticalAlignment="Center"/>
+            <!-- Example: using a font-awesome icon (or remove if using PNG) -->
+            <TextBlock Text="Remove" VerticalAlignment="Center" Margin="5,0,0,0"/>
           </StackPanel>
           <ToolTip.Tip>
             <ToolTip Content="Remove the selected API key."/>
@@ -76,29 +103,20 @@
       <!-- Action Buttons -->
       <StackPanel Orientation="Horizontal">
         <Button Command="{Binding EnsurePythonEnvironmentCommand}"
-                HorizontalAlignment="Center"
-                MinWidth="150"
-                MinHeight="40"
-                Width="200"
                 Classes="confirm"
                 Margin="5">
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <i:Icon Value="fa-solid fa-check" Width="18" Height="18" Margin="0,0,8,0"/>
             <TextBlock Text="Ensure Python" VerticalAlignment="Center"/>
           </StackPanel>
           <ToolTip.Tip>
             <ToolTip Content="Ensure that python and all necessary packages will be placed in a folder where LLMRunner can access it."/>
           </ToolTip.Tip>
         </Button>
+
         <Button Command="{Binding ConfirmLoginCommand}"
-                HorizontalAlignment="Center"
-                MinWidth="150"
-                MinHeight="40"
-                Width="200"
                 Classes="confirm"
                 Margin="5">
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <i:Icon Value="fa-solid fa-check" Width="18" Height="18" Margin="0,0,8,0"/>
             <TextBlock Text="Confirm" VerticalAlignment="Center"/>
           </StackPanel>
           <ToolTip.Tip>

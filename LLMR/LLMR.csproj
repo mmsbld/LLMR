@@ -49,6 +49,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Include="FluentTheme_palette.txt" />
       <Content Include="Scripts\DebugInformationPythonInstallationScripts\VerifyPythonInstallationOnWindows.txt" />
       <Content Include="Scripts\GenerateNuGetPkgsList.ps1">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

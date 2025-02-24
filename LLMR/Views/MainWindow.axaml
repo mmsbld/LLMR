@@ -5,130 +5,148 @@
         xmlns:local="using:LLMR.Views"
         xmlns:helpers="clr-namespace:LLMR.Helpers"
         xmlns:system="clr-namespace:System;assembly=System.Runtime"
-        xmlns:model="clr-namespace:LLMR.Model"
         xmlns:tabs="clr-namespace:LLMR.Views.Tabs"
         x:Class="LLMR.Views.MainWindow"
         x:Name="RootWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="LLMR" Width="1200" Height="800"
+        Title="LLMR"
+        Width="1200"
+        Height="800"
         MinWidth="900">
+
   <Window.Resources>
     <ResourceDictionary>
-      <!-- Note: No "StyleInclude" here, as it is already added in App.axaml -->
-      <helpers:NullToBoolConverter x:Key="NullToBoolConverter"/>
-      <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+      <!-- Already included in your code -->
       <helpers:BooleanToBoldFontWeightConverter x:Key="BooleanToBoldFontWeightConverter"/>
       <helpers:BoolToTextConverter x:Key="BoolToTextConverter" />
-      <helpers:PercentageConverter x:Key="PercentageConverter"></helpers:PercentageConverter>
-      <!-- Strongly-typed BindingProxy -->
+      <helpers:PercentageConverter x:Key="PercentageConverter"/>
       <helpers:BindingProxy x:Key="MainViewModelProxy"
                             x:TypeArguments="vm:MainWindowViewModel"
                             Data="{Binding}" />
     </ResourceDictionary>
   </Window.Resources>
-  <!-- Root Grid -->
+
+  <!-- Root Grid: 2 rows, 2 columns. -->
   <Grid x:Name="MainWindowGrid">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>    <!-- Main content area -->
+      <RowDefinition Height="Auto"/> <!-- Console at bottom -->
+    </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="250"/>  <!-- Left menu -->
-      <ColumnDefinition Width="*"/>    <!-- Right content -->
+      <ColumnDefinition Width="250"/> <!-- Left menu -->
+      <ColumnDefinition Width="*"/>   <!-- Right content -->
     </Grid.ColumnDefinitions>
-    <!-- Left Navigation Menu -->
-    <local:MenuLeft Grid.Column="0"/>
-    <!-- Right Content Area -->
-    <Grid Grid.Column="1">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>    <!-- Main view area -->
-        <RowDefinition Height="Auto"/> <!-- Console area -->
-      </Grid.RowDefinitions>
-      <!-- Main view content bound via CurrentMainView -->
-      <Grid>
-        <tabs:LoginTab IsVisible="{Binding ViewManager.IsLoginEnabled}"/>
-        <tabs:ModelSettingsTab IsVisible="{Binding ViewManager.IsModelSettingsEnabled}"/>
-        <tabs:MulticallerTab IsVisible="{Binding ViewManager.IsMulticallerModelSettingsEnabled}"/>
-        <tabs:LinkGenerationTab IsVisible="{Binding ViewManager.IsLinkGenerationEnabled}"/>
-        <tabs:DataCollectionTab IsVisible="{Binding ViewManager.IsDataCollectionEnabled}"/>
-      </Grid>
-      <!-- Console Area -->
-      <Expander Grid.Row="1" Header="Console" IsExpanded="{Binding IsConsoleExpanded, Mode=TwoWay}" HorizontalAlignment="Stretch">
-        <Grid HorizontalAlignment="Stretch">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <!-- Console toolbar -->
-          <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
-            <Button Command="{Binding CopyLastTenMessagesCommand}" Width="40" Height="40" Classes="secondary">
-              <i:Icon Value="fa-solid fa-copy" Width="20" Height="20" Foreground="#1F5222"/>
-              <ToolTip.Tip>
-                <ToolTip Content="Copy last ten console messages"/>
-              </ToolTip.Tip>
-            </Button>
-            <Button Command="{Binding CopyAllMessagesCommand}" Width="40" Height="40" Classes="secondary">
-              <i:Icon Value="fa-solid fa-clipboard" Width="20" Height="20" Foreground="#1F5222"/>
-              <ToolTip.Tip>
-                <ToolTip Content="Copy all console messages"/>
-              </ToolTip.Tip>
-            </Button>
-            <Button Command="{Binding ToggleShowTimestampCommand}" Width="40" Height="40" Classes="secondary">
-              <i:Icon Value="fa-solid fa-clock" Width="20" Height="20" Foreground="#1F5222"/>
-              <ToolTip.Tip>
-                <ToolTip Content="Hide/Show Timestamp for console messages"/>
-              </ToolTip.Tip>
-            </Button>
-          </StackPanel>
-          <!-- Console messages -->
-          <Border Grid.Row="1" Classes="console-border" Background="{DynamicResource ConsoleBackgroundBrush}"
-                  MaxHeight="{Binding ElementName=MainWindowGrid, Path=Bounds.Height, Converter={StaticResource PercentageConverter}, ConverterParameter=0.3}">
-            <ScrollViewer x:Name="ConsoleScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-              <ItemsControl x:Name="ConsoleItemsControl" ItemsSource="{Binding ConsoleMessages}">
-                <!-- We remove x:DataType here to force dynamic resolution so that our BindingProxy works -->
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource ConsoleTextBrush}" FontSize="13" FontFamily="Consolas, Lucida Console">
-                      <!-- Timestamp portion -->
-                      <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
-                        <Run.Text>
-                          <MultiBinding Converter="{StaticResource BoolToTextConverter}">
-                            <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
-                            <Binding>
-                              <Binding.Source>
-                                <system:String>[</system:String>
-                              </Binding.Source>
-                            </Binding>
-                          </MultiBinding>
-                        </Run.Text>
-                      </Run>
-                      <Run Foreground="{DynamicResource TimestampForegroundBrush}">
-                        <Run.Text>
-                          <MultiBinding Converter="{StaticResource BoolToTextConverter}">
-                            <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
-                            <Binding Path="Timestamp"/>
-                          </MultiBinding>
-                        </Run.Text>
-                      </Run>
-                      <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
-                        <Run.Text>
-                          <MultiBinding Converter="{StaticResource BoolToTextConverter}">
-                            <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
-                            <Binding>
-                              <Binding.Source>
-                                <system:String>] </system:String>
-                              </Binding.Source>
-                            </Binding>
-                          </MultiBinding>
-                        </Run.Text>
-                      </Run>
-                      <!-- Message Text -->
-                      <Run Text="{Binding Text}" Foreground="{Binding Color}"
-                           FontWeight="{Binding IsBold, Converter={StaticResource BooleanToBoldFontWeightConverter}}"/>
-                    </TextBlock>
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-            </ScrollViewer>
-          </Border>
-        </Grid>
-      </Expander>
+
+    <!-- Left Navigation Menu (spans both rows) -->
+    <local:MenuLeft Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" />
+
+    <!-- Right Content Area (Row=0, Col=1) -->
+    <Grid Grid.Row="0" Grid.Column="1">
+      <!-- Just a single row definition here: the main tabs -->
+      <tabs:LoginTab IsVisible="{Binding ViewManager.IsLoginEnabled}"/>
+      <tabs:ModelSettingsTab IsVisible="{Binding ViewManager.IsModelSettingsEnabled}"/>
+      <tabs:MulticallerTab IsVisible="{Binding ViewManager.IsMulticallerModelSettingsEnabled}"/>
+      <tabs:LinkGenerationTab IsVisible="{Binding ViewManager.IsLinkGenerationEnabled}"/>
+      <tabs:DataCollectionTab IsVisible="{Binding ViewManager.IsDataCollectionEnabled}"/>
     </Grid>
+
+    <!-- Console Area (Row=1, spans 2 columns) -->
+    <Expander Grid.Row="1"
+              Grid.ColumnSpan="2"
+              Header="Console"
+              IsExpanded="{Binding IsConsoleExpanded, Mode=TwoWay}"
+              HorizontalAlignment="Stretch">
+      <Grid HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Console toolbar -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
+          <Button Command="{Binding CopyLastTenMessagesCommand}" Classes="secondary">
+            <i:Icon Value="fa-solid fa-copy" Width="20" Height="20" Foreground="#1F5222"/>
+            <ToolTip.Tip>
+              <ToolTip Content="Copy last ten console messages"/>
+            </ToolTip.Tip>
+          </Button>
+          <Button Command="{Binding CopyAllMessagesCommand}" Classes="secondary">
+            <i:Icon Value="fa-solid fa-clipboard" Width="20" Height="20" Foreground="#1F5222"/>
+            <ToolTip.Tip>
+              <ToolTip Content="Copy all console messages"/>
+            </ToolTip.Tip>
+          </Button>
+          <Button Command="{Binding ToggleShowTimestampCommand}" Classes="secondary">
+            <i:Icon Value="fa-solid fa-clock" Width="20" Height="20" Foreground="#1F5222"/>
+            <ToolTip.Tip>
+              <ToolTip Content="Hide/Show Timestamp for console messages"/>
+            </ToolTip.Tip>
+          </Button>
+        </StackPanel>
+
+        <!-- Console messages -->
+        <Border Grid.Row="1"
+                Classes="console-border"
+                Background="{DynamicResource ConsoleBackgroundBrush}"
+                MaxHeight="{Binding ElementName=MainWindowGrid,
+                                    Path=Bounds.Height,
+                                    Converter={StaticResource PercentageConverter},
+                                    ConverterParameter=0.3}">
+          <ScrollViewer x:Name="ConsoleScrollViewer"
+                        VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl x:Name="ConsoleItemsControl" ItemsSource="{Binding ConsoleMessages}">
+              <!-- We remove x:DataType here to force dynamic resolution so that our BindingProxy works -->
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock TextWrapping="Wrap"
+                             Foreground="{DynamicResource ConsoleTextBrush}"
+                             FontSize="13"
+                             FontFamily="Consolas, Lucida Console">
+                    <!-- Timestamp portion -->
+                    <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
+                      <Run.Text>
+                        <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                          <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
+                          <Binding>
+                            <Binding.Source>
+                              <system:String>[</system:String>
+                            </Binding.Source>
+                          </Binding>
+                        </MultiBinding>
+                      </Run.Text>
+                    </Run>
+                    <Run Foreground="{DynamicResource TimestampForegroundBrush}">
+                      <Run.Text>
+                        <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                          <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
+                          <Binding Path="Timestamp"/>
+                        </MultiBinding>
+                      </Run.Text>
+                    </Run>
+                    <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
+                      <Run.Text>
+                        <MultiBinding Converter="{StaticResource BoolToTextConverter}">
+                          <Binding Path="Data.ShowTimestamp" Source="{StaticResource MainViewModelProxy}"/>
+                          <Binding>
+                            <Binding.Source>
+                              <system:String>] </system:String>
+                            </Binding.Source>
+                          </Binding>
+                        </MultiBinding>
+                      </Run.Text>
+                    </Run>
+                    <!-- Message Text -->
+                    <Run Text="{Binding Text}"
+                         Foreground="{Binding Color}"
+                         FontWeight="{Binding IsBold, Converter={StaticResource BooleanToBoldFontWeightConverter}}"/>
+                  </TextBlock>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Border>
+      </Grid>
+    </Expander>
   </Grid>
 </Window>

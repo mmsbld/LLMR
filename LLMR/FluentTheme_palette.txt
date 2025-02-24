@@ -1,0 +1,29 @@
+Created with https://theme.xaml.live
+
+Tutorial (Avalonia UI Doc.): https://docs.avaloniaui.net/docs/basics/user-interface/styling/themes/fluent
+
+Used the blue color from our logo (srgb: #35bcee) as the accent color.
+
+<FluentTheme>
+  <FluentTheme.Palettes>
+    <ColorPaletteResources x:Key="Light" Accent="#ff35bcee" AltHigh="White" AltLow="White" AltMedium="White" AltMediumHigh="White" AltMediumLow="White" BaseHigh="Black" BaseLow="#ffcccccc" BaseMedium="#ff898989" BaseMediumHigh="#ff5d5d5d" BaseMediumLow="#ff737373" ChromeAltLow="#ff5d5d5d" ChromeBlackHigh="Black" ChromeBlackLow="#ffcccccc" ChromeBlackMedium="#ff5d5d5d" ChromeBlackMediumLow="#ff898989" ChromeDisabledHigh="#ffcccccc" ChromeDisabledLow="#ff898989" ChromeGray="#ff737373" ChromeHigh="#ffcccccc" ChromeLow="#ffececec" ChromeMedium="#ffe6e6e6" ChromeMediumLow="#ffececec" ChromeWhite="White" ListLow="#ffe6e6e6" ListMedium="#ffcccccc" RegionColor="White" />
+    <ColorPaletteResources x:Key="Dark" Accent="#ff35bcee" AltHigh="Black" AltLow="Black" AltMedium="Black" AltMediumHigh="Black" AltMediumLow="Black" BaseHigh="White" BaseLow="#ff333333" BaseMedium="#ff9a9a9a" BaseMediumHigh="#ffb4b4b4" BaseMediumLow="#ff676767" ChromeAltLow="#ffb4b4b4" ChromeBlackHigh="Black" ChromeBlackLow="#ffb4b4b4" ChromeBlackMedium="Black" ChromeBlackMediumLow="Black" ChromeDisabledHigh="#ff333333" ChromeDisabledLow="#ff9a9a9a" ChromeGray="Gray" ChromeHigh="Gray" ChromeLow="#ff151515" ChromeMedium="#ff1d1d1d" ChromeMediumLow="#ff2c2c2c" ChromeWhite="White" ListLow="#ff1d1d1d" ListMedium="#ff333333" RegionColor="Black" />
+  </FluentTheme.Palettes>
+</FluentTheme>
+
+
+SWITCH between light and dark: Pick a default in App.axaml: (debugging purposes etc.)
+-
+<Application ... RequestedThemeVariant="Dark">
+    ...
+</Application>
+(requires Avalonia 11+?.)
+
+or: switch in code behind, for example in App.axaml.cs:
+public override void Initialize()
+{
+    AvaloniaXamlLoader.Load(this);
+    RequestedThemeVariant = ThemeVariant.Dark; // or Light
+}
+
+OR ALLOW user choice by binding RequestedThemeVariant to a ViewModel property. (example in Avalonia doc.)
