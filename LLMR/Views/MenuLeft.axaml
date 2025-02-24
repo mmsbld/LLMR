@@ -3,13 +3,19 @@
              xmlns:vm="using:LLMR.ViewModels"
              x:Class="LLMR.Views.MenuLeft"
              x:DataType="vm:MainWindowViewModel">
-    <Border Background="White" Padding="10">
-        <DockPanel Width="250"> <!-- Keep the left menu at ~250px -->
-            
+    <!-- dynamic resource for light AND Jan's dark mode -->
+    <Border Background="{DynamicResource RegionColor}" Padding="10">
+        <Grid Width="250">
+            <!-- three rows/sections: top, filler, and bottom  -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
             <!-- TOP SECTION -->
-            <StackPanel DockPanel.Dock="Top" Spacing="20">
-                
-                <!-- Clickable Logo (scaled to fit) -->
+            <StackPanel Grid.Row="0" Spacing="20">
+                <!-- clickable Logo -->
                 <Button Command="{Binding OpenAboutCommand}"
                         Background="Transparent"
                         BorderThickness="0"
@@ -19,61 +25,83 @@
                            MaxWidth="230"
                            MaxHeight="200" />
                 </Button>
-
-                <!-- Navigation Buttons -->
+                <!-- navigation btns -->
                 <StackPanel Spacing="10">
-                    <Button Content="{Binding ViewManager.NameOfCurrentPrimaryTab}" 
+                    <Button Content="{Binding ViewManager.NameOfCurrentPrimaryTab}"
                             Command="{Binding SwitchToMainTabCommand}"
-                            Classes="confirm"/>
-                    <Button Content="{Binding ViewManager.NameOfCurrentSecondaryTab}" 
+                            Classes="confirm" />
+                    <Button Content="{Binding ViewManager.NameOfCurrentSecondaryTab}"
                             Command="{Binding SwitchToSecondaryTabCommand}"
-                            Classes="secondary"/>
+                            Classes="secondary" />
                 </StackPanel>
-
-                <!-- Server Status and controls (centered) -->
-                <StackPanel Margin="0,20,0,0"
-                            Spacing="5"
-                            HorizontalAlignment="Center">
-                    <TextBlock Text="Server Status:" 
-                               FontWeight="Bold" 
-                               HorizontalAlignment="Center"/>
-                    <!-- Soft separator -->
-                    <Separator Width="100" Margin="0,5"/>
-                    
-                    <TextBlock Text="{Binding ServerStatus}"
-                               Foreground="{Binding ServerStatusColor}"
-                               HorizontalAlignment="Center"/>
-                    <!-- Buttons -->
-                    <Button Content="Stop Server"
-                            Command="{Binding StopGradioServerCommand}"
-                            Classes="danger"/>
-                    <Button Content="Restart"
-                            Command="{Binding BackToModelSettingsCommand}"
-                            Classes="secondary"/>
+                <!-- server status -->
+                <StackPanel Margin="0,20,0,0" Spacing="10">
+                    <Separator />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+                        <TextBlock Text="Server Status:" FontWeight="Bold" />
+                        <TextBlock Text="{Binding ServerStatus}"
+                                   Foreground="{Binding ServerStatusColor}" />
+                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Content="Stop Server"
+                                Command="{Binding StopGradioServerCommand}"
+                                Classes="danger"
+                                Grid.Column="0" />
+                        <Button Content="Restart"
+                                Command="{Binding BackToModelSettingsCommand}"
+                                Grid.Column="1" />
+                    </Grid>
+                    <Separator />
                 </StackPanel>
             </StackPanel>
+
+            <!-- FILLER -->
+            <Border Grid.Row="1" Background="Transparent" />
 
             <!-- BOTTOM SECTION -->
-            <StackPanel DockPanel.Dock="Bottom" Spacing="10" Margin="0,10,0,10">
-                <!-- About & Settings each ~ half width, icons centered -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="0">
-                    <Button Command="{Binding OpenAboutCommand}"
-                            ToolTip.Tip="About"
-                            Width="115">
-                        <TextBlock Text="?" FontSize="20" FontWeight="Bold" />
-                    </Button>
-                    <Button Command="{Binding OpenSettingsCommand}"
-                            ToolTip.Tip="Settings"
-                            Width="115">
-                        <TextBlock Text="⚙" FontSize="20"/>
-                    </Button>
-                </StackPanel>
-
-                <!-- Current Date/Time in local short format, centered at bottom -->
-                <TextBlock Text="{Binding CurrentDateTime, StringFormat={}{0:g}}"
+            <Grid Grid.Row="2" Margin="0,10,0,35">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" /> <!-- date -->
+                    <RowDefinition Height="Auto" /> <!-- time & btns -->
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding CurrentDate}"
+                           Grid.Row="0"
                            HorizontalAlignment="Center"
-                           Margin="0,10,0,0" />
-            </StackPanel>
-        </DockPanel>
+                           Margin="0,0,0,5" />
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding CurrentTime}"
+                               Grid.Column="0"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="15,0,0,0" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="3"
+                                HorizontalAlignment="Right">
+                        <Button Command="{Binding OpenSettingsCommand}"
+                                ToolTip.Tip="Settings"
+                                Width="35" Height="35"
+                                Margin="0,0,-5,0">
+                            <TextBlock Text="⚙" FontSize="16"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center" />
+                        </Button>
+                        <Button Command="{Binding OpenAboutCommand}"
+                                ToolTip.Tip="About"
+                                Width="35" Height="35">
+                            <TextBlock Text="?" FontSize="16" FontWeight="Bold"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
     </Border>
 </UserControl>
