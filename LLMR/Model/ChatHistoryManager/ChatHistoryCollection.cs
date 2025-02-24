@@ -1,7 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Reflection;
 using LLMR.Helpers;
 using LLMR.Model.ModelSettingModulesManager;
 using LLMR.Model.ModelSettingModulesManager.ModelParameters;
@@ -61,44 +60,6 @@ public class ChatHistoryCollection : ReactiveObject
     public event EventHandler<string>? ConsoleMessageOccurred;
     public event EventHandler<string>? ExceptionOccurred;
 
-    private void ExtractEmbeddedScripts(string targetDirectory)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        var resourceNames = assembly.GetManifestResourceNames();
-
-        foreach (var resourceName in resourceNames)
-        {
-            if (!resourceName.EndsWith(".py")) continue;
-            var fileName = Path.GetFileName(resourceName);
-            var filePath = PathManager.Combine(targetDirectory, fileName);
-
-            ConsoleMessageOccurred?.Invoke(this, $"Extract script: {fileName} to {filePath}");
-
-            if (!File.Exists(filePath))
-            {
-                using (var stream = assembly.GetManifestResourceStream(resourceName))
-                {
-                    if (stream == null)
-                    {
-                        ConsoleMessageOccurred?.Invoke(this, $"THIS: assembly.GetManifestResourceStream(resourceName) is null for: {resourceName}!");
-                        continue;
-                    }
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
-                    {
-                        stream.CopyTo(fileStream);
-                    }
-
-                    ConsoleMessageOccurred?.Invoke(this, $"Script {fileName} successfully extracted.");
-                }
-            }
-            else
-            {
-                ConsoleMessageOccurred?.Invoke(this, $"Script {fileName} already exists in {filePath}.");
-            }
-        }
-    }
-
     public ChatHistoryCollection()
     {
         var baseDataDir = PathManager.GetBaseDirectory();
@@ -156,6 +117,7 @@ public class ChatHistoryCollection : ReactiveObject
                 }
                 break;
         }
+        LoadFiles();
     }
 
     public void RenameItem(object? item, string newName)
@@ -174,7 +136,6 @@ public class ChatHistoryCollection : ReactiveObject
                     Directory.Move(category.FullPath, newDirectoryPath);
                     category.Name = newName;
                     category.FullPath = newDirectoryPath;
-                    LoadFiles();
                 }
                 else
                 {
@@ -192,7 +153,6 @@ public class ChatHistoryCollection : ReactiveObject
                     File.Move(file.FullPath, newFilePath);
                     file.Filename = newName;
                     file.FullPath = newFilePath;
-                    LoadFiles();
                 }
                 else
                 {
@@ -201,13 +161,14 @@ public class ChatHistoryCollection : ReactiveObject
                 break;
             }
         }
+        LoadFiles();
     }
 
     public void LoadFiles()
     {
         if (!Directory.Exists(_directoryPath))
         {
-            // Create if not present (Note: this should be redundant now! (see constructor calls creating _directoryPath))
+            // create dir if not present (Note: usually, this should be redundant! (see constructor calls creating _directoryPath))
             Directory.CreateDirectory(_directoryPath);
             ConsoleMessageOccurred?.Invoke(this, $"Created folder: {_directoryPath}");
         }

@@ -10,9 +10,10 @@
         x:Name="RootWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="LLMR"
-        Width="1200"
-        Height="800"
-        MinWidth="900">
+        Width="1000"
+        Height="600"
+        MinWidth="900"
+        MinHeight="575">
 
   <Window.Resources>
     <ResourceDictionary>

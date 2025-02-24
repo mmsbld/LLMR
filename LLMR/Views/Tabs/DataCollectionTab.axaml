@@ -24,8 +24,8 @@
     <!-- List of filenames -->
     <TreeView x:Name="ChatHistoryTreeView"
               Grid.Row="1" Grid.Column="0"
-              ItemsSource="{Binding ChatHistoryCollection.Categories}"
-              SelectedItem="{Binding ChatHistoryCollection.SelectedFile}"
+              ItemsSource="{Binding DataCollectionManager.ChatHistoryCollection.Categories}"
+              SelectedItem="{Binding DataCollectionManager.ChatHistoryCollection.SelectedFile}"
               BorderThickness="1"
               BorderBrush="{DynamicResource BorderBrush}"
               CornerRadius="4">
@@ -47,17 +47,17 @@
       <StackPanel Margin="10">
         <!-- Settings Section -->
         <StackPanel Margin="0,0,0,20">
-          <TextBox Text="{Binding ChatHistoryCollection.Settings.SelectedModel, Mode=OneWay, StringFormat=Model: {0}}"
+          <TextBox Text="{Binding DataCollectionManager.ChatHistoryCollection.Settings.SelectedModel, Mode=OneWay, StringFormat=Model: {0}}"
                    FontSize="13" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
-          <TextBox Text="{Binding ChatHistoryCollection.ApiKey, Mode=OneWay, StringFormat=API Key: {0}}"
+          <TextBox Text="{Binding DataCollectionManager.ChatHistoryCollection.ApiKey, Mode=OneWay, StringFormat=API Key: {0}}"
                    FontSize="13" IsReadOnly="True" BorderThickness="0" Background="Transparent"
                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
                    ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
-          <TextBox Text="{Binding ChatHistoryCollection.DownloadedOn, Mode=OneWay, StringFormat=Downloaded On: {0}}"
+          <TextBox Text="{Binding DataCollectionManager.ChatHistoryCollection.DownloadedOn, Mode=OneWay, StringFormat=Downloaded On: {0}}"
                    FontSize="13" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
         </StackPanel>
         <!-- Parameters -->
-        <ItemsControl ItemsSource="{Binding ChatHistoryCollection.Settings.Parameters}">
+        <ItemsControl ItemsSource="{Binding DataCollectionManager.ChatHistoryCollection.Settings.Parameters}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <ContentPresenter Content="{Binding}"/>
@@ -66,7 +66,7 @@
         </ItemsControl>
         <!-- Conversation -->
         <TextBlock Text="Conversation" FontWeight="Bold" FontSize="15" Margin="0,0,0,10"/>
-        <ItemsControl ItemsSource="{Binding ChatHistoryCollection.Conversation}">
+        <ItemsControl ItemsSource="{Binding DataCollectionManager.ChatHistoryCollection.Conversation}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <StackPanel Margin="0,5,0,5">
