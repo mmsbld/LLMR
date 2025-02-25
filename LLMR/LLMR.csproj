@@ -27,6 +27,7 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets/**"/>
+        <Content Include="Assets\**" CopyToOutputDirectory="PreserveNewest" />
         <Folder Include="Scripts/chat_histories/Multicaller/" />
     </ItemGroup>
 

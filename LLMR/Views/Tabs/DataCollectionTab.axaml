@@ -63,8 +63,8 @@
               BorderBrush="{DynamicResource BorderBrush}"
               CornerRadius="4">
       <TreeView.ContextMenu>
-        <ContextMenu DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
-                     x:DataType="vm:MainWindowViewModel">
+        <ContextMenu x:DataType="vm:MainWindowViewModel"
+                     DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
           <MenuItem Header="Add Folder" Command="{Binding DataCollectionManager.AddFolderCommand}"/>
           <MenuItem Header="Remove" Command="{Binding DataCollectionManager.RemoveItemCommand}"/>
           <MenuItem Header="Rename" Command="{Binding DataCollectionManager.RenameItemCommand}"/>
