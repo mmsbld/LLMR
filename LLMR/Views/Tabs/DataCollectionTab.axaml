@@ -9,8 +9,6 @@
              xmlns:ch="clr-namespace:LLMR.Model.ChatHistoryManager"
              xmlns:i="https://github.com/projektanker/icons.avalonia"
              x:DataType="vm:MainWindowViewModel">
-
-  <!-- Move typed templates to the DataTemplates property -->
   <UserControl.DataTemplates>
     <TreeDataTemplate DataType="ch:ChatHistoryCategory" ItemsSource="{Binding Items}">
       <TextBlock Text="{Binding Name}" />
@@ -19,37 +17,25 @@
       <TextBlock Text="{Binding Filename}" />
     </TreeDataTemplate>
   </UserControl.DataTemplates>
-
   <UserControl.Resources>
     <ResourceDictionary>
-      <!-- Your drop handler -->
       <beh:NodesTreeViewDropHandler x:Key="NodesTreeViewDropHandler" />
     </ResourceDictionary>
   </UserControl.Resources>
-
   <UserControl.Styles>
-    <Style Selector="TreeView.NodesDragAndDrop">
-      <Setter Property="(ai:Interaction.Behaviors)">
-        <ai:BehaviorCollectionTemplate>
-          <ai:BehaviorCollection>
-            <idd:ContextDropBehavior Handler="{StaticResource NodesTreeViewDropHandler}" />
-          </ai:BehaviorCollection>
-        </ai:BehaviorCollectionTemplate>
-      </Setter>
-    </Style>
     <Style Selector="TreeView.NodesDragAndDrop TreeViewItem">
       <Setter Property="(ai:Interaction.Behaviors)">
         <ai:BehaviorCollectionTemplate>
           <ai:BehaviorCollection>
+            <!-- drop and drag behaviors attached to each TreeViewItem -->
+            <idd:ContextDropBehavior Handler="{StaticResource NodesTreeViewDropHandler}" />
             <idd:ContextDragBehavior HorizontalDragThreshold="3" VerticalDragThreshold="3" />
           </ai:BehaviorCollection>
         </ai:BehaviorCollectionTemplate>
       </Setter>
     </Style>
   </UserControl.Styles>
-
   <Grid ColumnDefinitions="2*,5,3*" RowDefinitions="Auto,*,Auto">
-    <!-- Action Buttons -->
     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
       <Button Command="{Binding DataCollectionManager.AddFolderCommand}" Width="30" Height="30" Classes="secondary">
         <i:Icon Value="fa-solid fa-plus" Width="16" Height="16"/>
@@ -70,8 +56,6 @@
         </ToolTip.Tip>
       </Button>
     </StackPanel>
-
-    <!-- Main TreeView (implicit templates will apply based on type) -->
     <TreeView x:Name="ChatHistoryTreeView"
               Classes="NodesDragAndDrop"
               Grid.Row="1" Grid.Column="0"
@@ -90,13 +74,9 @@
         </ContextMenu>
       </TreeView.ContextMenu>
     </TreeView>
-
-    <!-- GridSplitter -->
     <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Width="5"
                   Background="{DynamicResource BorderBrush}"
                   HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
-
-    <!-- Right Pane -->
     <ScrollViewer Grid.Row="0" Grid.Column="2" Grid.RowSpan="3">
       <StackPanel Margin="10">
         <StackPanel Margin="0,0,0,20">
@@ -139,8 +119,6 @@
         </ItemsControl>
       </StackPanel>
     </ScrollViewer>
-
-    <!-- Download Buttons -->
     <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
       <Button Command="{Binding DataCollectionManager.DownloadAllFilesCommand}"
               HorizontalAlignment="Center" MinHeight="30" MinWidth="100" Classes="secondary">
@@ -149,7 +127,7 @@
           <TextBlock Text="All" VerticalAlignment="Center"/>
         </StackPanel>
         <ToolTip.Tip>
-          <ToolTip Content="Download all JSON files."/>
+          <ToolTip Content="Backup all."/>
         </ToolTip.Tip>
       </Button>
       <Button Command="{Binding DataCollectionManager.DownloadSelectedAsPdfCommand}"
@@ -159,7 +137,7 @@
           <TextBlock Text="Selected" VerticalAlignment="Center"/>
         </StackPanel>
         <ToolTip.Tip>
-          <ToolTip Content="Download selected JSON file."/>
+          <ToolTip Content="Export selected as PDF."/>
         </ToolTip.Tip>
       </Button>
     </StackPanel>
