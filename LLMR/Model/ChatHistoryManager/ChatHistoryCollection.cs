@@ -29,7 +29,7 @@ public class ChatHistoryCollection : ReactiveObject
             }
             else
             {
-                // Clear details if a folder is selected.
+                // clear details if a folder is selected
                 Settings = null;
                 ApiKey = null;
                 DownloadedOn = null;
@@ -382,7 +382,7 @@ public class ChatHistoryCollection : ReactiveObject
         }
     }
 
-    // Recursively sorts files (ChatHistoryFile) by DownloadedOn (newest first) in every category.
+    // recursively sorts files (ChatHistoryFile) by DownloadedOn (newest first) in every category
     public void SortFilesByDate()
     {
         foreach (var category in Categories)
@@ -409,7 +409,7 @@ public class ChatHistoryCollection : ReactiveObject
         }
     }
 
-    // Moves a file to a different folder on disk and refreshes the file list.
+    // moves a file to a different folder on disk and refreshes the file list
     public void MoveFileToFolder(ChatHistoryFile file, ChatHistoryCategory targetCategory)
     {
         if (!File.Exists(file.FullPath))

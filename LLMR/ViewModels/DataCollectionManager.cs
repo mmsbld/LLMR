@@ -4,14 +4,15 @@ using System.IO;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using ReactiveUI;
 using QuestPDF.Fluent;
-using LLMR.Model.ChatHistoryManager;
-using LLMR.Services;
 using LLMR.Helpers;
-using Unit = System.Reactive.Unit;
+using LLMR.Services;
+using System.Reactive;
+using Avalonia.Controls.ApplicationLifetimes;
+using LLMR.Model.ChatHistoryManager;
+using LLMR.Model.UserSettings;
 
 namespace LLMR.ViewModels;
 
@@ -39,18 +40,22 @@ public class DataCollectionManager
         DownloadSelectedAsPdfCommand = ReactiveCommand.CreateFromTask(DownloadSelectedAsPdfAsync);
         SortByDateCommand = ReactiveCommand.Create(SortByDate);
     }
+
     private void OnConsoleMessageOccurred(object? sender, string message)
     {
         ConsoleMessageManager.LogInfo(message);
     }
+
     private void OnExceptionOccurred(object? sender, string message)
     {
         ConsoleMessageManager.LogError(message);
     }
+
     public void LoadChatHistories()
     {
         ChatHistoryCollection.LoadFiles();
     }
+
     private async Task<Unit> AddFolderAsync()
     {
         var folderName = await _dialogService.PromptUserAsync("Enter the name of the new folder:");
@@ -70,6 +75,7 @@ public class DataCollectionManager
         }
         return Unit.Default;
     }
+
     private void RemoveItem()
     {
         try
@@ -82,6 +88,7 @@ public class DataCollectionManager
             ConsoleMessageManager.LogError($"Error removing item: {ex.Message}");
         }
     }
+
     private async Task<Unit> RenameItemAsync()
     {
         var newName = await _dialogService.PromptUserAsync("Enter the new name:");
@@ -101,6 +108,7 @@ public class DataCollectionManager
         }
         return Unit.Default;
     }
+
     private async Task<Unit> DownloadAllFilesAsync()
     {
         try
@@ -120,7 +128,7 @@ public class DataCollectionManager
                     File.Copy(file, destFile, true);
                     ConsoleMessageManager.LogInfo($"Copied {file} to {destFile}.");
                 }
-                await _dialogService.ShowMessageAsync("Download successful", "All JSON-files were successfully downloaded.");
+                await _dialogService.ShowMessageAsync("Exported backup successfully", "All chat histories were successfully exported.");
             }
             else
             {
@@ -129,11 +137,12 @@ public class DataCollectionManager
         }
         catch (Exception ex)
         {
-            ConsoleMessageManager.LogError($"Error during download: {ex.Message}");
-            await _dialogService.ShowMessageAsync("Download was not successful", $"There was an error: {ex.Message}");
+            ConsoleMessageManager.LogError($"Error during PDF export: {ex.Message}");
+            await _dialogService.ShowMessageAsync("PDF export was not successful", $"There was an error: {ex.Message}");
         }
         return Unit.Default;
     }
+
     private bool success;
     private async Task<Unit> DownloadSelectedAsPdfAsync()
     {
@@ -185,11 +194,13 @@ public class DataCollectionManager
         }
         return Unit.Default;
     }
+
     private void GeneratePdf(string pdfPath)
     {
         try
         {
-            var pdf = new ChatHistoryDocument(ChatHistoryCollection);
+            var pdfExportSettings = new PdfExportSettings();
+            var pdf = new ChatHistoryDocument(ChatHistoryCollection, pdfExportSettings);
             pdf.GeneratePdf(pdfPath);
             ConsoleMessageManager.LogInfo($"PDF generated at {pdfPath}.");
         }
@@ -201,17 +212,20 @@ public class DataCollectionManager
         }
         _dialogService.ShowMessageAsync("Export successful", "The chosen chat history was successfully exported as PDF.");
     }
+
     private TopLevel GetTopLevel()
     {
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: not null } desktop)
             return desktop.MainWindow;
         throw new InvalidOperationException("<DataCollectionManager> Unable to get the main window.");
     }
+
     private void SortByDate()
     {
         ChatHistoryCollection.SortFilesByDate();
         ConsoleMessageManager.LogInfo("Files sorted by date.");
     }
+
     public void MoveFileToFolder(ChatHistoryFile file, ChatHistoryCategory targetCategory)
     {
         try
@@ -224,6 +238,7 @@ public class DataCollectionManager
             ConsoleMessageManager.LogError($"Error moving file: {ex.Message}");
         }
     }
+
     public void MoveFolderToFolder(ChatHistoryCategory sourceFolder, ChatHistoryCategory targetFolder)
     {
         if (sourceFolder.ParentCategory == null)

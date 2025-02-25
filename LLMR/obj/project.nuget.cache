@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "yrepwiV6ih4=",
+  "dgSpecHash": "EFnOCaKVsOU=",
   "success": true,
   "projectFilePath": "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj",
   "expectedPackageFiles": [
@@ -38,7 +38,7 @@
     "/Users/moritz/.nuget/packages/projektanker.icons.avalonia.materialdesign/9.4.1/projektanker.icons.avalonia.materialdesign.9.4.1.nupkg.sha512",
     "/Users/moritz/.nuget/packages/pythonnet/3.0.4/pythonnet.3.0.4.nupkg.sha512",
     "/Users/moritz/.nuget/packages/qrcoder/1.6.0/qrcoder.1.6.0.nupkg.sha512",
-    "/Users/moritz/.nuget/packages/questpdf/2024.10.2/questpdf.2024.10.2.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/questpdf/2025.1.3/questpdf.2025.1.3.nupkg.sha512",
     "/Users/moritz/.nuget/packages/reactiveui/20.1.1/reactiveui.20.1.1.nupkg.sha512",
     "/Users/moritz/.nuget/packages/skiasharp/2.88.8/skiasharp.2.88.8.nupkg.sha512",
     "/Users/moritz/.nuget/packages/skiasharp.nativeassets.linux/2.88.8/skiasharp.nativeassets.linux.2.88.8.nupkg.sha512",
