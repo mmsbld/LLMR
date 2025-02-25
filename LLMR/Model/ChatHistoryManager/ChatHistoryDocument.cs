@@ -1,45 +1,60 @@
 using QuestPDF.Fluent;
-using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
-namespace LLMR.Model.ChatHistoryManager;
-
-public class ChatHistoryDocument : IDocument
+namespace LLMR.Model.ChatHistoryManager
 {
-    public ChatHistoryCollection Model { get; }
-
-    public ChatHistoryDocument(ChatHistoryCollection model)
+    public class ChatHistoryDocument : IDocument
     {
-        Model = model;
-    }
+        public ChatHistoryCollection Model { get; }
 
-    public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
-
-    public DocumentSettings GetSettings() => DocumentSettings.Default;
-
-    public void Compose(IDocumentContainer container)
-    {
-        container.Page(page =>
+        public ChatHistoryDocument(ChatHistoryCollection model)
         {
-            page.Margin(50);
-            
-            page.Header().Height(50).Background(Colors.Grey.Lighten1).Text("Chat History");
+            Model = model;
+        }
 
-            page.Content().Column(column =>
+        public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
+
+        public DocumentSettings GetSettings() => DocumentSettings.Default;
+
+        public void Compose(IDocumentContainer container)
+        {
+            container.Page(page =>
             {
-                foreach (var entry in Model.Conversation)
+                page.Margin(50);
+
+                // Header: logo and title
+                page.Header().Row(row =>
                 {
-                    column.Item().Text($"User: {entry.User}");
-                    column.Item().Text($"Assistant: {entry.Assistant}");
-                }
-            });
+                    row.ConstantItem(100)
+                        .Image("Assets/logo/logo_full.png", ImageScaling.FitArea);
+                    row.RelativeItem()
+                        .AlignCenter()
+                        .Text("Chat History")
+                        .FontSize(24)
+                        .SemiBold();
+                });
 
-            page.Footer().AlignCenter().Text(x =>
-            {
-                x.CurrentPageNumber();
-                x.Span(" / ");
-                x.TotalPages();
+                // Content: list of conversation entries
+                page.Content().Column(column =>
+                {
+                    foreach (var entry in Model.Conversation)
+                    {
+                        if (!string.IsNullOrEmpty(entry.User))
+                            column.Item().Text($"User: {entry.User}");
+                        if (!string.IsNullOrEmpty(entry.Assistant))
+                            column.Item().Text($"Assistant: {entry.Assistant}");
+                        column.Item().PaddingVertical(5);
+                    }
+                });
+
+                // Footer: page numbers.
+                page.Footer().AlignCenter().Text(x =>
+                {
+                    x.CurrentPageNumber();
+                    x.Span(" / ");
+                    x.TotalPages();
+                });
             });
-        });
+        }
     }
 }

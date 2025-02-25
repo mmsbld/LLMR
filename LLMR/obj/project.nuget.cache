@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "TMPuI5xx/kY=",
+  "dgSpecHash": "yrepwiV6ih4=",
   "success": true,
   "projectFilePath": "/Users/moritz/RiderProjects/LLMR/LLMR/LLMR.csproj",
   "expectedPackageFiles": [
@@ -17,6 +17,8 @@
     "/Users/moritz/.nuget/packages/avalonia.themes.fluent/11.2.0/avalonia.themes.fluent.11.2.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.win32/11.2.0/avalonia.win32.11.2.0.nupkg.sha512",
     "/Users/moritz/.nuget/packages/avalonia.x11/11.2.0/avalonia.x11.11.2.0.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/avalonia.xaml.interactions.draganddrop/11.2.0.9/avalonia.xaml.interactions.draganddrop.11.2.0.9.nupkg.sha512",
+    "/Users/moritz/.nuget/packages/avalonia.xaml.interactivity/11.2.0.9/avalonia.xaml.interactivity.11.2.0.9.nupkg.sha512",
     "/Users/moritz/.nuget/packages/dialoghost.avalonia/0.8.1/dialoghost.avalonia.0.8.1.nupkg.sha512",
     "/Users/moritz/.nuget/packages/dynamicdata/8.4.1/dynamicdata.8.4.1.nupkg.sha512",
     "/Users/moritz/.nuget/packages/harfbuzzsharp/7.3.0.2/harfbuzzsharp.7.3.0.2.nupkg.sha512",

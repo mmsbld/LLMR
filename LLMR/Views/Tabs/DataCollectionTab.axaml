@@ -1,12 +1,38 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:i="https://github.com/projektanker/icons.avalonia"
+             xmlns:ai="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:idd="clr-namespace:Avalonia.Xaml.Interactions.DragAndDrop;assembly=Avalonia.Xaml.Interactions.DragAndDrop"
+             xmlns:beh="clr-namespace:LLMR.Behaviors"
              xmlns:vm="clr-namespace:LLMR.ViewModels"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
              x:Class="LLMR.Views.Tabs.DataCollectionTab"
              x:DataType="vm:MainWindowViewModel">
-  
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <beh:NodesTreeViewDropHandler x:Key="NodesTreeViewDropHandler"/>
+    </ResourceDictionary>
+  </UserControl.Resources>
+  <UserControl.Styles>
+    <Style Selector="TreeView.NodesDragAndDrop">
+      <Setter Property="(ai:Interaction.Behaviors)">
+        <ai:BehaviorCollectionTemplate>
+          <ai:BehaviorCollection>
+            <idd:ContextDropBehavior Handler="{StaticResource NodesTreeViewDropHandler}" />
+          </ai:BehaviorCollection>
+        </ai:BehaviorCollectionTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="TreeView.NodesDragAndDrop TreeViewItem">
+      <Setter Property="(ai:Interaction.Behaviors)">
+        <ai:BehaviorCollectionTemplate>
+          <ai:BehaviorCollection>
+            <idd:ContextDragBehavior HorizontalDragThreshold="3" VerticalDragThreshold="3" />
+          </ai:BehaviorCollection>
+        </ai:BehaviorCollectionTemplate>
+      </Setter>
+    </Style>
+  </UserControl.Styles>
   <Grid ColumnDefinitions="2*,5,3*" RowDefinitions="Auto,*,Auto">
-    <!-- Add/Remove Buttons -->
     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
       <Button Command="{Binding DataCollectionManager.AddFolderCommand}" Width="30" Height="30" Classes="secondary">
           <i:Icon Value="fa-solid fa-plus" Width="16" Height="16"/>
@@ -20,12 +46,19 @@
               <ToolTip Content="Remove Item"/>
           </ToolTip.Tip>
       </Button>
+      <Button Command="{Binding DataCollectionManager.SortByDateCommand}" Width="30" Height="30" Classes="secondary">
+          <i:Icon Value="fa-solid fa-sort" Width="16" Height="16"/>
+          <ToolTip.Tip>
+              <ToolTip Content="Sort files by date"/>
+          </ToolTip.Tip>
+      </Button>
     </StackPanel>
-    <!-- List of filenames -->
+    <!-- List of filenames/folders -->
     <TreeView x:Name="ChatHistoryTreeView"
+              Classes="NodesDragAndDrop"
               Grid.Row="1" Grid.Column="0"
               ItemsSource="{Binding DataCollectionManager.ChatHistoryCollection.Categories}"
-              SelectedItem="{Binding DataCollectionManager.ChatHistoryCollection.SelectedFile}"
+              SelectedItem="{Binding DataCollectionManager.ChatHistoryCollection.SelectedItem}"
               BorderThickness="1"
               BorderBrush="{DynamicResource BorderBrush}"
               CornerRadius="4">
@@ -35,6 +68,7 @@
           <MenuItem Header="Add Folder" Command="{Binding DataCollectionManager.AddFolderCommand}"/>
           <MenuItem Header="Remove" Command="{Binding DataCollectionManager.RemoveItemCommand}"/>
           <MenuItem Header="Rename" Command="{Binding DataCollectionManager.RenameItemCommand}"/>
+          <MenuItem Header="Sort by Date" Command="{Binding DataCollectionManager.SortByDateCommand}"/>
         </ContextMenu>
       </TreeView.ContextMenu>
     </TreeView>
@@ -42,10 +76,9 @@
     <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Width="5"
                   Background="{DynamicResource BorderBrush}"
                   HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
-    <!-- Selected File -->
+    <!-- selected File/Folder Details -->
     <ScrollViewer Grid.Row="0" Grid.Column="2" Grid.RowSpan="3">
       <StackPanel Margin="10">
-        <!-- Settings Section -->
         <StackPanel Margin="0,0,0,20">
           <TextBox Text="{Binding DataCollectionManager.ChatHistoryCollection.Settings.SelectedModel, Mode=OneWay, StringFormat=Model: {0}}"
                    FontSize="13" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>

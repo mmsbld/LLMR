@@ -1,11 +1,18 @@
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 
-namespace LLMR.Views.Tabs;
-
-public partial class DataCollectionTab : UserControl
+namespace LLMR.Views.Tabs
 {
-    public DataCollectionTab()
+    public partial class DataCollectionTab : UserControl
     {
-        InitializeComponent();
+        public DataCollectionTab()
+        {
+            InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
     }
 }

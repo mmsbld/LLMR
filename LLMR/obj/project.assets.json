@@ -286,6 +286,39 @@
           }
         }
       },
+      "Avalonia.Xaml.Interactions.DragAndDrop/11.2.0.9": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "11.2.0",
+          "Avalonia.Xaml.Interactivity": "11.2.0.9"
+        },
+        "compile": {
+          "lib/net8.0/Avalonia.Xaml.Interactions.DragAndDrop.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Avalonia.Xaml.Interactions.DragAndDrop.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Avalonia.Xaml.Interactivity/11.2.0.9": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "11.2.0"
+        },
+        "compile": {
+          "lib/net8.0/Avalonia.Xaml.Interactivity.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Avalonia.Xaml.Interactivity.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "DialogHost.Avalonia/0.8.1": {
         "type": "package",
         "dependencies": {
@@ -1319,6 +1352,40 @@
         "lib/net8.0/Avalonia.X11.xml",
         "lib/netstandard2.0/Avalonia.X11.dll",
         "lib/netstandard2.0/Avalonia.X11.xml"
+      ]
+    },
+    "Avalonia.Xaml.Interactions.DragAndDrop/11.2.0.9": {
+      "sha512": "fJCyQEjSrtLCSKmHdJB1M21J/OcbJdvAydrZ4x3/7cvLTlenRT+m5PeSE6jFvtMF7scMf8kn+ixPpHT9lhF5dQ==",
+      "type": "package",
+      "path": "avalonia.xaml.interactions.draganddrop/11.2.0.9",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "avalonia.xaml.interactions.draganddrop.11.2.0.9.nupkg.sha512",
+        "avalonia.xaml.interactions.draganddrop.nuspec",
+        "lib/net6.0/Avalonia.Xaml.Interactions.DragAndDrop.dll",
+        "lib/net6.0/Avalonia.Xaml.Interactions.DragAndDrop.xml",
+        "lib/net8.0/Avalonia.Xaml.Interactions.DragAndDrop.dll",
+        "lib/net8.0/Avalonia.Xaml.Interactions.DragAndDrop.xml",
+        "lib/netstandard2.0/Avalonia.Xaml.Interactions.DragAndDrop.dll",
+        "lib/netstandard2.0/Avalonia.Xaml.Interactions.DragAndDrop.xml"
+      ]
+    },
+    "Avalonia.Xaml.Interactivity/11.2.0.9": {
+      "sha512": "JEXRiMwnnQTVpQOzUknDdk7l36hIzM7xy/xnVh8MUJhzCyt29OUE/htc6DVsszNUKozJZetMrV8Hko56dH6/Vg==",
+      "type": "package",
+      "path": "avalonia.xaml.interactivity/11.2.0.9",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "avalonia.xaml.interactivity.11.2.0.9.nupkg.sha512",
+        "avalonia.xaml.interactivity.nuspec",
+        "lib/net6.0/Avalonia.Xaml.Interactivity.dll",
+        "lib/net6.0/Avalonia.Xaml.Interactivity.xml",
+        "lib/net8.0/Avalonia.Xaml.Interactivity.dll",
+        "lib/net8.0/Avalonia.Xaml.Interactivity.xml",
+        "lib/netstandard2.0/Avalonia.Xaml.Interactivity.dll",
+        "lib/netstandard2.0/Avalonia.Xaml.Interactivity.xml"
       ]
     },
     "DialogHost.Avalonia/0.8.1": {
@@ -2922,6 +2989,8 @@
       "Avalonia.Fonts.Inter >= 11.2.0",
       "Avalonia.ReactiveUI >= 11.2.0",
       "Avalonia.Themes.Fluent >= 11.2.0",
+      "Avalonia.Xaml.Interactions.DragAndDrop >= 11.2.0.9",
+      "Avalonia.Xaml.Interactivity >= 11.2.0.9",
       "MessageBox.Avalonia >= 3.2.0",
       "Microsoft.NET.ILLink.Tasks >= 9.0.0-rc.2.24473.5",
       "Newtonsoft.Json >= 13.0.3",
@@ -2995,6 +3064,14 @@
           "Avalonia.Themes.Fluent": {
             "target": "Package",
             "version": "[11.2.0, )"
+          },
+          "Avalonia.Xaml.Interactions.DragAndDrop": {
+            "target": "Package",
+            "version": "[11.2.0.9, )"
+          },
+          "Avalonia.Xaml.Interactivity": {
+            "target": "Package",
+            "version": "[11.2.0.9, )"
           },
           "MessageBox.Avalonia": {
             "target": "Package",
