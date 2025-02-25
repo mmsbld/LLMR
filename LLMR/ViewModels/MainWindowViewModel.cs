@@ -252,32 +252,32 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         
         AvailableModuleTypes = new ObservableCollection<SettingsModuleEntry>
         {
-            //ToDo: Add module entries and text etc. 
             new SettingsModuleEntry
             {
                 IconPath = "avares://LLMR/Assets/icons/modules/oai.png",
                 Title = "OpenAI",
-                Description = "OpenAI v2 text here."
+                Description = "Deploy OpenAI's LLMs using their API. Customize parameters and system prompts, then share chat sessions with clients. All chat sessions will be archived for later analysis."
             },
             new SettingsModuleEntry
             {
                 IconPath = "avares://LLMR/Assets/icons/modules/oai_o1.png",
                 Title = "OpenAI o1-line",
-                Description = "text TODO here."
+                Description = "Access OpenAI's o1-series of LLMs. Customize parameters and system prompts, then share chat sessions with clients. All chat sessions will be archived for later analysis."
             },
             new SettingsModuleEntry
             {
                 IconPath = "avares://LLMR/Assets/icons/modules/hface_rd_smaller.png",
                 Title = "Hugging Face Serverless Inference",
-                Description = "Use serverless inference from Hugging Face text blabla here."
+                Description = "Leverage Hugging Face’s Serverless Inference API to run a variety of open-source models. Customize parameters and system prompts, then share chat sessions with clients. All chat sessions will be archived for later analysis."
             },
             new SettingsModuleEntry
             {
                 IconPath = "avares://LLMR/Assets/icons/modules/multicaller.png",
                 Title = "OpenAI Multicaller",
-                Description = "Multi-call aggregator for OpenAI requests."
+                Description = "Automate multiple calls to OpenAI's LLMs using their API in sequence. Run bulk queries with customized parameters to generate responses efficiently."
             },
         };
+
         SelectedModelType = AvailableModuleTypes[0]; 
 
         ViewManager = new MainWindowViewManager();
