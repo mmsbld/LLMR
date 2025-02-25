@@ -4,128 +4,119 @@
              xmlns:helpers="clr-namespace:LLMR.Helpers"
              xmlns:modelParameters="clr-namespace:LLMR.Model.ModelSettingModulesManager.ModelParameters"
              xmlns:chatHistoryManager="clr-namespace:LLMR.Model.ChatHistoryManager">
-             <!-- ~Optional (on Avalonia 11??+)  pick a default from  -->
-             <!-- RequestedThemeVariant="Light"> -->
-  <Application.DataTemplates>
-    <DataTemplate DataType="modelParameters:IntParameter">
-      <StackPanel Orientation="Horizontal" Margin="0,5">
-        <TextBlock Text="{Binding Name}" Width="150" />
-        <NumericUpDown FormatString="N0"
-                       ParsingNumberStyle="Integer"
-                       Minimum="{Binding Min}"
-                       Maximum="{Binding Max}"
-                       Value="{Binding Value, Mode=TwoWay}"
-                       Width="200" />
-      </StackPanel>
-    </DataTemplate>
+    <!-- RequestedThemeVariant="Light"> -->
+    <Application.DataTemplates>
+        <DataTemplate DataType="modelParameters:IntParameter">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="{Binding Name}" Width="150" />
+                <NumericUpDown FormatString="N0"
+                               ParsingNumberStyle="Integer"
+                               Minimum="{Binding Min}"
+                               Maximum="{Binding Max}"
+                               Value="{Binding Value, Mode=TwoWay}"
+                               Width="200" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="modelParameters:DoubleParameter">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="{Binding Name}" Width="150" />
+                <NumericUpDown Minimum="{Binding Min}"
+                               Maximum="{Binding Max}"
+                               Increment="{Binding Increment}"
+                               Value="{Binding Value, Mode=TwoWay}"
+                               Width="200" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="modelParameters:StringParameter">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="{Binding Name}" Width="150" />
+                <TextBox Text="{Binding Value, Mode=TwoWay}" Width="200" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="modelParameters:BoolParameter">
+            <StackPanel Orientation="Horizontal" Margin="0,5">
+                <TextBlock Text="{Binding Name}" Width="150" />
+                <CheckBox IsChecked="{Binding Value, Mode=TwoWay}" />
+            </StackPanel>
+        </DataTemplate>
+        <TreeDataTemplate DataType="chatHistoryManager:ChatHistoryCategory" ItemsSource="{Binding Items}">
+            <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+        </TreeDataTemplate>
+        <DataTemplate DataType="chatHistoryManager:ChatHistoryFile">
+            <TextBlock Text="{Binding Filename}" />
+        </DataTemplate>
+    </Application.DataTemplates>
 
-    <DataTemplate DataType="modelParameters:DoubleParameter">
-      <StackPanel Orientation="Horizontal" Margin="0,5">
-        <TextBlock Text="{Binding Name}" Width="150" />
-        <NumericUpDown Minimum="{Binding Min}"
-                       Maximum="{Binding Max}"
-                       Increment="{Binding Increment}"
-                       Value="{Binding Value, Mode=TwoWay}"
-                       Width="200" />
-      </StackPanel>
-    </DataTemplate>
+    <Application.Resources>
+        <ResourceDictionary>
+            <helpers:NullToBoolConverter x:Key="NullToBoolConverter" />
+            <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
 
-    <DataTemplate DataType="modelParameters:StringParameter">
-      <StackPanel Orientation="Horizontal" Margin="0,5">
-        <TextBlock Text="{Binding Name}" Width="150" />
-        <TextBox Text="{Binding Value, Mode=TwoWay}" Width="200" />
-      </StackPanel>
-    </DataTemplate>
-
-    <DataTemplate DataType="modelParameters:BoolParameter">
-      <StackPanel Orientation="Horizontal" Margin="0,5">
-        <TextBlock Text="{Binding Name}" Width="150" />
-        <CheckBox IsChecked="{Binding Value, Mode=TwoWay}" />
-      </StackPanel>
-    </DataTemplate>
-
-    <TreeDataTemplate DataType="chatHistoryManager:ChatHistoryCategory" ItemsSource="{Binding Items}">
-      <TextBlock Text="{Binding Name}" FontWeight="Bold" />
-    </TreeDataTemplate>
-
-    <DataTemplate DataType="chatHistoryManager:ChatHistoryFile">
-      <TextBlock Text="{Binding Filename}" />
-    </DataTemplate>
-  </Application.DataTemplates>
-
-  <Application.Resources>
-    <ResourceDictionary>
-      <helpers:NullToBoolConverter x:Key="NullToBoolConverter"/>
-      <helpers:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
-    </ResourceDictionary>
-  </Application.Resources>
-
-  <Application.Styles>
-    <!-- We now define both Light and Dark palettes here. -->
-    <FluentTheme>
-      <FluentTheme.Palettes>
-        <!-- Palette for Light theme variant -->
-        <ColorPaletteResources x:Key="Light" 
-                               Accent="#ff35bcee" 
-                               AltHigh="White" 
-                               AltLow="White" 
-                               AltMedium="White" 
-                               AltMediumHigh="White" 
-                               AltMediumLow="White" 
-                               BaseHigh="Black" 
-                               BaseLow="#ffcccccc" 
-                               BaseMedium="#ff898989" 
-                               BaseMediumHigh="#ff5d5d5d" 
-                               BaseMediumLow="#ff737373" 
-                               ChromeAltLow="#ff5d5d5d" 
-                               ChromeBlackHigh="Black" 
-                               ChromeBlackLow="#ffcccccc" 
-                               ChromeBlackMedium="#ff5d5d5d" 
-                               ChromeBlackMediumLow="#ff898989" 
-                               ChromeDisabledHigh="#ffcccccc" 
-                               ChromeDisabledLow="#ff898989" 
-                               ChromeGray="#ff737373" 
-                               ChromeHigh="#ffcccccc" 
-                               ChromeLow="#ffececec" 
-                               ChromeMedium="#ffe6e6e6" 
-                               ChromeMediumLow="#ffececec" 
-                               ChromeWhite="White" 
-                               ListLow="#ffe6e6e6" 
-                               ListMedium="#ffcccccc" 
-                               RegionColor="White" />
-        <!-- Palette for Dark theme variant -->
-        <ColorPaletteResources x:Key="Dark" 
-                               Accent="#ff35bcee" 
-                               AltHigh="Black" 
-                               AltLow="Black" 
-                               AltMedium="Black" 
-                               AltMediumHigh="Black" 
-                               AltMediumLow="Black" 
-                               BaseHigh="White" 
-                               BaseLow="#ff333333" 
-                               BaseMedium="#ff9a9a9a" 
-                               BaseMediumHigh="#ffb4b4b4" 
-                               BaseMediumLow="#ff676767" 
-                               ChromeAltLow="#ffb4b4b4" 
-                               ChromeBlackHigh="Black" 
-                               ChromeBlackLow="#ffb4b4b4" 
-                               ChromeBlackMedium="Black" 
-                               ChromeBlackMediumLow="Black" 
-                               ChromeDisabledHigh="#ff333333" 
-                               ChromeDisabledLow="#ff9a9a9a" 
-                               ChromeGray="Gray" 
-                               ChromeHigh="Gray" 
-                               ChromeLow="#ff151515" 
-                               ChromeMedium="#ff1d1d1d" 
-                               ChromeMediumLow="#ff2c2c2c" 
-                               ChromeWhite="White" 
-                               ListLow="#ff1d1d1d" 
-                               ListMedium="#ff333333" 
-                               RegionColor="Black" />
-      </FluentTheme.Palettes>
-    </FluentTheme>
-
-    <!-- Our own custom styles -->
-    <StyleInclude Source="avares://LLMR/Styles.axaml"/>
-  </Application.Styles>
+    <Application.Styles>
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <!-- Palette light -->
+                <ColorPaletteResources x:Key="Light"
+                                       Accent="#ff35bcee"
+                                       AltHigh="White"
+                                       AltLow="White"
+                                       AltMedium="White"
+                                       AltMediumHigh="White"
+                                       AltMediumLow="White"
+                                       BaseHigh="Black"
+                                       BaseLow="#ffcccccc"
+                                       BaseMedium="#ff898989"
+                                       BaseMediumHigh="#ff5d5d5d"
+                                       BaseMediumLow="#ff737373"
+                                       ChromeAltLow="#ff5d5d5d"
+                                       ChromeBlackHigh="Black"
+                                       ChromeBlackLow="#ffcccccc"
+                                       ChromeBlackMedium="#ff5d5d5d"
+                                       ChromeBlackMediumLow="#ff898989"
+                                       ChromeDisabledHigh="#ffcccccc"
+                                       ChromeDisabledLow="#ff898989"
+                                       ChromeGray="#ff737373"
+                                       ChromeHigh="#ffcccccc"
+                                       ChromeLow="#ffececec"
+                                       ChromeMedium="#ffe6e6e6"
+                                       ChromeMediumLow="#ffececec"
+                                       ChromeWhite="White"
+                                       ListLow="#ffe6e6e6"
+                                       ListMedium="#ffcccccc"
+                                       RegionColor="White" />
+                <!-- Palette dark -->
+                <ColorPaletteResources x:Key="Dark"
+                                       Accent="#ff35bcee"
+                                       AltHigh="Black"
+                                       AltLow="Black"
+                                       AltMedium="Black"
+                                       AltMediumHigh="Black"
+                                       AltMediumLow="Black"
+                                       BaseHigh="White"
+                                       BaseLow="#ff333333"
+                                       BaseMedium="#ff9a9a9a"
+                                       BaseMediumHigh="#ffb4b4b4"
+                                       BaseMediumLow="#ff676767"
+                                       ChromeAltLow="#ffb4b4b4"
+                                       ChromeBlackHigh="Black"
+                                       ChromeBlackLow="#ffb4b4b4"
+                                       ChromeBlackMedium="Black"
+                                       ChromeBlackMediumLow="Black"
+                                       ChromeDisabledHigh="#ff333333"
+                                       ChromeDisabledLow="#ff9a9a9a"
+                                       ChromeGray="Gray"
+                                       ChromeHigh="Gray"
+                                       ChromeLow="#ff151515"
+                                       ChromeMedium="#ff1d1d1d"
+                                       ChromeMediumLow="#ff2c2c2c"
+                                       ChromeWhite="White"
+                                       ListLow="#ff1d1d1d"
+                                       ListMedium="#ff333333"
+                                       RegionColor="Black" />
+            </FluentTheme.Palettes>
+        </FluentTheme>
+        <StyleInclude Source="avares://LLMR/Styles.axaml" />
+    </Application.Styles>
 </Application>

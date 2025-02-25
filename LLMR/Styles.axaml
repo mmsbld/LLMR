@@ -1,54 +1,53 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Styles.Resources>
-        <!-- Resource definitions (custom colors) -->
-        <Color x:Key="PrimaryGreenColor">#1ECB75</Color>
-        <Color x:Key="PrimaryBlueColor">#35BBEE</Color>
-        <Color x:Key="TextDarkBlueColor">#181851</Color>
+  <Styles.Resources>
+    <!-- Resource definitions (our custom colors) -->
+    <Color x:Key="PrimaryGreenColor">#1ECB75</Color>
+    <Color x:Key="PrimaryBlueColor">#35BBEE</Color>
+    <Color x:Key="TextDarkBlueColor">#181851</Color>
 
-        <SolidColorBrush x:Key="PrimaryGreenBrush" Color="{StaticResource PrimaryGreenColor}" />
-        <SolidColorBrush x:Key="PrimaryBlueBrush" Color="{StaticResource PrimaryBlueColor}" />
-        <SolidColorBrush x:Key="TextDarkBlueBrush" Color="{StaticResource TextDarkBlueColor}" />
-    </Styles.Resources>
+    <SolidColorBrush x:Key="PrimaryGreenBrush" Color="{StaticResource PrimaryGreenColor}" />
+    <SolidColorBrush x:Key="PrimaryBlueBrush" Color="{StaticResource PrimaryBlueColor}" />
+    <SolidColorBrush x:Key="TextDarkBlueBrush" Color="{StaticResource TextDarkBlueColor}" />
+  </Styles.Resources>
 
-    <!-- Base style for all Buttons -->
-    <Style Selector="Button">
-        <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Margin" Value="5"/>
-        <Setter Property="Height" Value="40"/>
-        <Setter Property="CornerRadius" Value="6"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Padding" Value="10,5"/>
-    
-        <!-- Center the text/icon inside the btn -->
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
+  <!-- Base style for all Buttons -->
+  <Style Selector="Button">
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="Margin" Value="5"/>
+    <Setter Property="Height" Value="40"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="FontSize" Value="14"/>
+    <Setter Property="Padding" Value="10,5"/>
+    <!-- text/icon alignment -->
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
 
-    <!-- Variant btn styles -->
-    <Style Selector="Button.bold">
-        <Setter Property="FontWeight" Value="Bold"/>
-    </Style>
+  <!-- Variant button styles -->
+  <Style Selector="Button.bold">
+    <Setter Property="FontWeight" Value="Bold"/>
+  </Style>
 
-    <Style Selector="Button.secondary">
-        <Setter Property="Background" Value="{StaticResource PrimaryBlueBrush}"/>
-        <Setter Property="Foreground" Value="White"/>
-    </Style>
+  <Style Selector="Button.secondary">
+    <Setter Property="Background" Value="{StaticResource PrimaryBlueBrush}"/>
+    <Setter Property="Foreground" Value="White"/>
+  </Style>
 
-    <Style Selector="Button.danger">
-        <Setter Property="Background" Value="Red"/>
-        <Setter Property="Foreground" Value="White"/>
-    </Style>
+  <Style Selector="Button.danger">
+    <Setter Property="Background" Value="#FFE07C7C"/>
+    <Setter Property="Foreground" Value="White"/>
+  </Style>
 
-    <Style Selector="Button.confirm">
-        <Setter Property="Background" Value="{StaticResource PrimaryGreenBrush}"/>
-        <Setter Property="Foreground" Value="White"/>
-    </Style>
+  <Style Selector="Button.confirm">
+    <Setter Property="Background" Value="{StaticResource PrimaryGreenBrush}"/>
+    <Setter Property="Foreground" Value="White"/>
+  </Style>
 
-    <Style Selector="TextBlock.header">
-        <Setter Property="FontSize" Value="16"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{StaticResource TextDarkBlueBrush}"/>
-    </Style>
+  <Style Selector="TextBlock.header">
+    <Setter Property="FontSize" Value="16"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{StaticResource TextDarkBlueBrush}"/>
+  </Style>
 </Styles>

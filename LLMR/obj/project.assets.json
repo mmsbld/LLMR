@@ -286,6 +286,39 @@
           }
         }
       },
+      "Avalonia.Xaml.Interactions.DragAndDrop/11.2.0.9": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "11.2.0",
+          "Avalonia.Xaml.Interactivity": "11.2.0.9"
+        },
+        "compile": {
+          "lib/net8.0/Avalonia.Xaml.Interactions.DragAndDrop.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Avalonia.Xaml.Interactions.DragAndDrop.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Avalonia.Xaml.Interactivity/11.2.0.9": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "11.2.0"
+        },
+        "compile": {
+          "lib/net8.0/Avalonia.Xaml.Interactivity.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/Avalonia.Xaml.Interactivity.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "DialogHost.Avalonia/0.8.1": {
         "type": "package",
         "dependencies": {
@@ -547,7 +580,7 @@
           "lib/net6.0/QRCoder.dll": {}
         }
       },
-      "QuestPDF/2024.10.2": {
+      "QuestPDF/2025.1.3": {
         "type": "package",
         "compile": {
           "lib/net8.0/QuestPDF.dll": {
@@ -567,7 +600,31 @@
             "assetType": "native",
             "rid": "linux-arm64"
           },
+          "runtimes/linux-arm64/native/libcrypto.so": {
+            "assetType": "native",
+            "rid": "linux-arm64"
+          },
+          "runtimes/linux-arm64/native/libjpeg.so.8": {
+            "assetType": "native",
+            "rid": "linux-arm64"
+          },
+          "runtimes/linux-arm64/native/libqpdf.so": {
+            "assetType": "native",
+            "rid": "linux-arm64"
+          },
           "runtimes/linux-musl-x64/native/libQuestPdfSkia.so": {
+            "assetType": "native",
+            "rid": "linux-musl-x64"
+          },
+          "runtimes/linux-musl-x64/native/libcrypto.so": {
+            "assetType": "native",
+            "rid": "linux-musl-x64"
+          },
+          "runtimes/linux-musl-x64/native/libjpeg.so.8": {
+            "assetType": "native",
+            "rid": "linux-musl-x64"
+          },
+          "runtimes/linux-musl-x64/native/libqpdf.so": {
             "assetType": "native",
             "rid": "linux-musl-x64"
           },
@@ -575,7 +632,23 @@
             "assetType": "native",
             "rid": "linux-x64"
           },
+          "runtimes/linux-x64/native/libcrypto.so": {
+            "assetType": "native",
+            "rid": "linux-x64"
+          },
+          "runtimes/linux-x64/native/libjpeg.so.8": {
+            "assetType": "native",
+            "rid": "linux-x64"
+          },
+          "runtimes/linux-x64/native/libqpdf.so": {
+            "assetType": "native",
+            "rid": "linux-x64"
+          },
           "runtimes/osx-arm64/native/libQuestPdfSkia.dylib": {
+            "assetType": "native",
+            "rid": "osx-arm64"
+          },
+          "runtimes/osx-arm64/native/libqpdf.dylib": {
             "assetType": "native",
             "rid": "osx-arm64"
           },
@@ -583,11 +656,47 @@
             "assetType": "native",
             "rid": "osx-x64"
           },
+          "runtimes/osx-x64/native/libqpdf.dylib": {
+            "assetType": "native",
+            "rid": "osx-x64"
+          },
           "runtimes/win-x64/native/QuestPdfSkia.dll": {
             "assetType": "native",
             "rid": "win-x64"
           },
+          "runtimes/win-x64/native/libgcc_s_seh-1.dll": {
+            "assetType": "native",
+            "rid": "win-x64"
+          },
+          "runtimes/win-x64/native/libstdc++-6.dll": {
+            "assetType": "native",
+            "rid": "win-x64"
+          },
+          "runtimes/win-x64/native/libwinpthread-1.dll": {
+            "assetType": "native",
+            "rid": "win-x64"
+          },
+          "runtimes/win-x64/native/qpdf.dll": {
+            "assetType": "native",
+            "rid": "win-x64"
+          },
           "runtimes/win-x86/native/QuestPdfSkia.dll": {
+            "assetType": "native",
+            "rid": "win-x86"
+          },
+          "runtimes/win-x86/native/libgcc_s_dw2-1.dll": {
+            "assetType": "native",
+            "rid": "win-x86"
+          },
+          "runtimes/win-x86/native/libstdc++-6.dll": {
+            "assetType": "native",
+            "rid": "win-x86"
+          },
+          "runtimes/win-x86/native/libwinpthread-1.dll": {
+            "assetType": "native",
+            "rid": "win-x86"
+          },
+          "runtimes/win-x86/native/qpdf.dll": {
             "assetType": "native",
             "rid": "win-x86"
           }
@@ -1321,6 +1430,40 @@
         "lib/netstandard2.0/Avalonia.X11.xml"
       ]
     },
+    "Avalonia.Xaml.Interactions.DragAndDrop/11.2.0.9": {
+      "sha512": "fJCyQEjSrtLCSKmHdJB1M21J/OcbJdvAydrZ4x3/7cvLTlenRT+m5PeSE6jFvtMF7scMf8kn+ixPpHT9lhF5dQ==",
+      "type": "package",
+      "path": "avalonia.xaml.interactions.draganddrop/11.2.0.9",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "avalonia.xaml.interactions.draganddrop.11.2.0.9.nupkg.sha512",
+        "avalonia.xaml.interactions.draganddrop.nuspec",
+        "lib/net6.0/Avalonia.Xaml.Interactions.DragAndDrop.dll",
+        "lib/net6.0/Avalonia.Xaml.Interactions.DragAndDrop.xml",
+        "lib/net8.0/Avalonia.Xaml.Interactions.DragAndDrop.dll",
+        "lib/net8.0/Avalonia.Xaml.Interactions.DragAndDrop.xml",
+        "lib/netstandard2.0/Avalonia.Xaml.Interactions.DragAndDrop.dll",
+        "lib/netstandard2.0/Avalonia.Xaml.Interactions.DragAndDrop.xml"
+      ]
+    },
+    "Avalonia.Xaml.Interactivity/11.2.0.9": {
+      "sha512": "JEXRiMwnnQTVpQOzUknDdk7l36hIzM7xy/xnVh8MUJhzCyt29OUE/htc6DVsszNUKozJZetMrV8Hko56dH6/Vg==",
+      "type": "package",
+      "path": "avalonia.xaml.interactivity/11.2.0.9",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "avalonia.xaml.interactivity.11.2.0.9.nupkg.sha512",
+        "avalonia.xaml.interactivity.nuspec",
+        "lib/net6.0/Avalonia.Xaml.Interactivity.dll",
+        "lib/net6.0/Avalonia.Xaml.Interactivity.xml",
+        "lib/net8.0/Avalonia.Xaml.Interactivity.dll",
+        "lib/net8.0/Avalonia.Xaml.Interactivity.xml",
+        "lib/netstandard2.0/Avalonia.Xaml.Interactivity.dll",
+        "lib/netstandard2.0/Avalonia.Xaml.Interactivity.xml"
+      ]
+    },
     "DialogHost.Avalonia/0.8.1": {
       "sha512": "RLBOMqjJPgSmwe0i1pzX3Q7Pn0i4xE/E1b774krd4VyEkaorz1AYMdYQHyIfuhtQv5NntZyS0MuQbxJl/PhzBg==",
       "type": "package",
@@ -1816,10 +1959,10 @@
         "qrcoder.nuspec"
       ]
     },
-    "QuestPDF/2024.10.2": {
-      "sha512": "2Dsbm4nu6G9ObRgIHn6pf4wyGpIbpvIP5V5FmoJF5aH9fw4D+liC9fFXky16APx+EWnFbmOkRlAGZ9VkmvOpGA==",
+    "QuestPDF/2025.1.3": {
+      "sha512": "ZLQIDzFXlEds8CyDLMxLWfyevDn/aJ6WJW7ZS6aYvKPAqTsPrlnIcSZAvvr4N+z34QQFDyYOi5f/YkszDraydw==",
       "type": "package",
-      "path": "questpdf/2024.10.2",
+      "path": "questpdf/2025.1.3",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1834,6 +1977,7 @@
         "ExternalDependencyLicenses/libpng.txt",
         "ExternalDependencyLicenses/libwebp.txt",
         "ExternalDependencyLicenses/ninja-build.txt",
+        "ExternalDependencyLicenses/qpdf.txt",
         "ExternalDependencyLicenses/readme.txt",
         "ExternalDependencyLicenses/skia.txt",
         "ExternalDependencyLicenses/wuffs.txt",
@@ -1871,15 +2015,34 @@
         "lib/net8.0/QuestPDF.xml",
         "lib/netstandard2.0/QuestPDF.dll",
         "lib/netstandard2.0/QuestPDF.xml",
-        "questpdf.2024.10.2.nupkg.sha512",
+        "questpdf.2025.1.3.nupkg.sha512",
         "questpdf.nuspec",
         "runtimes/linux-arm64/native/libQuestPdfSkia.so",
+        "runtimes/linux-arm64/native/libcrypto.so",
+        "runtimes/linux-arm64/native/libjpeg.so.8",
+        "runtimes/linux-arm64/native/libqpdf.so",
         "runtimes/linux-musl-x64/native/libQuestPdfSkia.so",
+        "runtimes/linux-musl-x64/native/libcrypto.so",
+        "runtimes/linux-musl-x64/native/libjpeg.so.8",
+        "runtimes/linux-musl-x64/native/libqpdf.so",
         "runtimes/linux-x64/native/libQuestPdfSkia.so",
+        "runtimes/linux-x64/native/libcrypto.so",
+        "runtimes/linux-x64/native/libjpeg.so.8",
+        "runtimes/linux-x64/native/libqpdf.so",
         "runtimes/osx-arm64/native/libQuestPdfSkia.dylib",
+        "runtimes/osx-arm64/native/libqpdf.dylib",
         "runtimes/osx-x64/native/libQuestPdfSkia.dylib",
+        "runtimes/osx-x64/native/libqpdf.dylib",
         "runtimes/win-x64/native/QuestPdfSkia.dll",
-        "runtimes/win-x86/native/QuestPdfSkia.dll"
+        "runtimes/win-x64/native/libgcc_s_seh-1.dll",
+        "runtimes/win-x64/native/libstdc++-6.dll",
+        "runtimes/win-x64/native/libwinpthread-1.dll",
+        "runtimes/win-x64/native/qpdf.dll",
+        "runtimes/win-x86/native/QuestPdfSkia.dll",
+        "runtimes/win-x86/native/libgcc_s_dw2-1.dll",
+        "runtimes/win-x86/native/libstdc++-6.dll",
+        "runtimes/win-x86/native/libwinpthread-1.dll",
+        "runtimes/win-x86/native/qpdf.dll"
       ]
     },
     "ReactiveUI/20.1.1": {
@@ -2922,6 +3085,8 @@
       "Avalonia.Fonts.Inter >= 11.2.0",
       "Avalonia.ReactiveUI >= 11.2.0",
       "Avalonia.Themes.Fluent >= 11.2.0",
+      "Avalonia.Xaml.Interactions.DragAndDrop >= 11.2.0.9",
+      "Avalonia.Xaml.Interactivity >= 11.2.0.9",
       "MessageBox.Avalonia >= 3.2.0",
       "Microsoft.NET.ILLink.Tasks >= 9.0.0-rc.2.24473.5",
       "Newtonsoft.Json >= 13.0.3",
@@ -2929,7 +3094,7 @@
       "Projektanker.Icons.Avalonia.FontAwesome >= 9.4.1",
       "Projektanker.Icons.Avalonia.MaterialDesign >= 9.4.1",
       "QRCoder >= 1.6.0",
-      "QuestPDF >= 2024.10.2",
+      "QuestPDF >= 2025.1.3",
       "pythonnet >= 3.0.4"
     ]
   },
@@ -2996,6 +3161,14 @@
             "target": "Package",
             "version": "[11.2.0, )"
           },
+          "Avalonia.Xaml.Interactions.DragAndDrop": {
+            "target": "Package",
+            "version": "[11.2.0.9, )"
+          },
+          "Avalonia.Xaml.Interactivity": {
+            "target": "Package",
+            "version": "[11.2.0.9, )"
+          },
           "MessageBox.Avalonia": {
             "target": "Package",
             "version": "[3.2.0, )"
@@ -3028,7 +3201,7 @@
           },
           "QuestPDF": {
             "target": "Package",
-            "version": "[2024.10.2, )"
+            "version": "[2025.1.3, )"
           },
           "pythonnet": {
             "target": "Package",

@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -21,7 +22,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media.Imaging;
 using LLMR.Model;
-using LLMR.Model.ChatHistoryManager;
 using LLMR.Model.ModelSettingModulesManager;
 using LLMR.Model.ModelSettingModulesManager.ModelSettingsModules;
 using LLMR.Services.OpenAI_o1;
@@ -32,16 +32,7 @@ namespace LLMR.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase, IDisposable
 {
-    #region NEW CODE UI-REVAMP (p2: extract Data Collection ("File Explorer" part)
-    // lala
-    public DataCollectionManager DataCollectionManager { get; } // (and init in constructor)
-        
-        
-    #endregion
-        
-    #region NEW CODE UI-REVAMP
-
-    // Instead of exposing a view instance, we expose booleans controlling which tab is visible.
+    public DataCollectionManager DataCollectionManager { get; } 
     private bool _isLoginVisible;
     public bool IsLoginVisible
     {
@@ -91,10 +82,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public ReactiveCommand<Unit, Unit> OpenAboutCommand { get; }
     public ReactiveCommand<Unit, Unit> OpenSettingsCommand { get; }
 
-    #endregion
-        
-    #region Fields
-
     private string? _serverStatus;
     private IImmutableSolidColorBrush? _serverStatusColor;
     private string? _apiKey;
@@ -116,12 +103,11 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     private readonly DialogService _dialogService;
     private PythonExecutionService? _pythonService;
         
-    private DispatcherTimer _timer;
+    private DispatcherTimer _timerTime;
+    private DispatcherTimer _timerDate;
 
     public MainWindowViewManager ViewManager { get; }
-
-    #endregion
-
+    
     #region Properties
 
     public bool IsPythonPathLocked
@@ -210,8 +196,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public ObservableCollection<SettingsModuleEntry> AvailableModuleTypes { get; set; }
 
     public ObservableCollection<ConsoleMessage> ConsoleMessages { get; } = [];
-
-
+    
     public bool IsServerRunning
     {
         get => _isServerRunning;
@@ -222,10 +207,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             ServerStatusColor = value ? Brushes.LimeGreen : Brushes.Red;
         }
     }
-
-    #endregion
-
-    #region API Key Management
 
     public ObservableCollection<APIKeyEntry?> SavedApiKeys => _apiKeyManager.SavedApiKeys;
 
@@ -239,47 +220,35 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         set => this.RaiseAndSetIfChanged(ref _selectedApiKey, value);
     }
 
-    #endregion
-
-    #region Commands
-
     public ReactiveCommand<Unit, Unit> AddNewApiKeyCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> RemoveApiKeyCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> EnsurePythonEnvironmentCommand { get; private set; }
+    public ReactiveCommand<Unit, Unit> SetPythonPathToLastUsedPythonPathCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> ConfirmLoginCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> SelectModuleCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> ValidateApiKeyCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> GenerateLinkCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> RunMulticallerCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> StopGradioServerCommand { get; private set; }
-    // public ReactiveCommand<Unit, Unit> DownloadAllFilesCommand { get; private set; }
-    // public ReactiveCommand<Unit, Unit> DownloadSelectedAsPdfCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> BackToModelSettingsCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> CopyLastTenMessagesCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> CopyAllMessagesCommand { get; private set; }
     public ReactiveCommand<Unit, bool> ToggleShowTimestampCommand { get; private set; }
         
-    public string CurrentDateTime => DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-
-    // public ReactiveCommand<Unit, Unit> AddFolderCommand { get; private set; }
-    // public ReactiveCommand<Unit, Unit> RemoveItemCommand { get; private set; }
-    // public ReactiveCommand<Unit, Unit> RenameItemCommand { get; private set; }
-
-    #endregion
-        
-
+    public string CurrentTime => DateTime.Now.ToString("t", CultureInfo.CurrentCulture); // time without seconds
+    public string CurrentDate => DateTime.Now.ToString("D", CultureInfo.CurrentCulture); // full date
+    
     public MainWindowViewModel()
     {
+        IsBusy = true;
         _pythonRunning = false;
 
         _apiKeyManager = new APIKeyManager();
         _dialogService = new DialogService();
-        DataCollectionManager = new DataCollectionManager(_dialogService); // here: init DataCollectionManager (new code UI-REVAMP p2)
+        DataCollectionManager = new DataCollectionManager(_dialogService); 
 
         _pythonEnvironmentInitializer = new PythonEnvironmentInitializer();
-
-        // AvailableModuleTypes = ["OpenAI", "OpenAI o1-line", "Hugging Face Serverless Inference", "OpenAI Multicaller"];
-        // SelectedModelType = "OpenAI"; // default selection
+        
         
         AvailableModuleTypes = new ObservableCollection<SettingsModuleEntry>
         {
@@ -287,27 +256,28 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             {
                 IconPath = "avares://LLMR/Assets/icons/modules/oai.png",
                 Title = "OpenAI",
-                Description = "OpenAI v2 text here."
+                Description = "Deploy OpenAI's LLMs using their API. Customize parameters and system prompts, then share chat sessions with clients. All chat sessions will be archived for later analysis."
             },
             new SettingsModuleEntry
             {
                 IconPath = "avares://LLMR/Assets/icons/modules/oai_o1.png",
                 Title = "OpenAI o1-line",
-                Description = "text TODO here."
+                Description = "Access OpenAI's o1-series of LLMs. Customize parameters and system prompts, then share chat sessions with clients. All chat sessions will be archived for later analysis."
             },
             new SettingsModuleEntry
             {
                 IconPath = "avares://LLMR/Assets/icons/modules/hface_rd_smaller.png",
                 Title = "Hugging Face Serverless Inference",
-                Description = "Use serverless inference from Hugging Face text blabla here."
+                Description = "Leverage Hugging Face’s Serverless Inference API to run a variety of open-source models. Customize parameters and system prompts, then share chat sessions with clients. All chat sessions will be archived for later analysis."
             },
             new SettingsModuleEntry
             {
                 IconPath = "avares://LLMR/Assets/icons/modules/multicaller.png",
                 Title = "OpenAI Multicaller",
-                Description = "Multi-call aggregator for OpenAI requests."
+                Description = "Automate multiple calls to OpenAI's LLMs using their API in sequence. Run bulk queries with customized parameters to generate responses efficiently."
             },
         };
+
         SelectedModelType = AvailableModuleTypes[0]; 
 
         ViewManager = new MainWindowViewManager();
@@ -323,8 +293,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
         InitializeCommands();
         SubscribeToConsoleMessageManager();
-
-        IsBusy = false;
 
         SelectedApiKey = SavedApiKeys.FirstOrDefault(k => k != null && k.IsLastUsed) ?? SavedApiKeys.FirstOrDefault();
 
@@ -377,31 +345,39 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         ConsoleMessageManager.PrintNetworkWarning();
         ConsoleMessageManager.PrintWelcomeMessage();
             
-        InitializeTimerForCurrentDateTime();
+        InitializeTimerForCurrentTime();
+        InitializeTimerForCurrentDate();
+
+        IsBusy = false;
+        IsConsoleExpanded = false;
     }
-        
-        
-    #region Methods
-
-
-    private void InitializeTimerForCurrentDateTime()
+    
+    private void InitializeTimerForCurrentTime()
     {
-        _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(20) };
-        _timer.Tick += (s, e) =>
+        _timerTime = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
+        _timerTime.Tick += (s, e) =>
         {
-            // Explicitly cast to IReactiveObject to call the explicit implementation.
-            ((IReactiveObject)this).RaisePropertyChanged(new PropertyChangedEventArgs(nameof(CurrentDateTime)));
+            ((IReactiveObject)this).RaisePropertyChanged(new PropertyChangedEventArgs(nameof(CurrentTime)));
         };
-        _timer.Start();
+        _timerTime.Start();
     }
-
-        
+    
+    private void InitializeTimerForCurrentDate()
+    {
+        _timerDate = new DispatcherTimer { Interval = TimeSpan.FromMinutes(2) };
+        _timerDate.Tick += (s, e) =>
+        {
+            ((IReactiveObject)this).RaisePropertyChanged(new PropertyChangedEventArgs(nameof(CurrentDate)));
+        };
+        _timerDate.Start();
+    }
 
     private void InitializeCommands()
     {
         AddNewApiKeyCommand = ReactiveCommand.CreateFromTask(AddNewApiKeyAsync);
         RemoveApiKeyCommand = ReactiveCommand.Create(RemoveSelectedApiKey, this.WhenAnyValue(x => x.IsApiKeySelected));
         EnsurePythonEnvironmentCommand = ReactiveCommand.CreateFromTask(EnsurePythonEnvironmentAsync);
+        SetPythonPathToLastUsedPythonPathCommand = ReactiveCommand.CreateFromTask(SetPythonPathToLastUsedPythonPathAsync);
         ConfirmLoginCommand = ReactiveCommand.CreateFromTask(ConfirmLoginAsync, this.WhenAnyValue(x => x.SelectedApiKey).Select(apiKey => apiKey != null));
         
         SelectModuleCommand = ReactiveCommand.CreateFromTask(
@@ -409,21 +385,15 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             this.WhenAnyValue(x => x.SelectedModelType)
                 .Select(modelType => modelType != null)
         );
-
         
         ValidateApiKeyCommand = ReactiveCommand.CreateFromTask(ValidateApiKeyAsync);
         GenerateLinkCommand = ReactiveCommand.CreateFromTask(GenerateLinkAsync);
         RunMulticallerCommand = ReactiveCommand.CreateFromTask(RunMulticallerAsync);
         StopGradioServerCommand = ReactiveCommand.CreateFromTask(StopGradioServerAsync);
-        // DownloadAllFilesCommand = ReactiveCommand.CreateFromTask(DownloadAllFilesAsync);
-        // DownloadSelectedAsPdfCommand = ReactiveCommand.CreateFromTask(DownloadSelectedAsPdfAsync);
         BackToModelSettingsCommand = ReactiveCommand.CreateFromTask(BackToModelSettingsAsync);
         CopyLastTenMessagesCommand = ReactiveCommand.CreateFromTask(CopyLastTenMessagesAsync);
         CopyAllMessagesCommand = ReactiveCommand.CreateFromTask(CopyAllMessagesAsync);
         ToggleShowTimestampCommand = ReactiveCommand.Create(() => ShowTimestamp = !ShowTimestamp);
-        // AddFolderCommand = ReactiveCommand.CreateFromTask(AddFolderAsync);
-        // RemoveItemCommand = ReactiveCommand.Create(RemoveItem);
-        // RenameItemCommand = ReactiveCommand.CreateFromTask(RenameItemAsync);
     }
 
     private void SubscribeToConsoleMessageManager()
@@ -490,6 +460,13 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         }
 
         return Unit.Default;
+    }
+
+    private Task<Unit> SetPythonPathToLastUsedPythonPathAsync()
+    {
+        var lastUsedPythonPath = LoadPythonPath();
+        PythonPath = lastUsedPythonPath;
+        return Task.FromResult(Unit.Default);
     }
 
     private async Task<Unit> ConfirmLoginAsync()
@@ -614,7 +591,21 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         }
         finally
         {
-            Dispatcher.UIThread.InvokeAsync(() => { IsBusy = false; });
+            async Task DelayedResetBusyFlag()
+            {
+                try
+                {
+                    await Task.Delay(10000);
+                    await Dispatcher.UIThread.InvokeAsync(() => { IsBusy = false; });
+                }
+                catch (Exception ex)
+                {
+                    ConsoleMessageManager.LogError($"Error in DelayedResetBusyFlag: {ex.Message}");
+                }
+            }
+
+            _ = DelayedResetBusyFlag(); // (btw:  "discard" syntax in C#: explicitly ignoring return values;
+                                        // i.e. fire-and-forget without awaiting,  but exceptions are logged!)
         }
     }
 
@@ -717,13 +708,11 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                 if (CurrentModelSettingsModule.GetType() != typeof(OpenAI_Multicaller_ModelSettings)) 
                 {
                     ViewManager.SwitchToModelSettings();
-                    //CurrentMainView = new LLMR.Views.Tabs.ModelSettingsTab();
                     CurrentNonDataCollectionTab = "Model Settings";
                 }
                 else
                 {
                     ViewManager.SwitchToMulticallerModelSettings();
-                    //CurrentMainView = new LLMR.Views.Tabs.MulticallerTab();
                     CurrentNonDataCollectionTab = "Multicaller Settings";
                 }
                 var models = await _apiService.GetAvailableModelsAsync(ApiKey);
@@ -772,6 +761,28 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         catch (Exception ex)
         {
             AddExceptionMessageToConsole(ex);
+        }
+    }
+    
+    public string LoadPythonPath()
+    {
+        try
+        {
+            var pythonPathFile = PathManager.Combine(PathManager.GetBaseDirectory(), "python_path.txt");
+            if (!System.IO.File.Exists(pythonPathFile))
+            {
+                ConsoleMessageManager.LogWarning($"File not found: {pythonPathFile}");
+                return string.Empty;
+            }
+
+            var path = System.IO.File.ReadAllText(pythonPathFile)?.Trim();
+            ConsoleMessageManager.LogInfo($"Python path loaded from {pythonPathFile}");
+            return path ?? string.Empty;
+        }
+        catch (Exception ex)
+        {
+            AddExceptionMessageToConsole(ex);
+            return string.Empty;
         }
     }
 
@@ -836,11 +847,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
             if (_apiService == null)
                 throw new NullReferenceException("API Service is null.");
-
-            // if (_apiService.GetType() != typeof(OpenAI_Multicaller_APIService))
-            //     throw new NotSupportedException("<MWVM> API Service type is not supported.");
-            //
-            // var apiService = (OpenAI_Multicaller_APIService)_apiService;
 
             ConsoleMessageManager.LogInfo("Multicaller started.");
             IsServerRunning = true;
@@ -984,7 +990,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         
     public void Dispose()
     {
-        _timer.Stop();
+        _timerTime.Stop();
+        _timerDate.Stop();
             
         ConsoleMessageManager.PrintGoodbyeMessage();
         _apiService?.Dispose();

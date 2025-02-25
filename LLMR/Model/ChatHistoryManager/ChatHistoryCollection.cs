@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using LLMR.Helpers;
 using LLMR.Model.ModelSettingModulesManager;
 using LLMR.Model.ModelSettingModulesManager.ModelParameters;
@@ -15,21 +16,29 @@ public class ChatHistoryCollection : ReactiveObject
 {
     public ObservableCollection<ChatHistoryCategory> Categories { get; set; } = new ObservableCollection<ChatHistoryCategory>();
 
-    private ChatHistoryFile? _selectedFile;
-    private string? _apiKey;
-
-    private string? _directoryPath;
-
-    public ChatHistoryFile? SelectedFile
+    private object? _selectedItem;
+    public object? SelectedItem
     {
-        get => _selectedFile;
+        get => _selectedItem;
         set
         {
-            this.RaiseAndSetIfChanged(ref _selectedFile, value);
-            LoadFileContent(value);
+            this.RaiseAndSetIfChanged(ref _selectedItem, value);
+            if (value is ChatHistoryFile file)
+            {
+                LoadFileContent(file);
+            }
+            else
+            {
+                // clear details if a folder is selected
+                Settings = null;
+                ApiKey = null;
+                DownloadedOn = null;
+                Conversation.Clear();
+            }
         }
     }
 
+    private string? _apiKey;
     public string? ApiKey
     {
         get => _apiKey;
@@ -60,11 +69,13 @@ public class ChatHistoryCollection : ReactiveObject
     public event EventHandler<string>? ConsoleMessageOccurred;
     public event EventHandler<string>? ExceptionOccurred;
 
+    private string? _directoryPath;
+
     public ChatHistoryCollection()
     {
         var baseDataDir = PathManager.GetBaseDirectory();
         ConsoleMessageOccurred?.Invoke(this, $"Base directory: {baseDataDir}");
-            
+
         var chatHistoriesDir = PathManager.Combine(baseDataDir, "Scripts", "chat_histories");
 
         if (!Directory.Exists(chatHistoriesDir))
@@ -76,7 +87,7 @@ public class ChatHistoryCollection : ReactiveObject
         {
             ConsoleMessageOccurred?.Invoke(this, $"Directory already exists: {chatHistoriesDir}");
         }
-            
+
         _directoryPath = chatHistoriesDir;
 
         LoadFiles();
@@ -168,7 +179,6 @@ public class ChatHistoryCollection : ReactiveObject
     {
         if (!Directory.Exists(_directoryPath))
         {
-            // create dir if not present (Note: usually, this should be redundant! (see constructor calls creating _directoryPath))
             Directory.CreateDirectory(_directoryPath);
             ConsoleMessageOccurred?.Invoke(this, $"Created folder: {_directoryPath}");
         }
@@ -188,7 +198,7 @@ public class ChatHistoryCollection : ReactiveObject
 
     private void LoadItemsFromDirectory(string directoryPath, ChatHistoryCategory parentCategory)
     {
-        // Load directories and subfolders
+        // Load directories and subfolders.
         var directories = Directory.GetDirectories(directoryPath);
         foreach (var dir in directories)
         {
@@ -204,7 +214,7 @@ public class ChatHistoryCollection : ReactiveObject
             parentCategory.Items.Add(subCategory);
         }
 
-        // Load files
+        // Load files.
         var files = Directory.GetFiles(directoryPath, "*.json");
         foreach (var file in files)
         {
@@ -233,10 +243,8 @@ public class ChatHistoryCollection : ReactiveObject
         }
     }
 
-    private void LoadFileContent(ChatHistoryFile? file)
+    private void LoadFileContent(ChatHistoryFile file)
     {
-        if (file == null) return;
-
         var filePath = file.FullPath;
         if (!File.Exists(filePath)) return;
 
@@ -253,7 +261,6 @@ public class ChatHistoryCollection : ReactiveObject
             JObject parametersData = jsonData.settings.parameters;
             if (parametersData == null)
             {
-                // Compatibility for older versions:
                 parametersData = new JObject();
                 foreach (var prop in jsonData.settings)
                 {
@@ -337,7 +344,6 @@ public class ChatHistoryCollection : ReactiveObject
             }
             else if (jsonData.responses != null)
             {
-                // Multicaller style:
                 string userPrompt = jsonData.settings.prompt;
                 int totalResponses = jsonData.responses.Count;
 
@@ -370,9 +376,51 @@ public class ChatHistoryCollection : ReactiveObject
         {
             Settings = null;
             Conversation.Clear();
-            SelectedFile = null;
+            SelectedItem = null;
             ExceptionOccurred?.Invoke(this, $"<CHC> Unable to load chat history file: {filePath}, Error: {ex.Message}");
             throw new Exception("<CHC> Unable to load chat history file: " + filePath, ex);
         }
+    }
+
+    // recursively sorts files (ChatHistoryFile) by DownloadedOn (newest first) in every category
+    public void SortFilesByDate()
+    {
+        foreach (var category in Categories)
+        {
+            SortItemsInCategory(category);
+        }
+    }
+
+    private void SortItemsInCategory(ChatHistoryCategory category)
+    {
+        var folders = category.Items.OfType<ChatHistoryCategory>().OrderBy(c => c.Name).ToList();
+        var files = category.Items.OfType<ChatHistoryFile>().OrderByDescending(f => f.DownloadedOn).ToList();
+
+        category.Items.Clear();
+
+        foreach (var folder in folders)
+        {
+            category.Items.Add(folder);
+            SortItemsInCategory(folder);
+        }
+        foreach (var file in files)
+        {
+            category.Items.Add(file);
+        }
+    }
+
+    // moves a file to a different folder on disk and refreshes the file list
+    public void MoveFileToFolder(ChatHistoryFile file, ChatHistoryCategory targetCategory)
+    {
+        if (!File.Exists(file.FullPath))
+            throw new FileNotFoundException($"File {file.Filename} not found.");
+
+        var newPath = Path.Combine(targetCategory.FullPath, file.Filename);
+        if (File.Exists(newPath))
+            throw new IOException($"A file with name {file.Filename} already exists in {targetCategory.Name}.");
+
+        File.Move(file.FullPath, newPath);
+        file.FullPath = newPath;
+        LoadFiles();
     }
 }

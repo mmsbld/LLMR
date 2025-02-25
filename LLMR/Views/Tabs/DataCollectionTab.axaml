@@ -1,51 +1,84 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl x:Class="LLMR.Views.Tabs.DataCollectionTab"
+             x:Name="root"
+             xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:i="https://github.com/projektanker/icons.avalonia"
+             xmlns:ai="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:idd="clr-namespace:Avalonia.Xaml.Interactions.DragAndDrop;assembly=Avalonia.Xaml.Interactions.DragAndDrop"
+             xmlns:beh="clr-namespace:LLMR.Behaviors"
              xmlns:vm="clr-namespace:LLMR.ViewModels"
-             x:Class="LLMR.Views.Tabs.DataCollectionTab"
+             xmlns:ch="clr-namespace:LLMR.Model.ChatHistoryManager"
+             xmlns:i="https://github.com/projektanker/icons.avalonia"
              x:DataType="vm:MainWindowViewModel">
-  
+  <UserControl.DataTemplates>
+    <TreeDataTemplate DataType="ch:ChatHistoryCategory" ItemsSource="{Binding Items}">
+      <TextBlock Text="{Binding Name}" />
+    </TreeDataTemplate>
+    <TreeDataTemplate DataType="ch:ChatHistoryFile">
+      <TextBlock Text="{Binding Filename}" />
+    </TreeDataTemplate>
+  </UserControl.DataTemplates>
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <beh:NodesTreeViewDropHandler x:Key="NodesTreeViewDropHandler" />
+    </ResourceDictionary>
+  </UserControl.Resources>
+  <UserControl.Styles>
+    <Style Selector="TreeView.NodesDragAndDrop TreeViewItem">
+      <Setter Property="(ai:Interaction.Behaviors)">
+        <ai:BehaviorCollectionTemplate>
+          <ai:BehaviorCollection>
+            <!-- drop and drag behaviors attached to each TreeViewItem -->
+            <idd:ContextDropBehavior Handler="{StaticResource NodesTreeViewDropHandler}" />
+            <idd:ContextDragBehavior HorizontalDragThreshold="3" VerticalDragThreshold="3" />
+          </ai:BehaviorCollection>
+        </ai:BehaviorCollectionTemplate>
+      </Setter>
+    </Style>
+  </UserControl.Styles>
   <Grid ColumnDefinitions="2*,5,3*" RowDefinitions="Auto,*,Auto">
-    <!-- Add/Remove Buttons -->
     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
       <Button Command="{Binding DataCollectionManager.AddFolderCommand}" Width="30" Height="30" Classes="secondary">
-          <i:Icon Value="fa-solid fa-plus" Width="16" Height="16"/>
-          <ToolTip.Tip>
-              <ToolTip Content="Add Folder"/>
-          </ToolTip.Tip>
+        <i:Icon Value="fa-solid fa-plus" Width="16" Height="16"/>
+        <ToolTip.Tip>
+          <ToolTip Content="Add Folder"/>
+        </ToolTip.Tip>
       </Button>
       <Button Command="{Binding DataCollectionManager.RemoveItemCommand}" Width="30" Height="30" Classes="danger">
-          <i:Icon Value="fa-solid fa-minus" Width="16" Height="16"/>
-          <ToolTip.Tip>
-              <ToolTip Content="Remove Item"/>
-          </ToolTip.Tip>
+        <i:Icon Value="fa-solid fa-minus" Width="16" Height="16"/>
+        <ToolTip.Tip>
+          <ToolTip Content="Remove Item"/>
+        </ToolTip.Tip>
+      </Button>
+      <Button Command="{Binding DataCollectionManager.SortByDateCommand}" Width="30" Height="30" Classes="secondary">
+        <i:Icon Value="fa-solid fa-sort" Width="16" Height="16"/>
+        <ToolTip.Tip>
+          <ToolTip Content="Sort files by date"/>
+        </ToolTip.Tip>
       </Button>
     </StackPanel>
-    <!-- List of filenames -->
     <TreeView x:Name="ChatHistoryTreeView"
+              Classes="NodesDragAndDrop"
               Grid.Row="1" Grid.Column="0"
               ItemsSource="{Binding DataCollectionManager.ChatHistoryCollection.Categories}"
-              SelectedItem="{Binding DataCollectionManager.ChatHistoryCollection.SelectedFile}"
+              SelectedItem="{Binding DataCollectionManager.ChatHistoryCollection.SelectedItem}"
               BorderThickness="1"
               BorderBrush="{DynamicResource BorderBrush}"
               CornerRadius="4">
       <TreeView.ContextMenu>
-        <ContextMenu DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}"
-                     x:DataType="vm:MainWindowViewModel">
-          <MenuItem Header="Add Folder" Command="{Binding DataCollectionManager.AddFolderCommand}"/>
-          <MenuItem Header="Remove" Command="{Binding DataCollectionManager.RemoveItemCommand}"/>
-          <MenuItem Header="Rename" Command="{Binding DataCollectionManager.RenameItemCommand}"/>
+        <ContextMenu x:DataType="vm:MainWindowViewModel"
+                     DataContext="{Binding DataContext, ElementName=root}">
+          <MenuItem Header="Add Folder" Command="{Binding DataCollectionManager.AddFolderCommand}" />
+          <MenuItem Header="Remove" Command="{Binding DataCollectionManager.RemoveItemCommand}" />
+          <MenuItem Header="Rename" Command="{Binding DataCollectionManager.RenameItemCommand}" />
+          <MenuItem Header="Sort by Date" Command="{Binding DataCollectionManager.SortByDateCommand}" />
         </ContextMenu>
       </TreeView.ContextMenu>
     </TreeView>
-    <!-- GridSplitter -->
     <GridSplitter Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Width="5"
                   Background="{DynamicResource BorderBrush}"
                   HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
-    <!-- Selected File -->
     <ScrollViewer Grid.Row="0" Grid.Column="2" Grid.RowSpan="3">
       <StackPanel Margin="10">
-        <!-- Settings Section -->
         <StackPanel Margin="0,0,0,20">
           <TextBox Text="{Binding DataCollectionManager.ChatHistoryCollection.Settings.SelectedModel, Mode=OneWay, StringFormat=Model: {0}}"
                    FontSize="13" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
@@ -56,7 +89,6 @@
           <TextBox Text="{Binding DataCollectionManager.ChatHistoryCollection.DownloadedOn, Mode=OneWay, StringFormat=Downloaded On: {0}}"
                    FontSize="13" IsReadOnly="True" BorderThickness="0" Background="Transparent"/>
         </StackPanel>
-        <!-- Parameters -->
         <ItemsControl ItemsSource="{Binding DataCollectionManager.ChatHistoryCollection.Settings.Parameters}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
@@ -64,7 +96,6 @@
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <!-- Conversation -->
         <TextBlock Text="Conversation" FontWeight="Bold" FontSize="15" Margin="0,0,0,10"/>
         <ItemsControl ItemsSource="{Binding DataCollectionManager.ChatHistoryCollection.Conversation}">
           <ItemsControl.ItemTemplate>
@@ -75,14 +106,12 @@
                 <StackPanel Margin="0,5,0,0"
                             IsVisible="{Binding User, Converter={StaticResource NullToBoolConverter}}">
                   <TextBlock Text="User:" FontWeight="Bold"/>
-                  <SelectableTextBlock Text="{Binding User}" TextWrapping="Wrap" FontSize="13"
-                                       Margin="0,2,0,0"/>
+                  <SelectableTextBlock Text="{Binding User}" TextWrapping="Wrap" FontSize="13" Margin="0,2,0,0"/>
                 </StackPanel>
                 <StackPanel Margin="0,5,0,0"
                             IsVisible="{Binding Assistant, Converter={StaticResource NullToBoolConverter}}">
                   <TextBlock Text="Assistant:" FontWeight="Bold"/>
-                  <SelectableTextBlock Text="{Binding Assistant}" TextWrapping="Wrap" FontSize="13"
-                                       Margin="0,2,0,0"/>
+                  <SelectableTextBlock Text="{Binding Assistant}" TextWrapping="Wrap" FontSize="13" Margin="0,2,0,0"/>
                 </StackPanel>
               </StackPanel>
             </DataTemplate>
@@ -90,32 +119,25 @@
         </ItemsControl>
       </StackPanel>
     </ScrollViewer>
-    <!-- Download Buttons -->
     <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right">
       <Button Command="{Binding DataCollectionManager.DownloadAllFilesCommand}"
-              HorizontalAlignment="Center"
-              MinHeight="30"
-              MinWidth="100"
-              Classes="secondary">
+              HorizontalAlignment="Center" MinHeight="30" MinWidth="100" Classes="secondary">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
           <i:Icon Value="fa fa-download" Width="18" Height="18" Margin="0"/>
           <TextBlock Text="All" VerticalAlignment="Center"/>
         </StackPanel>
         <ToolTip.Tip>
-          <ToolTip Content="Download all JSON files."/>
+          <ToolTip Content="Backup all."/>
         </ToolTip.Tip>
       </Button>
       <Button Command="{Binding DataCollectionManager.DownloadSelectedAsPdfCommand}"
-              HorizontalAlignment="Center"
-              MinHeight="30"
-              MinWidth="100"
-              Classes="secondary">
+              HorizontalAlignment="Center" MinHeight="30" MinWidth="100" Classes="secondary">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
           <i:Icon Value="fa fa-download" Width="18" Height="18" Margin="0"/>
           <TextBlock Text="Selected" VerticalAlignment="Center"/>
         </StackPanel>
         <ToolTip.Tip>
-          <ToolTip Content="Download selected JSON file."/>
+          <ToolTip Content="Export selected as PDF."/>
         </ToolTip.Tip>
       </Button>
     </StackPanel>

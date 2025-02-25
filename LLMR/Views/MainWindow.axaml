@@ -11,13 +11,12 @@
         x:DataType="vm:MainWindowViewModel"
         Title="LLMR"
         Width="1000"
-        Height="600"
-        MinWidth="900"
-        MinHeight="575">
+        Height="650"
+        MinWidth="1000"
+        MinHeight="650">
 
   <Window.Resources>
     <ResourceDictionary>
-      <!-- Already included in your code -->
       <helpers:BooleanToBoldFontWeightConverter x:Key="BooleanToBoldFontWeightConverter"/>
       <helpers:BoolToTextConverter x:Key="BoolToTextConverter" />
       <helpers:PercentageConverter x:Key="PercentageConverter"/>
@@ -30,28 +29,22 @@
   <!-- Root Grid: 2 rows, 2 columns. -->
   <Grid x:Name="MainWindowGrid">
     <Grid.RowDefinitions>
-      <RowDefinition Height="*"/>    <!-- Main content area -->
-      <RowDefinition Height="Auto"/> <!-- Console at bottom -->
+      <RowDefinition Height="*"/>    <!-- main content -->
+      <RowDefinition Height="Auto"/> <!-- console -->
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="250"/> <!-- Left menu -->
-      <ColumnDefinition Width="*"/>   <!-- Right content -->
+      <ColumnDefinition Width="250"/> <!-- MenuLeft.axaml -->
+      <ColumnDefinition Width="*"/>   <!-- right (content) -->
     </Grid.ColumnDefinitions>
-
-    <!-- Left Navigation Menu (spans both rows) -->
     <local:MenuLeft Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" />
-
-    <!-- Right Content Area (Row=0, Col=1) -->
     <Grid Grid.Row="0" Grid.Column="1">
-      <!-- Just a single row definition here: the main tabs -->
       <tabs:LoginTab IsVisible="{Binding ViewManager.IsLoginEnabled}"/>
       <tabs:ModelSettingsTab IsVisible="{Binding ViewManager.IsModelSettingsEnabled}"/>
       <tabs:MulticallerTab IsVisible="{Binding ViewManager.IsMulticallerModelSettingsEnabled}"/>
       <tabs:LinkGenerationTab IsVisible="{Binding ViewManager.IsLinkGenerationEnabled}"/>
       <tabs:DataCollectionTab IsVisible="{Binding ViewManager.IsDataCollectionEnabled}"/>
     </Grid>
-
-    <!-- Console Area (Row=1, spans 2 columns) -->
+    <!-- Console -->
     <Expander Grid.Row="1"
               Grid.ColumnSpan="2"
               Header="Console"
@@ -62,8 +55,7 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <!-- Console toolbar -->
+        <!-- toolbar -->
         <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Right">
           <Button Command="{Binding CopyLastTenMessagesCommand}" Classes="secondary">
             <i:Icon Value="fa-solid fa-copy" Width="20" Height="20" Foreground="#1F5222"/>
@@ -84,8 +76,6 @@
             </ToolTip.Tip>
           </Button>
         </StackPanel>
-
-        <!-- Console messages -->
         <Border Grid.Row="1"
                 Classes="console-border"
                 Background="{DynamicResource ConsoleBackgroundBrush}"
@@ -97,14 +87,12 @@
                         VerticalScrollBarVisibility="Auto"
                         HorizontalScrollBarVisibility="Disabled">
             <ItemsControl x:Name="ConsoleItemsControl" ItemsSource="{Binding ConsoleMessages}">
-              <!-- We remove x:DataType here to force dynamic resolution so that our BindingProxy works -->
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
                   <TextBlock TextWrapping="Wrap"
                              Foreground="{DynamicResource ConsoleTextBrush}"
                              FontSize="13"
                              FontFamily="Consolas, Lucida Console">
-                    <!-- Timestamp portion -->
                     <Run Foreground="{DynamicResource SecondaryForegroundBrush}">
                       <Run.Text>
                         <MultiBinding Converter="{StaticResource BoolToTextConverter}">
@@ -137,7 +125,7 @@
                         </MultiBinding>
                       </Run.Text>
                     </Run>
-                    <!-- Message Text -->
+                    <!-- console MessageText -->
                     <Run Text="{Binding Text}"
                          Foreground="{Binding Color}"
                          FontWeight="{Binding IsBold, Converter={StaticResource BooleanToBoldFontWeightConverter}}"/>
@@ -149,5 +137,19 @@
         </Border>
       </Grid>
     </Expander>
+    <!-- Busy overlay -->
+    <Border Background="#88000000" 
+            IsVisible="{Binding IsBusy}"
+            Grid.RowSpan="2"
+            Grid.ColumnSpan="2"
+            ZIndex="100"
+            IsHitTestVisible="True">
+      <TextBlock Text="Is Busy" 
+                 HorizontalAlignment="Center" 
+                 VerticalAlignment="Center" 
+                 Foreground="White" 
+                 FontSize="24" 
+                 FontWeight="Bold"/>
+    </Border>
   </Grid>
 </Window>
