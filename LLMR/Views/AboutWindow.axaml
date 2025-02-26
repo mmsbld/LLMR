@@ -19,7 +19,7 @@
           </Grid>
         </Grid>
         <StackPanel Grid.Column="1" Margin="0" VerticalAlignment="Top" HorizontalAlignment="Right">
-          <TextBlock Text="LLMRunner - Educ. Res."
+          <TextBlock Text="LLMRunner v.0.6"
                      FontFamily="Consolas, Courier New, monospace"
                      FontWeight="Bold"
                      FontSize="9"
