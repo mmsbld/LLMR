@@ -127,52 +127,65 @@ public static class ConsoleMessageManager
 
     private static (string, SolidColorBrush) ProcessMessage(string message, MessageType messageType)
     {
+        var isDarkMode = Avalonia.Application.Current?.ActualThemeVariant == Avalonia.Styling.ThemeVariant.Dark;
         SolidColorBrush color;
         var processedMessage = message;
 
         switch (messageType)
         {
             case MessageType.Info:
-                color = new SolidColorBrush(Colors.Lime);
+                // Dark: Lime, Light: ForestGreen
+                color = isDarkMode ? new SolidColorBrush(Colors.Lime) : new SolidColorBrush(Colors.ForestGreen);
                 break;
             case MessageType.Error:
-                color = new SolidColorBrush(Colors.Red);
+                // Dark: Red, Light: DarkRed
+                color = isDarkMode ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.DarkRed);
                 break;
             case MessageType.Warning:
-                color = new SolidColorBrush(Colors.Yellow);
+                // Dark: Yellow, Light: DarkGoldenrod
+                color = isDarkMode ? new SolidColorBrush(Colors.Yellow) : new SolidColorBrush(Colors.DarkGoldenrod);
                 break;
             case MessageType.PythonStdOut:
-                color = new SolidColorBrush(Colors.LightGray);
+                // Dark: LightGray, Light: Gray
+                color = isDarkMode ? new SolidColorBrush(Colors.LightGray) : new SolidColorBrush(Colors.Gray);
                 processedMessage = message.Replace("<PES stdout>", "").Trim();
                 break;
             case MessageType.PythonStdErr:
-                color = new SolidColorBrush(Colors.DarkGray);
+                // Dark: DarkGray, Light: DimGray
+                color = isDarkMode ? new SolidColorBrush(Colors.DarkGray) : new SolidColorBrush(Colors.DimGray);
                 processedMessage = message.Replace("<PES stderr>", "").Trim();
                 break;
             case MessageType.Debug:
-                color = new SolidColorBrush(Colors.Magenta);
+                // Dark: Magenta, Light: DarkMagenta
+                color = isDarkMode ? new SolidColorBrush(Colors.Magenta) : new SolidColorBrush(Colors.DarkMagenta);
                 break;
             case MessageType.Path:
-                color = new SolidColorBrush(Colors.Turquoise);
+                // Dark: Turquoise, Light: CadetBlue
+                color = isDarkMode ? new SolidColorBrush(Colors.Turquoise) : new SolidColorBrush(Colors.CadetBlue);
                 break;
             case MessageType.SystemInfo:
-                color = new SolidColorBrush(Colors.Cyan);
+                // Dark: Cyan, Light: DarkCyan
+                color = isDarkMode ? new SolidColorBrush(Colors.Cyan) : new SolidColorBrush(Colors.DarkCyan);
                 break;
             case MessageType.NetworkWarning:
-                color = new SolidColorBrush(Colors.Purple);
+                // Dark: Purple, Light: DarkSlateBlue
+                color = isDarkMode ? new SolidColorBrush(Colors.Purple) : new SolidColorBrush(Colors.DarkSlateBlue);
                 break;
             case MessageType.Welcome:
             case MessageType.Goodbye:
             case MessageType.Banner:
-                color = new SolidColorBrush(Colors.Cyan);
+                // Dark: Cyan, Light: SteelBlue
+                color = isDarkMode ? new SolidColorBrush(Colors.Cyan) : new SolidColorBrush(Colors.SteelBlue);
                 break;
             default:
-                color = new SolidColorBrush(Colors.White);
+                // Dark: White, Light: Black
+                color = isDarkMode ? new SolidColorBrush(Colors.White) : new SolidColorBrush(Colors.Black);
                 break;
         }
 
         return (processedMessage, color);
     }
+
 
     private static string GetOperatingSystemName()
     {
