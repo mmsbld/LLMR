@@ -1,9 +1,8 @@
 using System;
 using Avalonia.Media;
 using Avalonia.Threading;
-using LLMR.Model;
 
-namespace LLMR.Helpers;
+namespace LLMR.Model;
 
 public static class ConsoleMessageManager
 {
