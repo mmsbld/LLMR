@@ -6,7 +6,7 @@ This README serves as the main landing page for our project. Later, when we swit
 
 <div align="center">
   <picture>
-    <source srcset="LLMR/Assets/logo/logo_full.png" media="(prefers-color-scheme: dark)">
+    <source srcset="LLMR/Assets/logo/logo_full_dark.png" media="(prefers-color-scheme: dark)">
     <img src="LLMR/Assets/logo/logo_full.png" alt="LLMR Logo" width="50%">
   </picture>
 </div>
