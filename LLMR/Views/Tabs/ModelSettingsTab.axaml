@@ -12,7 +12,13 @@
                 <ComboBox Grid.Row="0" Grid.Column="1"
                           ItemsSource="{Binding CurrentModelSettingsModule.AvailableModels}"
                           SelectedItem="{Binding CurrentModelSettingsModule.SelectedModel}"
-                          Margin="0,0,0,12"/>
+                          Margin="0,0,0,12">
+                    <ComboBox.Styles>
+                        <Style Selector="Popup">
+                            <Setter Property="Width" Value="{Binding PlacementTarget.Bounds.Width, RelativeSource={RelativeSource Self}}"/>
+                        </Style>
+                    </ComboBox.Styles>
+                </ComboBox>
             </Grid>
             <ItemsControl ItemsSource="{Binding CurrentModelSettingsModule.Parameters}" />
             <Button Command="{Binding GenerateLinkCommand}"
