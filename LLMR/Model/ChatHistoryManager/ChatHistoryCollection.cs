@@ -74,18 +74,18 @@ public class ChatHistoryCollection : ReactiveObject
     public ChatHistoryCollection()
     {
         var baseDataDir = PathManager.GetBaseDirectory();
-        ConsoleMessageOccurred?.Invoke(this, $"Base directory: {baseDataDir}");
+        ConsoleMessageOccurred?.Invoke(this, $"<CHC> Base directory: {baseDataDir}");
 
         var chatHistoriesDir = PathManager.Combine(baseDataDir, "Scripts", "chat_histories");
 
         if (!Directory.Exists(chatHistoriesDir))
         {
             Directory.CreateDirectory(chatHistoriesDir);
-            ConsoleMessageOccurred?.Invoke(this, $"Created directory: {chatHistoriesDir}");
+            ConsoleMessageOccurred?.Invoke(this, $"<CHC> Created directory: {chatHistoriesDir}");
         }
         else
         {
-            ConsoleMessageOccurred?.Invoke(this, $"Directory already exists: {chatHistoriesDir}");
+            ConsoleMessageOccurred?.Invoke(this, $"<CHC> Directory already exists: {chatHistoriesDir}");
         }
 
         _directoryPath = chatHistoriesDir;
