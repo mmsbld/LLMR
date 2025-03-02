@@ -42,7 +42,23 @@ We are both **Mathematics students**, and while we love spending thoughts on how
 
 ---
 
-## 🛠️ Before the Big Presentation...  
+## ❤️ Built With & Thanks To  
+LLMR wouldn't be possible without several amazing open-source projects, among them:  
+
+- [**Gradio**](https://github.com/gradio-app/gradio) – For the web-based chat interface
+- [**QuestPDF**](https://github.com/QuestPDF/QuestPDF) - For generating PDF output
+- [**Avalonia UI**](https://github.com/AvaloniaUI/Avalonia) – For cross-platform desktop integration  
+- [**OpenAI API**](https://platform.openai.com/docs/) – For accessing cutting-edge language models  
+- [**Hugging Face Inference API**](https://huggingface.co/docs/api-inference/) – For running various open-source models  
+- Other **MIT-licensed** GitHub projects that saved us hours of work 🎉 
+
+We probably forgot at least **ten** other awesome tools—this section will be updated once we realize what else we took for granted! 😅  
+
+(Of course, we will add them properly to the GitHub project in the first non-pre alpha release version!)
+
+---
+
+## 🛠️ Before our first non-pre alpha...  
 Before we unleash LLMR onto an unsuspecting audience at an upcoming conference (with a **complete** documentation 📄), here are some major things we are working on currently:  
 
 ✅ **Refactoring** – Cleaning up our code, reducing redundancy with a focus on the wabbly marriage between Python and .net 
