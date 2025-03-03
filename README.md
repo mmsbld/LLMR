@@ -32,13 +32,13 @@ LLMR operates as a server running locally on the researcher’s machine. Once a 
 
 ---
 
-## 🚀 A Student Project – aka. *"Why Is This Still Pre-Alpha?"*  
+## 🚀 A (pre-alpha) Student Project
 Before you judge our code too harshly, please consider our humungous core development team that consists of exactly **two** people:  
 
 👨‍💻 **Moritz Seibold** – Development, Co-Testing, Planning, Coordinating, and whatever else was necessary  
 🧑‍💻 **Jan Kodweiß** – Testing, Co-Development, Planning, Coordinating, and desperately searching for missing semicolons  
 
-We are both **Mathematics students**, and while we love spending thoughts on how generative AI might (not) influence Mathematics Ed., occasionally we still lose battles against **multivariate calculus**. So, instead of blaming us for missing **unit tests** or **bugs**, we kindly ask you to first take a look at [how innocent we look!](LLMR/Assets/GIFs/janMoritz.png). If you still feel the urge to complain after that, feel free to contact us or contribute your fixes directly. 
+We are both **Mathematics students**, and while we love spending thoughts on how generative AI might (not) influence Mathematics Ed., occasionally we still lose battles against multivariate calculus. So, instead of laying all blame on us for missing **unit tests** or **bugs**, we kindly ask you to first take a look at [how innocent we look!](LLMR/Assets/GIFs/janMoritz.png). Feel free to contact us or contribute your fixes directly – we welcome feedback and suggestions for future releases. 
 
 ---
 
@@ -50,23 +50,20 @@ LLMR wouldn't be possible without several amazing open-source projects, among th
 - [**Avalonia UI**](https://github.com/AvaloniaUI/Avalonia) – For cross-platform desktop integration  
 - [**OpenAI API**](https://platform.openai.com/docs/) – For accessing cutting-edge language models  
 - [**Hugging Face Inference API**](https://huggingface.co/docs/api-inference/) – For running various open-source models  
-- Other **MIT-licensed** GitHub projects that saved us hours of work 🎉 
 
-We probably forgot at least **ten** other awesome tools—this section will be updated once we realize what else we took for granted! 😅  
-
-(Of course, we will add them properly to the GitHub project in the first non-pre alpha release version!)
+Notice: We will add all dependencies and open-source projects we utilized for LLMRunner properly to the GitHub project in the first non-pre alpha release version!
 
 ---
 
-## 🛠️ Before our first non-pre alpha...  
-Before we unleash LLMR onto an unsuspecting audience at an upcoming conference (with a **complete** documentation 📄), here are some major things we are working on currently:  
+## 🛠️ Our Next Steps  
+Before presenting LLMR at an upcoming conference (with a **complete** documentation 📄), here are some major things we are currently working on:  
 
-✅ **Refactoring** – Cleaning up our code, reducing redundancy with a focus on the wabbly marriage between Python and .net 
-✅ **Unit Testing** – Because at some point, we need to test things properly... probably  
-✅ **Improved UI/UX** – More features, more UX improvements, and fewer *“Oops, something went wrong”* messages  
-✅ **Customizable Export Options** – And a choice: CSV, JSON, maybe even an old-school **TXT file** for the nostalgic ones among us  
+- [ ] **Refactoring** – Cleaning up our code, reducing redundancy with a focus on the wabbly marriage between Python and .NET  
+- [ ] **Chat Interface** – Adding customization options for the client's chat interface  
+- [ ] **Unit Testing** – Including automated test builds  
+- [ ] **Improved UI/UX** – More features, more UX improvements, and fewer *“Something went wrong”* messages  
+- [ ] **Customizable Export Options** – Options for efficient output file formatting (next to CSV & PDF)  
 
-Will we finish all of these until ...? **Unlikely.** But we’ll give it our best shot and announce the first non-pre alpha proudly here on this page! 😉  
 
 ---
 
