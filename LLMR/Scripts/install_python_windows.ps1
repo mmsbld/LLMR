@@ -79,7 +79,7 @@ catch {
 
 Write-Host "<ip_win.ps1> Installing required Python packages..."
 & "$condaExe" run -n myenv pip install --upgrade pip
-& "$condaExe" run -n myenv pip install requests==2.31 openai==1.54 gradio==5.1.0
+& "$condaExe" run -n myenv pip install requests==2.31 openai==1.63.2 gradio==5.16.1
 
 Write-Host "<ip_win.ps1> Cleaning up..."
 Remove-Item $installerPath -Force

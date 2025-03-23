@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using LLMR.Model;
 
 namespace LLMR.Helpers;
 

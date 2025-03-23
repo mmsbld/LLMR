@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using LLMR.Helpers;
 using LLMR.Model.UserSettings;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
@@ -12,7 +13,7 @@ namespace LLMR.Model.ChatHistoryManager
     public class ChatHistoryDocument : IDocument
     {
         // logo as byte array
-        public static byte[] LogoBytes { get; } = File.ReadAllBytes("Assets/logo/logo_full.png");
+        private static byte[] _logoBytes { get; set; }
         public ChatHistoryCollection Model { get; }
         public PdfExportSettings ExportSettings { get; }
 
@@ -20,6 +21,12 @@ namespace LLMR.Model.ChatHistoryManager
         {
             Model = model;
             ExportSettings = exportSettings;
+            var baseDataDir = PathManager.GetBaseDirectory();
+            ConsoleMessageManager.CreateConsoleMessage($"<CHC> Base directory: {baseDataDir}", MessageType.Path);
+
+            var logoPath = PathManager.Combine(baseDataDir, "Assets", "logo", "logo_full.png");
+
+            _logoBytes = File.ReadAllBytes(logoPath);
         }
 
         public DocumentMetadata GetMetadata() => new DocumentMetadata
@@ -68,7 +75,7 @@ namespace LLMR.Model.ChatHistoryManager
                     row.ConstantItem(230) // WIDTH of left column (logo, version & file)
                         .Column(left =>
                         {
-                            left.Item().Image(LogoBytes).FitArea(); // logo
+                            left.Item().Image(_logoBytes).FitArea(); // logo
                             left.Item().Text("Version 0.6")         // under logo
                                 .FontSize(14).FontColor(darkBlue);
                 

@@ -11,6 +11,7 @@ using LLMR.Helpers;
 using LLMR.Services;
 using System.Reactive;
 using Avalonia.Controls.ApplicationLifetimes;
+using LLMR.Model;
 using LLMR.Model.ChatHistoryManager;
 using LLMR.Model.UserSettings;
 
